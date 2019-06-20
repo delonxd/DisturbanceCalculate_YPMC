@@ -42,20 +42,6 @@ class EquBase:
         self.varb_dict[key] = value
 
 
-#    def setKeys(self, key_dict):
-#        if not len(self.keys) == len(key_dict.keys()):
-#            raise KeyboardInterrupt('变量名重命名错误')
-#        else:
-#            vb_dict = {}
-#            new_keys = []
-#            for key in self.keys:
-#                new_key = key_dict[key]
-#                vb_dict[new_key] = self.vb_dict[key]
-#                new_keys.append(new_key)
-#            self.vb_dict = vb_dict
-#            self.keys = new_keys
-
-
 ########################################################################################################################
 
 # 元素包
@@ -104,7 +90,8 @@ class EleModule(ElePack):
     def __init__(self, upper_ins, name_base):
         ElePack.__init__(self, upper_ins, name_base)
         self.varb_dict = dict()
-        self.equ_base = dict()
+        self.equ_base = list()
+        self.equs = list()
         self.md_list = [self]
 
     def __len__(self):
@@ -160,6 +147,10 @@ class OPortZ(OnePortNetwork):
         z = self.z[freq].z
         self.equ_base = [EquBase(['U', 'I'], [-1, z])]
 
+    def get_equs(self, freq):
+        z = self.z[freq].z
+        self.equs = [Equation(varbs=[self['U'], self['I']], values=[-1, z])]
+
 
 # 并联电压源
 class OPortPowerU(OnePortNetwork):
@@ -171,6 +162,9 @@ class OPortPowerU(OnePortNetwork):
         self.equ_base = [EquBase(['U'], [1])]
         self.equ_base[0].constant = self.voltage
 
+    def get_equs(self, freq):
+        self.equs = [Equation(varbs=[self['U']], values=[1])]
+
 
 # 并联电流源
 class OPortPowerI(OnePortNetwork):
@@ -179,6 +173,9 @@ class OPortPowerI(OnePortNetwork):
 
     def get_equ_base(self, freq):
         self.equ_base = [EquBase(['I'], [1])]
+
+    def get_equs(self, freq):
+        self.equs = [Equation(varbs=[self['I']], values=[1])]
 
 
 ########################################################################################################################
@@ -199,6 +196,16 @@ class TPortCircuitPi(TwoPortNetwork):
         equ2 = EquBase(['I2', 'U1', 'U2'], [-1, -y2, (y2 + y3)])
         self.equ_base = [equ1, equ2]
 
+    def get_equs(self, freq):
+        y1 = self.y1[freq].z
+        y2 = self.y2[freq].z
+        y3 = self.y3[freq].z
+        equ1 = Equation(varbs=[self['I1'], self['U1'], self['U2']],
+                        values=[-1, -(y1 + y2), -y2])
+        equ2 = Equation(varbs=[self['I2'], self['U1'], self['U2']],
+                        values=[-1, -y2, (y2 + y3)])
+        self.equs = [equ1, equ2]
+
 
 # T型二端口网络
 class TPortCircuitT(TwoPortNetwork):
@@ -216,6 +223,16 @@ class TPortCircuitT(TwoPortNetwork):
         equ2 = EquBase(['U2', 'I1', 'I2'], [-1, -z2, (z2 + z3)])
         self.equ_base = [equ1, equ2]
 
+    def get_equs(self, freq):
+        z1 = self.z1[freq].z
+        z2 = self.z2[freq].z
+        z3 = self.z3[freq].z
+        equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
+                        values=[-1, -(z1 + z2), z2])
+        equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
+                        values=[-1, -z2, (z2 + z3)])
+        self.equs = [equ1, equ2]
+
 
 ########################################################################################################################
 
@@ -231,6 +248,14 @@ class TPortCircuitN(TwoPortNetwork):
         equ2 = EquBase(['I1', 'I2'], [n, -1])
         self.equ_base = [equ1, equ2]
 
+    def get_equs(self, freq):
+        n = self.n[freq]
+        equ1 = Equation(varbs=[self['U1'], self['U2']],
+                        values=[-1, n])
+        equ2 = Equation(varbs=[self['I1'], self['I2']],
+                        values=[n, -1])
+        self.equs = [equ1, equ2]
+
 
 # 串联二端口网络
 class TPortZSeries(TwoPortNetwork):
@@ -244,6 +269,14 @@ class TPortZSeries(TwoPortNetwork):
         equ2 = EquBase(['I1', 'I2'], [-1, 1])
         self.equ_base = [equ1, equ2]
 
+    def get_equs(self, freq):
+        z = self.z[freq].z
+        equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
+                        values=[1, -1, z])
+        equ2 = Equation(varbs=[self['I1'], self['I2']],
+                        values=[-1, 1])
+        self.equs = [equ1, equ2]
+
 
 # 并联二端口网络
 class TPortZParallel(TwoPortNetwork):
@@ -256,6 +289,14 @@ class TPortZParallel(TwoPortNetwork):
         equ1 = EquBase(['U1', 'I1', 'I2'], [-1, -z, z])
         equ2 = EquBase(['U2', 'I1', 'I2'], [-1, -z, z])
         self.equ_base = [equ1, equ2]
+
+    def get_equs(self, freq):
+        z = self.z[freq].z
+        equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
+                        values=[-1, -z, z])
+        equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
+                        values=[-1, -z, z])
+        self.equs = [equ1, equ2]
 
 
 ########################################################################################################################
@@ -302,6 +343,12 @@ class ROutside(ZOutside):
     def get_equ_base(self, freq):
         z = self.z
         self.equ_base = [EquBase(['U', 'I'], [-1, z])]
+
+    def get_equs(self, freq):
+        z = self.z
+        equ1 = Equation(varbs=[self['U'], self['I']],
+                        values=[-1, z])
+        self.equs = [equ1]
 
 
 ########################################################################################################################
@@ -376,6 +423,24 @@ class TPortCable(TwoPortNetwork):
         equ1 = EquBase(['I1', 'U1', 'U2'], [-1, -(y1 + y2), -y2])
         equ2 = EquBase(['I2', 'U1', 'U2'], [-1, -y2, (y2 + y3)])
         self.equ_base = [equ1, equ2]
+
+    def get_equs(self, freq):
+        length = self.length
+        w = 2 * np.pi * freq
+        z0 = self.R + 1j * w * self.L
+        y0 = 1j * w * self.C
+        zc = np.sqrt(z0 / y0)
+        gama = np.sqrt(z0 * y0)
+        zii = zc * np.sinh(gama * length)
+        yii = (np.cosh(gama * length) - 1) / zc / np.sinh(gama * length)
+        y1 = yii
+        y2 = 1 / zii
+        y3 = yii
+        equ1 = Equation(varbs=[self['I1'], self['U1'], self['U2']],
+                        values=[-1, -(y1 + y2), -y2])
+        equ2 = Equation(varbs=[self['I2'], self['U1'], self['U2']],
+                        values=[-1, -y2, (y2 + y3)])
+        self.equs = [equ1, equ2]
 
 
 ########################################################################################################################
@@ -466,6 +531,24 @@ class SubRailPi(TwoPortNetwork):
             equ1.add_varb('Im', (m * (y_rd + y_tk)))
             equ2.add_varb('Im', -(m * y_tk))
             self.varb_dict['Im'] = m_circuit.varb_dict['I1']
+
+    def get_equs(self, freq):
+        z_trk = self.para['钢轨阻抗']
+        rd = self.para['道床电阻']
+        length = self.para['钢轨长度'] / 1000
+        y_tk = 1 / z_trk[freq].z / length
+        y_rd = 1 / rd * length
+        equ1 = Equation(varbs=[self['I1'], self['U1'], self['U2']],
+                        values=[-1, (y_rd + y_tk), -y_tk])
+        equ2 = Equation(varbs=[self['I2'], self['U1'], self['U2']],
+                        values=[-1, -y_tk, (y_tk + y_rd)])
+        self.equs = [equ1, equ2]
+        if hasattr(self, 'mutual_trk'):
+            m_circuit = self.mutual_trk
+            m = length * 0.30
+            self.varb_dict['Im'] = m_circuit.varb_dict['I1']
+            equ1.add_varb(self['Im'], (m * (y_rd + y_tk)))
+            equ2.add_varb(self['Im'], -(m * y_tk))
 
 
 ########################################################################################################################
@@ -826,18 +909,36 @@ class Line(ElePack):
 
 ########################################################################################################################
 
+# # 方程
+# class Equation:
+#     def __init__(self, name):
+#         self.name = name
+#         self.vb_list = []
+#
+#     def set_equ_unit(self, module, equ_base):
+#         for key in equ_base.keys:
+#             tuple1 = (module.varb_dict[key], equ_base.varb_dict[key])
+#             self.vb_list.append(tuple1)
+#
+#     def add_vrb(self, varb, value):
+#         tuple1 = (varb, value)
+#         self.vb_list.append(tuple1)
+
+
 # 方程
 class Equation:
-    def __init__(self, name):
+    def __init__(self, varbs=None, values=None, constant=0, name=''):
         self.name = name
-        self.vb_list = []
+        if varbs is not None:
+            self.vb_list = list(zip(varbs, values))
+        else:
+            self.vb_list = []
+        self.constant = constant
 
-    def set_equ_unit(self, module, equ_base):
-        for key in equ_base.keys:
-            tuple1 = (module.varb_dict[key], equ_base.varb_dict[key])
-            self.vb_list.append(tuple1)
+    def set_varbs(self, varbs, values):
+        self.vb_list = list(zip(varbs, values))
 
-    def add_vrb(self, varb, value):
+    def add_varb(self, varb, value):
         tuple1 = (varb, value)
         self.vb_list.append(tuple1)
 
@@ -1037,18 +1138,32 @@ class Matrix:
 
 ########################################################################################################################
 
+# # 元器件方程
+# def get_equ_unit(vessel, freq):
+#     ele_dict = get_element(vessel, ele_set=set())
+#     equs = []
+#     for ele in ele_dict:
+#         for module in ele.md_list:
+#             module.get_equ_base(freq)
+#             num = 1
+#             for equ_base in module.equ_base:
+#                 name = module.name + '方程' + str(num)
+#                 equ = Equation(name)
+#                 equ.set_equ_unit(module, equ_base)
+#                 equs.append(equ)
+#                 num += 1
+#     return equs
+
 # 元器件方程
 def get_equ_unit(vessel, freq):
     ele_dict = get_element(vessel, ele_set=set())
     equs = []
     for ele in ele_dict:
         for module in ele.md_list:
-            module.get_equ_base(freq)
+            module.get_equs(freq)
             num = 1
-            for equ_base in module.equ_base:
-                name = module.name + '方程' + str(num)
-                equ = Equation(name)
-                equ.set_equ_unit(module, equ_base)
+            for equ in module.equs:
+                equ.name = module.name + '方程' + str(num)
                 equs.append(equ)
                 num += 1
     return equs
@@ -1060,18 +1175,18 @@ def get_equ_kcl(line):
     for num in range(len(line.posi_line)):
         node = line.node_dict[line.posi_line[num]]
         name = line.para['基础名称'] + '_节点KCL方程' + str(num+1)
-        equ = Equation(name)
+        equ = Equation(name=name)
         for ele in node.element.values():
             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
-            equ.add_vrb(vb, 1)
+            equ.add_varb(vb, 1)
         if node.track[0] is not None:
             ele = node.track[0]
             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
-            equ.add_vrb(vb, 1)
+            equ.add_varb(vb, 1)
         if node.track[1] is not None:
             ele = node.track[1]
             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[1]]
-            equ.add_vrb(vb, 1)
+            equ.add_varb(vb, 1)
         equs.append(equ)
     return equs
 
@@ -1083,15 +1198,15 @@ def get_equ_kvl(line):
     for num in range(len(posi_line)):
         node = line.node_dict[posi_line[num]]
         name = line.para['基础名称'] + '_节点KVL方程' + str(num+1)
-        equ = Equation(name)
+        equ = Equation(name=name)
         if node.track[0] is not None:
             ele = node.track[0]
             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-2]]
-            equ.add_vrb(vb, 1)
+            equ.add_varb(vb, 1)
         if node.track[1] is not None:
             ele = node.track[1]
             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[0]]
-            equ.add_vrb(vb, -1)
+            equ.add_varb(vb, -1)
         equs.append(equ)
     return equs
 
@@ -1177,7 +1292,7 @@ if __name__ == '__main__':
     TCSR_2000A['Rd'] = 10000
 
     TCSR_2000A['Rsht_z'] = 10e-3
-
+    print(time.asctime(time.localtime()))
     # 载频
     FREQ = 2600
     # 钢轨初始化
