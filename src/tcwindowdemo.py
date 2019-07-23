@@ -53,8 +53,13 @@ class Showlist(QTextEdit):
 
     def print_name(self, vessel):
         self.setText('')
-        for item in vessel.__dict__.items():
-            self.append(str(item))
+        if isinstance(vessel, (tcc.Section, tcc.TCSR, tcc.TcsrBA)):
+            prop = vessel.get_property()
+            for key, value in prop.items():
+                self.append(key + ': ' + str(value))
+        else:
+            for item in vessel.__dict__.items():
+                self.append(str(item))
 
 class MainWin(QWidget):
     def __init__(self):
@@ -63,7 +68,7 @@ class MainWin(QWidget):
         self.setWindowTitle('轨道电路传输计算Demo')
         hbox = QHBoxLayout()
 
-        sg1 = tcc.SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,
+        sg1 = tcc.SectionGroup(name_base='地面', posi=0, m_num=3, freq1=2600,
                            m_length=[480, 500, 320],
                            j_length=[29, 29, 29, 29],
                            m_type=['2000A', '2000A', '2000A'],

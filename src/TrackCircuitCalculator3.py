@@ -5,6 +5,8 @@ import time
 from src import ElectricParameter as pc
 from matplotlib import pyplot as plt
 
+# from src.Eleclass import *
+
 ########################################################################################################################
 
 
@@ -39,7 +41,7 @@ class ElePack:
         self.element = dict()
         self.ele_list = list()
         self.flag_outside = False
-        self.posi_rlt = None
+        self._posi_rlt = None
         self.posi_abs = None
         self.flag_ele_list = False
         self.flag_ele_unit = False
@@ -64,7 +66,7 @@ class ElePack:
 
     def init_position(self, posi):
         self.flag_outside = True
-        self.posi_rlt = posi
+        self._posi_rlt = posi
         self.posi_abs = 0
 
     def add_element(self, name, instance):
@@ -72,11 +74,18 @@ class ElePack:
             self.element[name] = instance
             self.ele_list.append(instance)
 
+    @property
+    def posi_rlt(self):
+        return self._posi_rlt
+
+    @posi_rlt.setter
+    def posi_rlt(self, value):
+        self._posi_rlt = value
+
 
 class EleModule(ElePack):
     def __init__(self, parent_ins, name_base):
         super().__init__(parent_ins, name_base)
-        # ElePack.__init__(self, parent_ins, name_base)
         self.varb_name = list()
         self.varb_dict = dict()
         self.equs = list()
@@ -107,7 +116,6 @@ class EleModule(ElePack):
 class OnePortNetwork(EleModule):
     def __init__(self, parent_ins, name_base):
         super().__init__(parent_ins, name_base)
-        # EleModule.__init__(self, parent_ins, name_base)
         self.varb_name = ['U', 'I']
         self.varb_dict = {'U': Varb(self, 'U'),
                           'I': Varb(self, 'I')}
@@ -117,7 +125,6 @@ class OnePortNetwork(EleModule):
 class TwoPortNetwork(EleModule):
     def __init__(self, parent_ins, name_base):
         super().__init__(parent_ins, name_base)
-        # EleModule.__init__(self, parent_ins, name_base)
         self.varb_name = ['U1', 'I1', 'U2', 'I2']
         self.varb_dict = {'U1': Varb(self, 'U1'),
                           'I1': Varb(self, 'I1'),
@@ -131,7 +138,6 @@ class TwoPortNetwork(EleModule):
 class OPortZ(OnePortNetwork):
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base)
-        # OnePortNetwork.__init__(self, parent_ins, name_base)
         self.z = z
 
     def get_equs(self, freq):
@@ -144,7 +150,6 @@ class OPortZ(OnePortNetwork):
 class OPortPowerU(OnePortNetwork):
     def __init__(self, parent_ins, name_base, voltage=0):
         super().__init__(parent_ins, name_base)
-        # OnePortNetwork.__init__(self, parent_ins, name_base)
         self.voltage = voltage
 
     def get_equs(self, freq):
@@ -301,12 +306,36 @@ class ROutside(ZOutside):
 
 # 发送器
 class TcsrPower(ElePack):
-    def __init__(self, parent_ins, name_base, z):
+    def __init__(self, parent_ins, name_base, z, level):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
         self.z = z
         self.add_element('1电压源', OPortPowerU(self, '1电压源'))
-        self.add_element('2内阻', TPortZSeries(self, '2内阻', z))
+        self.add_element('2内阻', TcsrPowerZ(self, '2内阻', z, level))
+
+    @property
+    def level(self):
+        return self.element['2内阻'].level
+
+    @level.setter
+    def level(self, value):
+        self.element['2内阻'].level = value
+
+# 串联二端口网络
+class TcsrPowerZ(TwoPortNetwork):
+    def __init__(self, parent_ins, name_base, z, level):
+        super().__init__(parent_ins, name_base)
+        self.z = z
+        self.level = level
+
+    def get_equs(self, freq):
+        z = self.z[self.level][freq].z
+        equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
+                        values=[1, -1, z])
+        equ2 = Equation(varbs=[self['I1'], self['I2']],
+                        values=[-1, 1])
+        self.equs = [equ1, equ2]
+
 
 
 # 接收器
@@ -380,7 +409,23 @@ class TcsrBA(TPortZParallel):
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base, z)
 
+    def get_equs(self, freq):
+        z = self.z[self.m_freq][freq].z
+        equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
+                        values=[-1, -z, z])
+        equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
+                        values=[-1, -z, z])
+        self.equs = [equ1, equ2]
 
+    @property
+    def m_freq(self):
+        return self.parent_ins.m_freq
+
+    def get_property(self):
+        prop = dict()
+        prop['调谐单元参数'] = self.z
+        prop['主轨频率'] = self.m_freq
+        return prop
 # 引接线
 class TcsrCA(TPortZSeries):
     def __init__(self, parent_ins, name_base, z):
@@ -391,21 +436,19 @@ class TcsrCA(TPortZSeries):
 
 # 发送接收端
 class TCSR(ElePack):
-    def __init__(self, parent_ins, name_base, posi, m_type, j_type, freq, cable_length=10,
+    def __init__(self, parent_ins, name_base, posi_flag, cable_length=10,
                  mode='发送', level=1):
         super().__init__(parent_ins, name_base)
-        self.init_position(posi)
+        self.posi_flag = posi_flag
+        self.init_position(0)
         self.flag_ele_list = True
         self.flag_ele_unit = True
-        self.m_type = m_type
-        self.j_type = j_type
-        self.freq = freq
+
+        # freq = self.m_freq
         self.mode = mode
-        self.level = level
-        self.cable_length = cable_length
 
         if self.mode == '发送':
-            self.add_element('1发送器', TcsrPower(self, '1发送器', TCSR_2000A['z_pwr'][level]))
+            self.add_element('1发送器', TcsrPower(self, '1发送器', TCSR_2000A['z_pwr'], level))
         elif self.mode == '接收':
             self.add_element('1接收器', TcsrReceiver(self, '1接收器', TCSR_2000A['Z_rcv']))
         self.add_element('2防雷', TcsrFL(self, '2防雷',
@@ -419,17 +462,100 @@ class TCSR(ElePack):
                                          TCSR_2000A['TAD_z3_发送端_区间'],
                                          TCSR_2000A['TAD_n_发送端_区间'],
                                          TCSR_2000A['TAD_c_发送端_区间']))
-        self.add_element('5BA', TcsrBA(self, '5BA', TCSR_2000A['PT'][freq]))
+        self.add_element('5BA', TcsrBA(self, '5BA', TCSR_2000A['PT']))
         self.add_element('6CA', TcsrCA(self, '6CA', TCSR_2000A['CA_z_区间']))
 
         self.md_list = get_md_list(self, [])
         self.config_varb()
+
+    @property
+    def posi_rlt(self):
+        posi = None
+        parent = self.parent_ins
+        if isinstance(parent, Section):
+            if self.posi_flag == '左':
+                posi = parent['左绝缘节'].j_length / 2
+            elif self.posi_flag == '右':
+                posi = parent.s_length - parent['右绝缘节'].j_length / 2
+        elif isinstance(parent, Joint):
+            if self.posi_flag == '左':
+                posi = parent.j_length / 2
+            elif self.posi_flag == '右':
+                posi = - parent.j_length / 2
+        return posi
+
+    @property
+    def parent_joint(self):
+        joint = None
+        if isinstance(self.parent_ins, Section):
+            name = self.posi_flag + '绝缘节'
+            joint = self.parent_ins[name]
+        elif isinstance(self.parent_ins, Joint):
+            joint = self.parent_ins
+        return joint
+
+    @property
+    def m_type(self):
+        m_type = None
+        if isinstance(self.parent_ins, Section):
+            m_type = self.parent_ins.m_type
+        elif isinstance(self.parent_ins, Joint):
+            m_type = self.parent_ins.parent_ins.m_type
+        return m_type
+
+    @property
+    def m_freq(self):
+        m_freq = None
+        if isinstance(self.parent_ins, Section):
+            m_freq = self.parent_ins.m_freq
+        elif isinstance(self.parent_ins, Joint):
+            m_freq = change_freq(self.parent_ins.parent_ins.m_freq)
+        return m_freq
+
+    @property
+    def cable_length(self):
+        length = None
+        for ele in self.element.values():
+            if isinstance(ele, TPortCable):
+                length = ele.length
+        return length
+
+    @cable_length.setter
+    def cable_length(self, value):
+        for ele in self.element.values():
+            if isinstance(ele, TPortCable):
+                ele.length = value
+
+    @property
+    def send_level(self):
+        level = None
+        for ele in self.element.values():
+            if isinstance(ele, TcsrPower):
+                level = ele.level
+        return level
+
+    @send_level.setter
+    def send_level(self, value):
+        for ele in self.element.values():
+            if isinstance(ele, TcsrPower):
+                ele.level = value
 
     # 变量赋值
     def config_varb(self):
         for num in range(len(self.md_list) - 1):
             equal_varb([self.md_list[num], -2], [self.md_list[num + 1], 0])
             equal_varb([self.md_list[num], -1], [self.md_list[num + 1], 1])
+
+
+    def get_property(self):
+        prop = dict()
+        prop['主轨类型'] = self.m_type
+        prop['绝缘节类型'] = self.parent_joint.j_type
+        prop['模式'] = self.mode
+        prop['匹配频率'] = self.m_freq
+        prop['发送电平级'] = self.send_level
+        prop['电缆长度'] = self.cable_length
+        return prop
 
 
 ########################################################################################################################
@@ -470,105 +596,139 @@ class SubRailPi(TwoPortNetwork):
 
 # 绝缘节
 class Joint(ElePack):
-    def __init__(self, parent_ins, name_base, posi):
+    def __init__(self, parent_ins, name_base, posi_flag,
+                 l_section, r_section, j_type, j_length):
         super().__init__(parent_ins, name_base)
-        self.init_position(posi)
-        self.element_main = dict()
-        self.element_neighbor = dict()
-        self.element_joint = dict()
+        self.posi_flag = posi_flag
+        self.init_position(0)
+        self.j_type = j_type
+        self.l_section = l_section
+        self.r_section = r_section
+        self.j_length = j_length
+        self.set_element()
+
+    @property
+    def posi_rlt(self):
+        posi = self.parent_ins.s_length if self.posi_flag == '右' else 0
+        return posi
+
+    @posi_rlt.setter
+    def posi_rlt(self, value):
+        self._posi_rlt = value
+
+    @property
+    def sec_type(self):
+        # sec_type = None
+        if self.l_section and self.r_section:
+            if self.j_type == '电气':
+                if not self.l_section.m_type == self.r_section.m_type:
+                    raise KeyboardInterrupt(
+                        repr(self.l_section) + '和' + repr(self.r_section) + '区段类型不符')
+        sec_type = self.parent_ins.m_type
+        # try:
+        #     sec_type = self.l_section.m_type
+        # except AttributeError:
+        #     pass
+        # try:
+        #     sec_type = self.r_section.m_type
+        # except AttributeError:
+        #     pass
+        return sec_type
+
 
     def set_element(self):
-        self.element = dict()
-        for ele in self.element_main.values():
-            self.element['本区段' + str(ele.name_base)] = ele
-        for ele in self.element_joint.values():
-            self.element[str(ele.name_base)] = ele
-        for ele in self.element_neighbor.values():
-            self.element['邻区段' + str(ele.name_base)] = ele
-            
-            
-########################################################################################################################
+        if self.j_type == '电气':
+            if self.sec_type == '2000A':
+                self.element['SVA'] = SVA(parent_ins=self,
+                                          name_base='SVA',
+                                          posi=0,
+                                          z=TCSR_2000A['SVA_z'])
+
+    def add_joint_tcsr(self):
+        if self.j_type == '电气':
+            name = '相邻调谐单元'
+            if not self.l_section:
+                tcsr = self.r_section['左调谐单元']
+                self[name] = TCSR(parent_ins=self, name_base=name, posi_flag='右',
+                                  cable_length=tcsr.cable_length,
+                                  mode=change_sr_mode(tcsr.mode), level=1)
+            elif not self.r_section:
+                tcsr = self.l_section['右调谐单元']
+                self[name] = TCSR(parent_ins=self, name_base=name, posi_flag='左',
+                                  cable_length=tcsr.cable_length,
+                                  mode=change_sr_mode(tcsr.mode), level=1)
+
 
 # 区段
 class Section(ElePack):
     def __init__(self, parent_ins, name_base,
-                 posi, m_type, m_freq, m_length, j_length, c_num, j_type, j_devi, sr_mode):
+                 m_type, m_freq, s_length,
+                 j_length, c_num, j_type, sr_mode):
         super().__init__(parent_ins, name_base)
-        self.init_position(posi)
+        self.init_position(0)
         self.m_type = m_type
         self.m_freq = m_freq
-        self.m_length = m_length
-        self.j_length = j_length
-        self.c_num = c_num
-        self.j_type = j_type
-        self.j_devi = j_devi
-        self.c_posi = None
-        self.tcsr_posi = None
-        self.joint_posi = None
+        self.s_length = s_length
 
+        # 临时变量
+        sr_mode_list = [None, None]
         if sr_mode == '左发':
-            self.sr_mode = ['发送', '接收']
+            sr_mode_list = ['发送', '接收']
         elif sr_mode == '右发':
-            self.sr_mode = ['接收', '发送']
-        
-        self.set_element()
+            sr_mode_list = ['接收', '发送']
+        m_length = s_length - (j_length[0] + j_length[1]) / 2
+        init_list = (j_length, c_num, sr_mode_list, j_type, m_length)
+        self.set_element(init_list)
 
-    def set_element(self):
+    @property
+    def posi_rlt(self):
+        posi = self.parent_ins.posi_dict[self.name_base]
+        return posi
+
+    def set_element(self, init_list):
+        j_length, c_num, sr_mode, j_type, m_length = init_list
         if self.m_type == '2000A':
-            # 位置参数
-            lc = (self.m_length / self.c_num) if self.c_num > 0 else 0
-            self.c_posi = [(num * lc + lc / 2 + self.j_length[0]) for num in range(self.c_num)]
-            self.tcsr_posi = [self.j_length[0], self.m_length + self.j_length[0]]
-            self.joint_posi = [0, self.tcsr_posi[1]]
-            posi_tcsr_o = [0, self.j_length[1]]
-
+            offset = j_length[0]
             # 设置电容
-            for num in range(self.c_num):
-                self.element['C' + str(num + 1)] = CapC(parent_ins=self, name_base='C' + str(num + 1),
-                                                        posi=self.c_posi[num], z=TCSR_2000A['Ccmp_z'])
-
+            lc = (m_length / c_num) if c_num > 0 else 0
+            c_posi = [(num * lc + lc / 2 + offset) for num in range(c_num)]
+            for num in range(c_num):
+                name = 'C' + str(num + 1)
+                self[name] = CapC(parent_ins=self, name_base=name,
+                                  posi=c_posi[num], z=TCSR_2000A['Ccmp_z'])
             # 设置绝缘节
             for num in range(2):
-                name_j = '左侧绝缘节' if num == 0 else '右侧绝缘节'
-                joint_t = Joint(parent_ins=self, name_base=name_j, posi=self.joint_posi[num])
-                joint_t.element_main['TCSR'] = TCSR(parent_ins=self,
-                                                    name_base=name_j[0] + 'TCSR',
-                                                    posi=self.tcsr_posi[num],
-                                                    m_type=self.m_type,
-                                                    j_type=self.j_type[num],
-                                                    freq=self.m_freq,
-                                                    cable_length=10,
-                                                    mode=self.sr_mode[num],
-                                                    level=1)
-                if self.j_type[num] == '电气':
-                    joint_t.element_neighbor['TCSR'] = TCSR(parent_ins=joint_t,
-                                                            name_base='TCSR',
-                                                            posi=posi_tcsr_o[num],
-                                                            m_type=self.m_type,
-                                                            j_type='电气',
-                                                            freq=change_freq(self.m_freq),
-                                                            cable_length=10,
-                                                            mode=self.sr_mode[-1 - num],
-                                                            level=1)
+                flag = ['左', '右'][num]
+                name = flag + '绝缘节'
+                l_section = None if num == 0 else self
+                r_section = self if num == 0 else None
+                self[name] = Joint(parent_ins=self, name_base=name, posi_flag=flag,
+                                   l_section=l_section, r_section=r_section,
+                                   j_length=j_length[num], j_type=j_type[num],)
 
-                    joint_t.element_joint['SVA'] = SVA(parent_ins=joint_t,
-                                                       name_base='SVA',
-                                                       posi=(self.j_length[num] / 2),
-                                                       z=TCSR_2000A['SVA_z'])
-                joint_t.set_element()
-                self.element[name_j] = joint_t
+                name = flag + '调谐单元'
+                self[name] = TCSR(parent_ins=self, name_base=name, posi_flag=flag,
+                                  cable_length=10, mode=sr_mode[num], level=1)
         else:
             raise KeyboardInterrupt(self.m_type + '暂为不支持的主轨类型')
+
+    def get_property(self):
+        prop = dict()
+        prop['区段类型'] = self.m_type
+        prop['区段长度'] = self.s_length
+        prop['区段频率'] = self.m_freq
+        prop['区段相对位置'] = self.posi_rlt
+        return prop
 
 
 ########################################################################################################################
 
-# 轨道电路
+# 区段组
 class SectionGroup(ElePack):
     def __init__(self, name_base, posi, m_num, freq1, m_length, j_length, m_type, c_num):
         super().__init__(None, name_base)
         self.init_position(posi)
-        init_list = [m_num, freq1, m_type, m_length, j_length, c_num]
+        init_list = (m_num, freq1, m_type, m_length, j_length, c_num)
         self.m_num = m_num
         self.section_list = list()
         self.ele_posi = list()
@@ -578,42 +738,42 @@ class SectionGroup(ElePack):
         self.refresh()
 
     def init_element(self, init_list):
-        m_num = init_list[0]
-        freq = init_list[1]
-        m_type = init_list[2][:m_num]
-        m_length = init_list[3][:m_num]
-        j_length = init_list[4][:(m_num + 1)]
-        c_num = init_list[5][:m_num]
-
+        m_num, freq, m_type, m_length, j_length, c_num = init_list
         freq_list = list()
         for num in range(m_num):
             freq_list.append(freq)
             freq = change_freq(freq)
-        init_list[1] = freq_list
+        m_type = m_type[:m_num]
+        m_length = m_length[:m_num]
+        j_length = j_length[:(m_num + 1)]
+        c_num = c_num[:m_num]
 
         j_type = ['电气' if num > 0 else '机械' for num in j_length]
-        j_length_list = [[j_length[num], j_length[num+1]] for num in range(m_num)]
-        j_type_list = [[j_type[num], j_type[num+1]] for num in range(m_num)]
-        sr_type = ['PT', 'PT']
-        posi_list = [0]
-        for num in range(m_num - 1):
-            posi_t = posi_list[-1] + j_length[num] + m_length[num]
-            posi_list.append(posi_t)
+        j_length = [[j_length[num], j_length[num+1]] for num in range(m_num)]
+        j_type = [[j_type[num], j_type[num+1]] for num in range(m_num)]
+        # sr_type = ['PT', 'PT']
 
         for num in range(m_num):
-            sec_t = Section(parent_ins=self,
-                            name_base='区段' + str(num+1),
-                            posi=posi_list[num],
-                            m_type=m_type[num],
-                            m_freq=freq_list[num],
-                            m_length=m_length[num],
-                            j_length=j_length_list[num],
-                            c_num=c_num[num],
-                            j_type=j_type_list[num],
-                            j_devi=sr_type,
-                            sr_mode='左发')
-            self.element['区段' + str(num+1)] = sec_t
+            name = '区段' + str(num+1)
+            sec_t = Section(parent_ins=self, name_base=name,
+                            m_type=m_type[num], m_freq=freq_list[num], s_length=m_length[num],
+                            j_length=j_length[num], c_num=c_num[num],
+                            j_type=j_type[num], sr_mode='左发')
+            self.element[name] = sec_t
             self.section_list.append(sec_t)
+
+    @property
+    def sec_num(self):
+        return len(self.section_list)
+
+    @property
+    def posi_dict(self):
+        posi_t = 0
+        posi_dict = dict()
+        for sec in self.section_list:
+            posi_dict[sec.name_base] = posi_t
+            posi_t = posi_t + sec.s_length
+        return posi_dict
 
     def refresh(self):
         set_posi_abs(self, 0)
@@ -622,30 +782,31 @@ class SectionGroup(ElePack):
 
     # 连接相邻区段
     def link_section(self):
-        for num in range(self.m_num - 1):
+        for num in range(self.sec_num - 1):
             sec1 = self.section_list[num]
             sec2 = self.section_list[num+1]
-            if not sec1.j_type[1] == sec2.j_type[0]:
-                raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '调谐区类型不符无法相连')
-            elif sec1.j_type[1] == '电气':
+            joint1 = sec1['右绝缘节']
+            joint2 = sec2['左绝缘节']
+            if not joint1.j_type == joint2.j_type:
+                raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '绝缘节类型不符无法相连')
+            elif not joint1.j_length == joint2.j_length:
+                raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '绝缘节长度不符无法相连')
+            elif joint1.r_section:
+                raise KeyboardInterrupt(repr(sec1) + '右侧已与区段相连')
+            elif joint2.l_section:
+                raise KeyboardInterrupt(repr(sec2) + '左侧已与区段相连')
+            elif joint1.j_type == '电气':
                 if not sec1.m_type == sec2.m_type:
                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨类型不符无法相连')
                 elif not sec1.m_freq == change_freq(sec2.m_freq):
                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨频率不符无法相连')
-                elif not sec1.j_length[1] == sec2.j_length[0]:
-                    raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '调谐区长度不符无法相连')
-                elif not sec1.j_devi[1] == sec2.j_devi[0]:
-                    raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '发送器类型不符无法相连')
-                if not sec1.posi_rlt + sec1.joint_posi[1] == sec2.posi_rlt:
-                    raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '位置不符无法相连')
                 else:
-                    joint1 = sec1.element['右侧绝缘节']
-                    joint2 = sec2.element['左侧绝缘节']
-                    joint1.element_neighbor = joint2.element_main
-                    joint2.element_neighbor = joint1.element_main
-                    joint2.element_joint = joint1.element_joint
-                    joint1.set_element()
-                    joint2.set_element()
+                    joint1.r_section = sec2
+                    sec2['左绝缘节'] = joint1
+
+        for sec in self.section_list:
+            for j_name in ['左绝缘节', '右绝缘节']:
+                sec[j_name].add_joint_tcsr()
 
 
 ########################################################################################################################
@@ -694,9 +855,6 @@ class Train(ElePack):
     def __init__(self, parent_ins, name_base, posi_abs):
         super().__init__(parent_ins, name_base)
         self.init_position(0)
-
-        # ElePack.__init__(self, parent_ins, name_base)
-        # ElePack.init_position(self, 0)
         self.element['分路电阻1'] = ROutside(parent_ins=self, name_base='分路电阻1',
                                          posi=0, z=TCSR_2000A['Rsht_z'])
         set_ele_name(self)
@@ -750,6 +908,14 @@ def change_freq(freq):
         new = 2000
     return new
 
+# 交换载频
+def change_sr_mode(mode):
+    new = None
+    if mode == '发送':
+        new = '接收'
+    elif mode == '接收':
+        new = '发送'
+    return new
 
 # 按位置筛选元件
 def choose_element(ele_set, posi_abs):
@@ -1210,8 +1376,8 @@ if __name__ == '__main__':
     #           rd=[TCSR_2000A['Rd']])
 
     # 轨道电路初始化
-    sg1 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,
-                       m_length=[480, 500, 320],
+    sg1 = SectionGroup(name_base='地面', posi=0, m_num=2, freq1=2600,
+                       m_length=[509, 389, 320],
                        j_length=[29, 29, 29, 29],
                        m_type=['2000A', '2000A', '2000A'],
                        c_num=[6, 6, 5])
