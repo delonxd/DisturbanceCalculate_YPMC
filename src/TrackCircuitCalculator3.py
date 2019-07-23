@@ -436,37 +436,14 @@ class TcsrCA(TPortZSeries):
 
 # 发送接收端
 class TCSR(ElePack):
-    def __init__(self, parent_ins, name_base, posi_flag, cable_length=10,
-                 mode='发送', level=1):
+    def __init__(self, parent_ins, name_base, posi_flag):
         super().__init__(parent_ins, name_base)
         self.posi_flag = posi_flag
         self.init_position(0)
         self.flag_ele_list = True
         self.flag_ele_unit = True
-
-        # freq = self.m_freq
-        self.mode = mode
-
-        if self.mode == '发送':
-            self.add_element('1发送器', TcsrPower(self, '1发送器', TCSR_2000A['z_pwr'], level))
-        elif self.mode == '接收':
-            self.add_element('1接收器', TcsrReceiver(self, '1接收器', TCSR_2000A['Z_rcv']))
-        self.add_element('2防雷', TcsrFL(self, '2防雷',
-                                       TCSR_2000A['FL_z1_发送端'],
-                                       TCSR_2000A['FL_z2_发送端'],
-                                       TCSR_2000A['FL_n_发送端']))
-        self.add_element('3Cab', TPortCable(self, '3Cab', cable_length))
-        self.add_element('4TAD', TcsrTAD(self, '4TAD',
-                                         TCSR_2000A['TAD_z1_发送端_区间'],
-                                         TCSR_2000A['TAD_z2_发送端_区间'],
-                                         TCSR_2000A['TAD_z3_发送端_区间'],
-                                         TCSR_2000A['TAD_n_发送端_区间'],
-                                         TCSR_2000A['TAD_c_发送端_区间']))
-        self.add_element('5BA', TcsrBA(self, '5BA', TCSR_2000A['PT']))
-        self.add_element('6CA', TcsrCA(self, '6CA', TCSR_2000A['CA_z_区间']))
-
+        self.mode = None
         self.md_list = get_md_list(self, [])
-        self.config_varb()
 
     @property
     def posi_rlt(self):
@@ -556,6 +533,38 @@ class TCSR(ElePack):
         prop['发送电平级'] = self.send_level
         prop['电缆长度'] = self.cable_length
         return prop
+
+
+class QJ_2000A_Normal(TCSR):
+    def __init__(self, parent_ins, name_base, posi_flag,
+                 cable_length, mode, level):
+        super().__init__(parent_ins, name_base, posi_flag)
+        self.posi_flag = posi_flag
+        self.init_position(0)
+        self.flag_ele_list = True
+        self.flag_ele_unit = True
+        self.mode = mode
+
+        if self.mode == '发送':
+            self.add_element('1发送器', TcsrPower(self, '1发送器', TCSR_2000A['z_pwr'], level))
+        elif self.mode == '接收':
+            self.add_element('1接收器', TcsrReceiver(self, '1接收器', TCSR_2000A['Z_rcv']))
+        self.add_element('2防雷', TcsrFL(self, '2防雷',
+                                       TCSR_2000A['FL_z1_发送端'],
+                                       TCSR_2000A['FL_z2_发送端'],
+                                       TCSR_2000A['FL_n_发送端']))
+        self.add_element('3Cab', TPortCable(self, '3Cab', cable_length))
+        self.add_element('4TAD', TcsrTAD(self, '4TAD',
+                                         TCSR_2000A['TAD_z1_发送端_区间'],
+                                         TCSR_2000A['TAD_z2_发送端_区间'],
+                                         TCSR_2000A['TAD_z3_发送端_区间'],
+                                         TCSR_2000A['TAD_n_发送端_区间'],
+                                         TCSR_2000A['TAD_c_发送端_区间']))
+        self.add_element('5BA', TcsrBA(self, '5BA', TCSR_2000A['PT']))
+        self.add_element('6CA', TcsrCA(self, '6CA', TCSR_2000A['CA_z_区间']))
+
+        self.md_list = get_md_list(self, [])
+        self.config_varb()
 
 
 ########################################################################################################################
@@ -649,14 +658,23 @@ class Joint(ElePack):
             name = '相邻调谐单元'
             if not self.l_section:
                 tcsr = self.r_section['左调谐单元']
-                self[name] = TCSR(parent_ins=self, name_base=name, posi_flag='右',
-                                  cable_length=tcsr.cable_length,
-                                  mode=change_sr_mode(tcsr.mode), level=1)
+                flag = '右'
             elif not self.r_section:
                 tcsr = self.l_section['右调谐单元']
-                self[name] = TCSR(parent_ins=self, name_base=name, posi_flag='左',
-                                  cable_length=tcsr.cable_length,
-                                  mode=change_sr_mode(tcsr.mode), level=1)
+                flag = '左'
+            else:
+                return
+
+            if isinstance(tcsr, QJ_2000A_Normal):
+                self[name] = QJ_2000A_Normal(parent_ins=self, name_base=name, posi_flag=flag,
+                                             cable_length=tcsr.cable_length,
+                                             mode=change_sr_mode(tcsr.mode), level=1)
+            # elif not self.r_section:
+            #     tcsr = self.l_section['右调谐单元']
+            #     if isinstance(tcsr, QJ_2000A_Normal):
+            #         self[name] = QJ_2000A_Normal(parent_ins=self, name_base=name, posi_flag='左',
+            #                                 cable_length=tcsr.cable_length,
+            #                                 mode=change_sr_mode(tcsr.mode), level=1)
 
 
 # 区段
@@ -705,10 +723,13 @@ class Section(ElePack):
                 self[name] = Joint(parent_ins=self, name_base=name, posi_flag=flag,
                                    l_section=l_section, r_section=r_section,
                                    j_length=j_length[num], j_type=j_type[num],)
+                joint = self[name]
 
                 name = flag + '调谐单元'
-                self[name] = TCSR(parent_ins=self, name_base=name, posi_flag=flag,
-                                  cable_length=10, mode=sr_mode[num], level=1)
+                if joint.j_type == '电气':
+                    self[name] = QJ_2000A_Normal(parent_ins=self, name_base=name,
+                                                 posi_flag=flag, cable_length=10,
+                                                 mode=sr_mode[num], level=1)
         else:
             raise KeyboardInterrupt(self.m_type + '暂为不支持的主轨类型')
 
