@@ -321,6 +321,7 @@ class TcsrPower(ElePack):
     def level(self, value):
         self.element['2内阻'].level = value
 
+
 # 串联二端口网络
 class TcsrPowerZ(TwoPortNetwork):
     def __init__(self, parent_ins, name_base, z, level):
@@ -335,7 +336,6 @@ class TcsrPowerZ(TwoPortNetwork):
         equ2 = Equation(varbs=[self['I1'], self['I2']],
                         values=[-1, 1])
         self.equs = [equ1, equ2]
-
 
 
 # 接收器
@@ -426,6 +426,8 @@ class TcsrBA(TPortZParallel):
         prop['调谐单元参数'] = self.z
         prop['主轨频率'] = self.m_freq
         return prop
+
+
 # 引接线
 class TcsrCA(TPortZSeries):
     def __init__(self, parent_ins, name_base, z):
@@ -523,7 +525,6 @@ class TCSR(ElePack):
             equal_varb([self.md_list[num], -2], [self.md_list[num + 1], 0])
             equal_varb([self.md_list[num], -1], [self.md_list[num + 1], 1])
 
-
     def get_property(self):
         prop = dict()
         prop['主轨类型'] = self.m_type
@@ -535,7 +536,7 @@ class TCSR(ElePack):
         return prop
 
 
-class QJ_2000A_Normal(TCSR):
+class ZPW2000A_QJ_Normal(TCSR):
     def __init__(self, parent_ins, name_base, posi_flag,
                  cable_length, mode, level):
         super().__init__(parent_ins, name_base, posi_flag)
@@ -644,7 +645,6 @@ class Joint(ElePack):
         #     pass
         return sec_type
 
-
     def set_element(self):
         if self.j_type == '电气':
             if self.sec_type == '2000A':
@@ -665,10 +665,10 @@ class Joint(ElePack):
             else:
                 return
 
-            if isinstance(tcsr, QJ_2000A_Normal):
-                self[name] = QJ_2000A_Normal(parent_ins=self, name_base=name, posi_flag=flag,
-                                             cable_length=tcsr.cable_length,
-                                             mode=change_sr_mode(tcsr.mode), level=1)
+            if isinstance(tcsr, ZPW2000A_QJ_Normal):
+                self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name, posi_flag=flag,
+                                                cable_length=tcsr.cable_length,
+                                                mode=change_sr_mode(tcsr.mode), level=1)
             # elif not self.r_section:
             #     tcsr = self.l_section['右调谐单元']
             #     if isinstance(tcsr, QJ_2000A_Normal):
@@ -727,9 +727,9 @@ class Section(ElePack):
 
                 name = flag + '调谐单元'
                 if joint.j_type == '电气':
-                    self[name] = QJ_2000A_Normal(parent_ins=self, name_base=name,
-                                                 posi_flag=flag, cable_length=10,
-                                                 mode=sr_mode[num], level=1)
+                    self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+                                                    posi_flag=flag, cable_length=10,
+                                                    mode=sr_mode[num], level=1)
         else:
             raise KeyboardInterrupt(self.m_type + '暂为不支持的主轨类型')
 
@@ -886,7 +886,7 @@ class Train(ElePack):
 
 # 线路信息
 class Line(ElePack):
-    def __init__(self,parent_ins=None, name_base='',
+    def __init__(self, parent_ins=None, name_base='',
                  sec_group=None, rail=None, train=None):
         super().__init__(parent_ins, name_base)
         self.rail = Rail() if rail is None else rail
@@ -902,7 +902,7 @@ class Line(ElePack):
         instance.parent_ins = self
 
 
-#线路组
+# 线路组
 class LineGroup(ElePack):
     def __init__(self, *lines, name_base=''):
         super().__init__(None, name_base)
@@ -929,6 +929,7 @@ def change_freq(freq):
         new = 2000
     return new
 
+
 # 交换载频
 def change_sr_mode(mode):
     new = None
@@ -937,6 +938,7 @@ def change_sr_mode(mode):
     elif mode == '接收':
         new = '发送'
     return new
+
 
 # 按位置筛选元件
 def choose_element(ele_set, posi_abs):
@@ -1036,8 +1038,6 @@ def equal_varb(pack1, pack2):
     module1.varb_dict[name1] = module2.varb_dict[name2]
 
 
-
-
 # 获得所有变量
 def get_varb(vessel, varb_set):
     if hasattr(vessel, 'varb_dict'):
@@ -1128,8 +1128,8 @@ class SingleLineModel(ElePack):
                     z_trk = ele.ztrk
                     rd = ele.rd
             sub_rail_dict['钢轨段'+str(num+1)] = SubRailPi(self.line, '钢轨段'+str(num+1),
-                                                     l_posi=l_posi, r_posi=r_posi,
-                                                     z_trk=z_trk, rd=rd)
+                                                        l_posi=l_posi, r_posi=r_posi,
+                                                        z_trk=z_trk, rd=rd)
             sub_rail_list.append(sub_rail_dict['钢轨段'+str(num+1)])
 
         return sub_rail_dict
@@ -1176,7 +1176,6 @@ class MainModel(ElePack):
             for posi in node_set[:-1]:
                 lines[0].node_dict[posi].track[1].mutual_trk = lines[1].node_dict[posi].track[1]
                 lines[1].node_dict[posi].track[1].mutual_trk = lines[0].node_dict[posi].track[1]
-
 
     def get_equs_kirchhoff(self):
         equs = list()
@@ -1243,6 +1242,7 @@ class MainModel(ElePack):
             equs.append(equ)
         return equs
 
+
 # 从等式获取变量
 def get_varb_set(equs):
     varb_set = set()
@@ -1250,6 +1250,7 @@ def get_varb_set(equs):
         for ele in equ.vb_list:
             varb_set.add(ele[0])
     return varb_set.copy()
+
 
 def get_matrix(equs):
     varb_set = get_varb_set(equs)
@@ -1261,6 +1262,7 @@ def get_matrix(equs):
         for varb, value in equs[num].vb_list:
             mtrx[num, varb.num] = value
     return mtrx
+
 
 # 变量编号
 def set_varb_num(var_set):

@@ -168,6 +168,15 @@ class ParaMultiF:
     rlc_s = PropMultiF('rlc_s')
     rlc_p = PropMultiF('rlc_p')
 
+    def values(self):
+        return self.para.values()
+
+    def keys(self):
+        return self.para.keys()
+
+    def items(self):
+        return self.para.items()
+
     def __repr__(self):
         return str(self.z)
     
