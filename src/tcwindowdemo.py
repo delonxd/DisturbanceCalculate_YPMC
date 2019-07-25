@@ -9,21 +9,23 @@ import time
 
 
 class ParameterTreeItem(QTreeWidgetItem):
-    def __init__(self, parent=None, key=None, value=None):
+    def __init__(self, parent=None, key=None):
         super().__init__(parent)
-        self.parent_ele = parent
+        self.parent_dict = parent.child_dict
         self.key = key
-        self.value = value
+        self.child_dict = None
         self.init_child()
         self.setExpanded(True)
 
     def init_child(self):
+        value = self.parent_dict[self.key]
         self.setText(0, str(self.key))
-        if isinstance(self.value, (dict, tcc.pc.ParaMultiF)):
-            for key, value in self.value.items():
-                ParameterTreeItem(parent=self, key=self.key, value=self.value)
+        if isinstance(value, (dict, tcc.pc.ParaMultiF)):
+            self.child_dict = value
+            for key in value.keys():
+                ParameterTreeItem(parent=self, key=key)
         else:
-            self.setText(1, str(self.value))
+            self.setText(1, str(value))
 
 
 class ParameterTree(QTreeWidget):
@@ -36,7 +38,7 @@ class ParameterTree(QTreeWidget):
         #
         # self.setAutoExpandDelay(1)
 
-        self.key, self.value = None, None
+        self.child_dict = None
         self.current_editor = (None, None)
 
         self.itemDoubleClicked.connect(self.open_editor)
@@ -52,8 +54,14 @@ class ParameterTree(QTreeWidget):
     def close_editor(self):
         item, column = self.current_editor
         if not (item, column) == (None, None):
-            print(str(item.parent_ele.value[item.key]))
+            value = item.parent_dict[item.key]
+            text = item.text(1)
             self.closePersistentEditor(item, column)
+            if isinstance(value, str):
+                pass
+                # item.parent_dict[item.key] = item.text(1)
+            else:
+                item.setText(1, text)
         self.current_editor = (None, None)
 
     def keyPressEvent(self, event):
@@ -63,12 +71,9 @@ class ParameterTree(QTreeWidget):
 
     def show_dict(self, vessel):
         self.clear()
-        self.key = '属性'
-        self.value = vessel.__dict__
-        print(self.value)
-        for key, value in self.value.items():
-            print(key, value)
-            ParameterTreeItem(parent=self, key=key, value=value)
+        self.child_dict = vessel.__dict__
+        for key in self.child_dict.keys():
+            ParameterTreeItem(parent=self, key=key)
 
     def test_slot(self):
         item = self.currentItem()
