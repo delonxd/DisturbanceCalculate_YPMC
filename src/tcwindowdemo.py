@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from src import TrackCircuitCalculator3 as tcc
+import src.TrackCircuitCalculator3 as tcc
 import sys
 import time
 
@@ -9,21 +9,38 @@ import time
 
 
 class ParameterTreeItem(QTreeWidgetItem):
-    def __init__(self, parent=None, key=None):
+    def __init__(self, parent, vessel, key):
         super().__init__(parent)
-        self.parent_dict = parent.child_dict
+        self.vessel = vessel
         self.key = key
-        self.child_dict = None
         self.init_child()
         self.setExpanded(True)
+        # for child in self.takeChildren():
+        #     self.removeChild(child)
+
+    @property
+    def value(self):
+        if isinstance(self.vessel, tcc.ElePack):
+            return self.vessel.get_property(self.key)
+        elif isinstance(self.vessel, (dict, tcc.pc.ParaMultiF)):
+            return self.vessel[self.key]
+        else:
+            return None
+
+    @value.setter
+    def value(self, text):
+        if isinstance(self.vessel, tcc.ElePack):
+            self.vessel.set_property(self.key, text)
+        # elif isinstance(self.vessel, (dict, tcc.pc.ParaMultiF)):
+        #     if self.vessel[self.key] = value
+        pass
 
     def init_child(self):
-        value = self.parent_dict[self.key]
+        value = self.value
         self.setText(0, str(self.key))
         if isinstance(value, (dict, tcc.pc.ParaMultiF)):
-            self.child_dict = value
             for key in value.keys():
-                ParameterTreeItem(parent=self, key=key)
+                ParameterTreeItem(parent=self,vessel=value,key=key)
         else:
             self.setText(1, str(value))
 
@@ -35,15 +52,18 @@ class ParameterTree(QTreeWidget):
         self.setColumnCount(2)
         self.setHeaderLabels(['参数名', '值'])
         # self.show_dict()
-        #
-        # self.setAutoExpandDelay(1)
 
-        self.child_dict = None
         self.current_editor = (None, None)
 
         self.itemDoubleClicked.connect(self.open_editor)
         self.itemSelectionChanged.connect(self.close_editor)
         self.itemSelectionChanged.connect(self.test_slot)
+
+    def show_dict(self, vessel):
+        self.clear()
+        for key in vessel.prop_table.keys():
+            ParameterTreeItem(parent=self, vessel=vessel, key=key)
+
 
 
     def open_editor(self, item, column):
@@ -54,26 +74,18 @@ class ParameterTree(QTreeWidget):
     def close_editor(self):
         item, column = self.current_editor
         if not (item, column) == (None, None):
-            value = item.parent_dict[item.key]
+            value = item.value
             text = item.text(1)
             self.closePersistentEditor(item, column)
             if isinstance(value, str):
-                pass
-                # item.parent_dict[item.key] = item.text(1)
+                item.value = item.text(1)
             else:
                 item.setText(1, text)
         self.current_editor = (None, None)
 
     def keyPressEvent(self, event):
-        # print(event.text())
         if event.key() == 16777220:
             self.close_editor()
-
-    def show_dict(self, vessel):
-        self.clear()
-        self.child_dict = vessel.__dict__
-        for key in self.child_dict.keys():
-            ParameterTreeItem(parent=self, key=key)
 
     def test_slot(self):
         item = self.currentItem()
@@ -152,13 +164,13 @@ class ShowText(QTextEdit):
 
     def print_name(self, vessel):
         self.setText('')
-        if isinstance(vessel, (tcc.Section, tcc.TCSR, tcc.TcsrBA)):
-            prop = vessel.get_property()
-            for key, value in prop.items():
-                self.append(key + ': ' + str(value))
-        else:
-            for item in vessel.__dict__.items():
-                self.append(str(item))
+        # if isinstance(vessel, (tcc.Section, tcc.TCSR, tcc.TcsrBA)):
+        #     prop = vessel.get_property()
+        #     for key, value in prop.items():
+        #         self.append(key + ': ' + str(value))
+        # else:
+        for item in vessel.__dict__.items():
+            self.append(str(item))
 
 
 class MainWin(QWidget):
@@ -190,7 +202,7 @@ class MainWin(QWidget):
         window2 = ParameterTree()
         hbox.addWidget(tree, 1)
         layout = QVBoxLayout()
-        layout.addWidget(window1)
+        # layout.addWidget(window1)
         layout.addWidget(window2)
 
         hbox.addLayout(layout, 3)

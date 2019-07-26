@@ -5,567 +5,686 @@ import time
 from src import ElectricParameter as pc
 from matplotlib import pyplot as plt
 
-# from src.Eleclass import *
+
+# from src.TcsrModule import *
+from src.BasicOutsideModel import *
+from src.Equation import *
+
+# from src.TCSR import *
+from src.SectionGroup import *
+# from src.TCSR import *
 
 ########################################################################################################################
 
 
-class Varb:
-    # def __init__(self, upper_module=None):im
-    #     self.upper_name = upper_module
-    #     self.num = None
-    #     self.name = ''
-
-    def __init__(self, upper_module=None, name_base=''):
-        self.upper_module = upper_module
-        self.name_base = name_base
-        self.num = None
-        self.name = ''
-
-    def get_varb_name(self):
-        self.name = self.upper_module.name + '_' + self.name_base
-        return self.name
-
-    def __repr__(self):
-        return repr((self.get_varb_name(), self.num))
-
-
-########################################################################################################################
-
-# 元素包
-class ElePack:
-    def __init__(self, parent_ins, name_base):
-        self.parent_ins = parent_ins
-        self.name_base = name_base
-        self.name = str()
-        self.element = dict()
-        self.ele_list = list()
-        self.flag_outside = False
-        self._posi_rlt = None
-        self.posi_abs = None
-        self.flag_ele_list = False
-        self.flag_ele_unit = False
-
-    def __len__(self):
-        return len(self.element)
-
-    def __getitem__(self, key):
-        return self.element[key]
-
-    def __setitem__(self, key, value):
-        self.element[key] = value
-
-    def values(self):
-        return self.element.values()
-
-    def keys(self):
-        return self.element.keys()
-
-    def items(self):
-        return self.element.items()
-
-    def init_position(self, posi):
-        self.flag_outside = True
-        self._posi_rlt = posi
-        self.posi_abs = 0
-
-    def add_element(self, name, instance):
-        if self.flag_ele_list:
-            self.element[name] = instance
-            self.ele_list.append(instance)
-
-    @property
-    def posi_rlt(self):
-        return self._posi_rlt
-
-    @posi_rlt.setter
-    def posi_rlt(self, value):
-        self._posi_rlt = value
-
-
-class EleModule(ElePack):
-    def __init__(self, parent_ins, name_base):
-        super().__init__(parent_ins, name_base)
-        self.varb_name = list()
-        self.varb_dict = dict()
-        self.equs = list()
-        self.md_list = [self]
-
-    def __len__(self):
-        return len(self.varb_dict)
-
-    def __getitem__(self, key):
-        return self.varb_dict[key]
-
-    def __setitem__(self, key, value):
-        self.varb_dict[key] = value
-
-    def values(self):
-        return self.varb_dict.values()
-
-    def keys(self):
-        return self.varb_dict.keys()
-
-    def items(self):
-        return self.varb_dict.items()
+# class Varb:
+#     # def __init__(self, upper_module=None):im
+#     #     self.upper_name = upper_module
+#     #     self.num = None
+#     #     self.name = ''
+#
+#     def __init__(self, upper_module=None, name_base=''):
+#         self.upper_module = upper_module
+#         self.name_base = name_base
+#         self.num = None
+#         self.name = ''
+#
+#     def get_varb_name(self):
+#         self.name = self.upper_module.name + '_' + self.name_base
+#         return self.name
+#
+#     def __repr__(self):
+#         return repr((self.get_varb_name(), self.num))
 
 
 ########################################################################################################################
 
-# 一端口元件
-class OnePortNetwork(EleModule):
-    def __init__(self, parent_ins, name_base):
-        super().__init__(parent_ins, name_base)
-        self.varb_name = ['U', 'I']
-        self.varb_dict = {'U': Varb(self, 'U'),
-                          'I': Varb(self, 'I')}
+# # 元素包
+# class ElePack:
+#     prop_table = {
+#         # '父对象': 'parent_ins',
+#         '基础名称': 'name_base',
+#         '元素字典': 'element',
+#         '元素列表': 'ele_list',
+#         # '室外元素标识': 'flag_outside',
+#         # '元素列表标识': 'flag_ele_list',
+#         # '单位元素标识': 'flag_ele_unit',
+#         '相对位置': 'posi_rlt',
+#         '绝对位置': 'posi_abs',
+#     }
+#
+#     def __init__(self, parent_ins, name_base):
+#         self.parent_ins = parent_ins
+#         self.name_base = name_base
+#         self.name = str()
+#         self.element = dict()
+#         self.ele_list = list()
+#         self.flag_outside = False
+#         self._posi_rlt = None
+#         self.posi_abs = None
+#         self.flag_ele_list = False
+#         self.flag_ele_unit = False
+#
+#     @property
+#     def posi_rlt(self):
+#         return self._posi_rlt
+#
+#     @posi_rlt.setter
+#     def posi_rlt(self, value):
+#         self._posi_rlt = value
+#
+#     def init_position(self, posi):
+#         self.flag_outside = True
+#         self._posi_rlt = posi
+#         self.posi_abs = 0
+#
+#     def add_element(self, name, instance):
+#         if self.flag_ele_list:
+#             self.element[name] = instance
+#             self.ele_list.append(instance)
+#
+#     def __len__(self):
+#         return len(self.element)
+#
+#     def __getitem__(self, key):
+#         return self.element[key]
+#
+#     def __setitem__(self, key, value):
+#         self.element[key] = value
+#
+#     def values(self):
+#         return self.element.values()
+#
+#     def keys(self):
+#         return self.element.keys()
+#
+#     def items(self):
+#         return self.element.items()
+#
+#     def set_property(self, key, value):
+#         prop_name = self.prop_table[key]
+#         exec('self.' + prop_name + ' = value')
+#         pass
+#
+#     def get_property(self, key):
+#         value = None
+#         try:
+#             prop_name = self.prop_table[key]
+#             value = eval('self.' + prop_name)
+#         except KeyError:
+#             pass
+#         return value
 
 
-# 二端口网络
-class TwoPortNetwork(EleModule):
-    def __init__(self, parent_ins, name_base):
-        super().__init__(parent_ins, name_base)
-        self.varb_name = ['U1', 'I1', 'U2', 'I2']
-        self.varb_dict = {'U1': Varb(self, 'U1'),
-                          'I1': Varb(self, 'I1'),
-                          'U2': Varb(self, 'U2'),
-                          'I2': Varb(self, 'I2')}
-
-
-########################################################################################################################
-
-# 并联阻抗
-class OPortZ(OnePortNetwork):
-    def __init__(self, parent_ins, name_base, z):
-        super().__init__(parent_ins, name_base)
-        self.z = z
-
-    def get_equs(self, freq):
-        z = self.z[freq].z
-        equ1 = Equation(varbs=[self['U'], self['I']], values=[-1, z])
-        self.equs = [equ1]
-
-
-# 并联电压源
-class OPortPowerU(OnePortNetwork):
-    def __init__(self, parent_ins, name_base, voltage=0):
-        super().__init__(parent_ins, name_base)
-        self.voltage = voltage
-
-    def get_equs(self, freq):
-        equ1 = Equation(varbs=[self['U']], values=[1])
-        self.equs = [equ1]
-
-
-# 并联电流源
-class OPortPowerI(OnePortNetwork):
-    def __init__(self, parent_ins, name_base, current=0):
-        super().__init__(parent_ins, name_base)
-        self.current = current
-
-    def get_equs(self, freq):
-        equ1 = Equation(varbs=[self['I']], values=[1])
-        self.equs = [equ1]
-
-
-########################################################################################################################
-
-# Pi型二端口网络
-class TPortCircuitPi(TwoPortNetwork):
-    def __init__(self, parent_ins, name_base, y1, y2, y3):
-        super().__init__(parent_ins, name_base)
-        self.y1 = y1
-        self.y2 = y2
-        self.y3 = y3
-
-    def get_equs(self, freq):
-        y1 = self.y1[freq].z
-        y2 = self.y2[freq].z
-        y3 = self.y3[freq].z
-        equ1 = Equation(varbs=[self['I1'], self['U1'], self['U2']],
-                        values=[-1, -(y1 + y2), -y2])
-        equ2 = Equation(varbs=[self['I2'], self['U1'], self['U2']],
-                        values=[-1, -y2, (y2 + y3)])
-        self.equs = [equ1, equ2]
-
-
-# T型二端口网络
-class TPortCircuitT(TwoPortNetwork):
-    def __init__(self, parent_ins, name_base, z1, z2, z3):
-        super().__init__(parent_ins, name_base)
-        self.z1 = z1
-        self.z2 = z2
-        self.z3 = z3
-
-    def get_equs(self, freq):
-        z1 = self.z1[freq].z
-        z2 = self.z2[freq].z
-        z3 = self.z3[freq].z
-        equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
-                        values=[-1, -(z1 + z2), z2])
-        equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
-                        values=[-1, -z2, (z2 + z3)])
-        self.equs = [equ1, equ2]
-
-
-########################################################################################################################
-
-# 变压器二端口网络
-class TPortCircuitN(TwoPortNetwork):
-    def __init__(self, parent_ins, name_base, n):
-        super().__init__(parent_ins, name_base)
-        self.n = n
-
-    def get_equs(self, freq):
-        n = self.n[freq]
-        equ1 = Equation(varbs=[self['U1'], self['U2']],
-                        values=[-1, n])
-        equ2 = Equation(varbs=[self['I1'], self['I2']],
-                        values=[n, -1])
-        self.equs = [equ1, equ2]
-
-
-# 串联二端口网络
-class TPortZSeries(TwoPortNetwork):
-    def __init__(self, parent_ins, name_base, z):
-        super().__init__(parent_ins, name_base)
-        self.z = z
-
-    def get_equs(self, freq):
-        z = self.z[freq].z
-        equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
-                        values=[1, -1, z])
-        equ2 = Equation(varbs=[self['I1'], self['I2']],
-                        values=[-1, 1])
-        self.equs = [equ1, equ2]
-
-
-# 并联二端口网络
-class TPortZParallel(TwoPortNetwork):
-    def __init__(self, parent_ins, name_base, z):
-        super().__init__(parent_ins, name_base)
-        self.z = z
-
-    def get_equs(self, freq):
-        z = self.z[freq].z
-        equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
-                        values=[-1, -z, z])
-        equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
-                        values=[-1, -z, z])
-        self.equs = [equ1, equ2]
+# class EleModule(ElePack):
+#     new_table = {
+#         '变量名': 'varb_name',
+#         '变量字典': 'varb_dict',
+#         '公式列表': 'equs',
+#         '模块列表': 'md_list',
+#     }
+#     prop_table = ElePack.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base):
+#         super().__init__(parent_ins, name_base)
+#         self.varb_name = list()
+#         self.varb_dict = dict()
+#         self.equs = list()
+#         self.md_list = [self]
+#
+#     def __len__(self):
+#         return len(self.varb_dict)
+#
+#     def __getitem__(self, key):
+#         return self.varb_dict[key]
+#
+#     def __setitem__(self, key, value):
+#         self.varb_dict[key] = value
+#
+#     def values(self):
+#         return self.varb_dict.values()
+#
+#     def keys(self):
+#         return self.varb_dict.keys()
+#
+#     def items(self):
+#         return self.varb_dict.items()
 
 
 ########################################################################################################################
 
-class UPowerOut(OPortPowerU):
-    def __init__(self, parent_ins, name_base, posi):
-        super().__init__(parent_ins, name_base)
-        self.init_position(posi)
-        self.flag_ele_unit = True
+# # 一端口元件
+# class OnePortNetwork(EleModule):
+#     def __init__(self, parent_ins, name_base):
+#         super().__init__(parent_ins, name_base)
+#         self.varb_name = ['U', 'I']
+#         self.varb_dict = {'U': Varb(self, 'U'),
+#                           'I': Varb(self, 'I')}
+#
+#
+# # 二端口网络
+# class TwoPortNetwork(EleModule):
+#     def __init__(self, parent_ins, name_base):
+#         super().__init__(parent_ins, name_base)
+#         self.varb_name = ['U1', 'I1', 'U2', 'I2']
+#         self.varb_dict = {'U1': Varb(self, 'U1'),
+#                           'I1': Varb(self, 'I1'),
+#                           'U2': Varb(self, 'U2'),
+#                           'I2': Varb(self, 'I2')}
 
 
-# 室外阻抗
-class ZOutside(OPortZ):
-    def __init__(self, parent_ins, name_base, posi, z):
-        super().__init__(parent_ins, name_base, z)
-        self.init_position(posi)
-        self.flag_ele_unit = True
+########################################################################################################################
+
+# # 并联阻抗
+# class OPortZ(OnePortNetwork):
+#     new_table = {
+#         '并联阻抗': 'z',
+#     }
+#     prop_table = OnePortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, z):
+#         super().__init__(parent_ins, name_base)
+#         self.z = z
+#
+#     def get_equs(self, freq):
+#         z = self.z[freq].z
+#         equ1 = Equation(varbs=[self['U'], self['I']], values=[-1, z])
+#         self.equs = [equ1]
+#
+#
+# # 并联电压源
+# class OPortPowerU(OnePortNetwork):
+#     new_table = {
+#         '电压值': 'voltage',
+#     }
+#     prop_table = OnePortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, voltage=0):
+#         super().__init__(parent_ins, name_base)
+#         self.voltage = voltage
+#
+#     def get_equs(self, freq):
+#         equ1 = Equation(varbs=[self['U']], values=[1])
+#         self.equs = [equ1]
 
 
-# 补偿电容
-class CapC(ZOutside):
-    def __init__(self, parent_ins, name_base, posi, z):
-        super().__init__(parent_ins, name_base, posi, z)
+# # 并联电流源
+# class OPortPowerI(OnePortNetwork):
+#     new_table = {
+#         '电流值': 'current',
+#     }
+#     prop_table = OnePortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, current=0):
+#         super().__init__(parent_ins, name_base)
+#         self.current = current
+#
+#     def get_equs(self, freq):
+#         equ1 = Equation(varbs=[self['I']], values=[1])
+#         self.equs = [equ1]
+#
+#
+# ########################################################################################################################
+#
+# # Pi型二端口网络
+# class TPortCircuitPi(TwoPortNetwork):
+#     new_table = {
+#         '阻抗1': 'y1',
+#         '阻抗2': 'y2',
+#         '阻抗3': 'y3'
+#     }
+#     prop_table = TwoPortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, y1, y2, y3):
+#         super().__init__(parent_ins, name_base)
+#         self.y1 = y1
+#         self.y2 = y2
+#         self.y3 = y3
+#
+#     def get_equs(self, freq):
+#         y1 = self.y1[freq].z
+#         y2 = self.y2[freq].z
+#         y3 = self.y3[freq].z
+#         equ1 = Equation(varbs=[self['I1'], self['U1'], self['U2']],
+#                         values=[-1, -(y1 + y2), -y2])
+#         equ2 = Equation(varbs=[self['I2'], self['U1'], self['U2']],
+#                         values=[-1, -y2, (y2 + y3)])
+#         self.equs = [equ1, equ2]
+#
+#
+# # T型二端口网络
+# class TPortCircuitT(TwoPortNetwork):
+#     new_table = {
+#         '阻抗1': 'z1',
+#         '阻抗2': 'z2',
+#         '阻抗3': 'z3'
+#     }
+#     prop_table = TwoPortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, z1, z2, z3):
+#         super().__init__(parent_ins, name_base)
+#         self.z1 = z1
+#         self.z2 = z2
+#         self.z3 = z3
+#
+#     def get_equs(self, freq):
+#         z1 = self.z1[freq].z
+#         z2 = self.z2[freq].z
+#         z3 = self.z3[freq].z
+#         equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
+#                         values=[-1, -(z1 + z2), z2])
+#         equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
+#                         values=[-1, -z2, (z2 + z3)])
+#         self.equs = [equ1, equ2]
+#
+#
+# ########################################################################################################################
+#
+# # 变压器二端口网络
+# class TPortCircuitN(TwoPortNetwork):
+#     new_table = {
+#         '变比': 'n',
+#     }
+#     prop_table = TwoPortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, n):
+#         super().__init__(parent_ins, name_base)
+#         self.n = n
+#
+#     def get_equs(self, freq):
+#         n = self.n[freq]
+#         equ1 = Equation(varbs=[self['U1'], self['U2']],
+#                         values=[-1, n])
+#         equ2 = Equation(varbs=[self['I1'], self['I2']],
+#                         values=[n, -1])
+#         self.equs = [equ1, equ2]
+#
+#
+# # 串联二端口网络
+# class TPortZSeries(TwoPortNetwork):
+#     new_table = {
+#         '串联阻抗': 'z',
+#     }
+#     prop_table = TwoPortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, z):
+#         super().__init__(parent_ins, name_base)
+#         self.z = z
+#
+#     def get_equs(self, freq):
+#         z = self.z[freq].z
+#         equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
+#                         values=[1, -1, z])
+#         equ2 = Equation(varbs=[self['I1'], self['I2']],
+#                         values=[-1, 1])
+#         self.equs = [equ1, equ2]
+#
+#
+# # 并联二端口网络
+# class TPortZParallel(TwoPortNetwork):
+#     new_table = {
+#         '并联阻抗': 'z',
+#     }
+#     prop_table = TwoPortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, z):
+#         super().__init__(parent_ins, name_base)
+#         self.z = z
+#
+#     def get_equs(self, freq):
+#         z = self.z[freq].z
+#         equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
+#                         values=[-1, -z, z])
+#         equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
+#                         values=[-1, -z, z])
+#         self.equs = [equ1, equ2]
 
 
-# 空心线圈
-class SVA(ZOutside):
-    def __init__(self, parent_ins, name_base, posi, z):
-        super().__init__(parent_ins, name_base, posi, z)
+########################################################################################################################
 
-
-# TB
-class TB(ZOutside):
-    def __init__(self, parent_ins, name_base, posi, z):
-        super().__init__(parent_ins, name_base, posi, z)
-
-
-# 室外电阻
-class ROutside(ZOutside):
-    def __init__(self, parent_ins, name_base, posi, z):
-        super().__init__(parent_ins, name_base, posi, z)
-
-    def get_equs(self, freq):
-        z = self.z
-        equ1 = Equation(varbs=[self['U'], self['I']],
-                        values=[-1, z])
-        self.equs = [equ1]
+# class UPowerOut(OPortPowerU):
+#     def __init__(self, parent_ins, name_base, posi):
+#         super().__init__(parent_ins, name_base)
+#         self.init_position(posi)
+#         self.flag_ele_unit = True
+#
+#
+# # 室外阻抗
+# class ZOutside(OPortZ):
+#     def __init__(self, parent_ins, name_base, posi, z):
+#         super().__init__(parent_ins, name_base, z)
+#         self.init_position(posi)
+#         self.flag_ele_unit = True
+#
+#
+# # 补偿电容
+# class CapC(ZOutside):
+#     def __init__(self, parent_ins, name_base, posi, z):
+#         super().__init__(parent_ins, name_base, posi, z)
+#
+#
+# # 空心线圈
+# class SVA(ZOutside):
+#     def __init__(self, parent_ins, name_base, posi, z):
+#         super().__init__(parent_ins, name_base, posi, z)
+#
+#
+# # TB
+# class TB(ZOutside):
+#     def __init__(self, parent_ins, name_base, posi, z):
+#         super().__init__(parent_ins, name_base, posi, z)
+#
+#
+# # 室外电阻
+# class ROutside(ZOutside):
+#     def __init__(self, parent_ins, name_base, posi, z):
+#         super().__init__(parent_ins, name_base, posi, z)
+#
+#     def get_equs(self, freq):
+#         z = self.z
+#         equ1 = Equation(varbs=[self['U'], self['I']],
+#                         values=[-1, z])
+#         self.equs = [equ1]
 
 
 ########################################################################################################################
 
 # 发送器
-class TcsrPower(ElePack):
-    def __init__(self, parent_ins, name_base, z, level):
-        super().__init__(parent_ins, name_base)
-        self.flag_ele_list = True
-        self.z = z
-        self.add_element('1电压源', OPortPowerU(self, '1电压源'))
-        self.add_element('2内阻', TcsrPowerZ(self, '2内阻', z, level))
-
-    @property
-    def level(self):
-        return self.element['2内阻'].level
-
-    @level.setter
-    def level(self, value):
-        self.element['2内阻'].level = value
-
-
-# 串联二端口网络
-class TcsrPowerZ(TwoPortNetwork):
-    def __init__(self, parent_ins, name_base, z, level):
-        super().__init__(parent_ins, name_base)
-        self.z = z
-        self.level = level
-
-    def get_equs(self, freq):
-        z = self.z[self.level][freq].z
-        equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
-                        values=[1, -1, z])
-        equ2 = Equation(varbs=[self['I1'], self['I2']],
-                        values=[-1, 1])
-        self.equs = [equ1, equ2]
-
-
-# 接收器
-class TcsrReceiver(OPortZ):
-    def __init__(self, parent_ins, name_base, z):
-        super().__init__(parent_ins, name_base, z)
-
-
-########################################################################################################################
-
-# 变压器模板
-class TcsrTransformer(ElePack):
-    def __init__(self, parent_ins, name_base, z1, z2, n):
-        super().__init__(parent_ins, name_base)
-        self.flag_ele_list = True
-        self.add_element('1等效内阻', TPortCircuitT(self, '1等效内阻', z1, z2, z1))
-        self.add_element('2变压器', TPortCircuitN(self, '2变压器', n))
-
-
-# 防雷变压器
-class TcsrFL(TcsrTransformer):
-    def __init__(self, parent_ins, name_base, z1, z2, n):
-        super().__init__(parent_ins, name_base, z1, z2, n)
-
-
-# TAD变压器
-class TcsrTAD(ElePack):
-    def __init__(self, parent_ins, name_base, z1, z2, z3, n, zc):
-        super().__init__(parent_ins, name_base)
-        self.flag_ele_list = True
-        self.add_element('1共模电感', TPortZSeries(self, '1共模电感', z3))
-        self.add_element('2等效内阻', TPortCircuitT(self, '2等效内阻', z1, z2, z1))
-        self.add_element('3变压器', TPortCircuitN(self, '3变压器', n))
-        self.add_element('4串联电容', TPortZSeries(self, '4串联电容', zc))
-
-
-########################################################################################################################
-
-# 电缆等效电路
-class TPortCable(TwoPortNetwork):
-    def __init__(self, parent_ins, name_base, length, cab_r=43, cab_l=825e-6, cab_c=28e-9):
-        super().__init__(parent_ins, name_base)
-        self.R = cab_r
-        self.L = cab_l
-        self.C = cab_c
-        self.length = length
-
-    def get_equs(self, freq):
-        length = self.length
-        w = 2 * np.pi * freq
-        z0 = self.R + 1j * w * self.L
-        y0 = 1j * w * self.C
-        zc = np.sqrt(z0 / y0)
-        gama = np.sqrt(z0 * y0)
-        zii = zc * np.sinh(gama * length)
-        yii = (np.cosh(gama * length) - 1) / zc / np.sinh(gama * length)
-        y1 = yii
-        y2 = 1 / zii
-        y3 = yii
-        equ1 = Equation(varbs=[self['I1'], self['U1'], self['U2']],
-                        values=[-1, -(y1 + y2), -y2])
-        equ2 = Equation(varbs=[self['I2'], self['U1'], self['U2']],
-                        values=[-1, -y2, (y2 + y3)])
-        self.equs = [equ1, equ2]
-
-
-########################################################################################################################
-
-# 匹配单元
-class TcsrBA(TPortZParallel):
-    def __init__(self, parent_ins, name_base, z):
-        super().__init__(parent_ins, name_base, z)
-
-    def get_equs(self, freq):
-        z = self.z[self.m_freq][freq].z
-        equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
-                        values=[-1, -z, z])
-        equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
-                        values=[-1, -z, z])
-        self.equs = [equ1, equ2]
-
-    @property
-    def m_freq(self):
-        return self.parent_ins.m_freq
-
-    def get_property(self):
-        prop = dict()
-        prop['调谐单元参数'] = self.z
-        prop['主轨频率'] = self.m_freq
-        return prop
-
-
-# 引接线
-class TcsrCA(TPortZSeries):
-    def __init__(self, parent_ins, name_base, z):
-        super().__init__(parent_ins, name_base, z)
-
+# class TcsrPower(ElePack):
+#     new_table = {
+#         '发送器内阻': 'z',
+#         '发送电平级': 'level',
+#     }
+#     prop_table = ElePack.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, z, level):
+#         super().__init__(parent_ins, name_base)
+#         self.flag_ele_list = True
+#         # self.z = z
+#         self.add_element('1电压源', OPortPowerU(self, '1电压源'))
+#         self.add_element('2内阻', TcsrPowerZ(self, '2内阻', z, level))
+#
+#     @property
+#     def z(self):
+#         return self.element['2内阻'].z
+#
+#     @z.setter
+#     def z(self, value):
+#         self.element['2内阻'].z = value
+#
+#     @property
+#     def level(self):
+#         return self.element['2内阻'].level
+#
+#     @level.setter
+#     def level(self, value):
+#         self.element['2内阻'].level = value
+#
+#
+# # 串联二端口网络
+# class TcsrPowerZ(TwoPortNetwork):
+#     new_table = {
+#         '阻抗': 'z',
+#         '电平级': 'level',
+#     }
+#     prop_table = TwoPortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, z, level):
+#         super().__init__(parent_ins, name_base)
+#         self.z = z
+#         self.level = level
+#
+#     def get_equs(self, freq):
+#         z = self.z[self.level][freq].z
+#         equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
+#                         values=[1, -1, z])
+#         equ2 = Equation(varbs=[self['I1'], self['I2']],
+#                         values=[-1, 1])
+#         self.equs = [equ1, equ2]
+#
+#
+# # 接收器
+# class TcsrReceiver(OPortZ):
+#     def __init__(self, parent_ins, name_base, z):
+#         super().__init__(parent_ins, name_base, z)
+#
+#
+# ########################################################################################################################
+#
+# # 变压器模板
+# class TcsrTransformer(ElePack):
+#     def __init__(self, parent_ins, name_base, z1, z2, n):
+#         super().__init__(parent_ins, name_base)
+#         self.flag_ele_list = True
+#         self.add_element('1等效内阻', TPortCircuitT(self, '1等效内阻', z1, z2, z1))
+#         self.add_element('2变压器', TPortCircuitN(self, '2变压器', n))
+#
+#
+# # 防雷变压器
+# class TcsrFL(TcsrTransformer):
+#     def __init__(self, parent_ins, name_base, z1, z2, n):
+#         super().__init__(parent_ins, name_base, z1, z2, n)
+#
+#
+# # TAD变压器
+# class TcsrTAD(ElePack):
+#     def __init__(self, parent_ins, name_base, z1, z2, z3, n, zc):
+#         super().__init__(parent_ins, name_base)
+#         self.flag_ele_list = True
+#         self.add_element('1共模电感', TPortZSeries(self, '1共模电感', z3))
+#         self.add_element('2等效内阻', TPortCircuitT(self, '2等效内阻', z1, z2, z1))
+#         self.add_element('3变压器', TPortCircuitN(self, '3变压器', n))
+#         self.add_element('4串联电容', TPortZSeries(self, '4串联电容', zc))
+#
+#
+# ########################################################################################################################
+#
+# # 电缆等效电路
+# class TPortCable(TwoPortNetwork):
+#     new_table = {
+#         '电阻': 'R',
+#         '电感': 'L',
+#         '电容': 'C',
+#         '电缆长度': 'length',
+#     }
+#     prop_table = TwoPortNetwork.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, length, cab_r=43, cab_l=825e-6, cab_c=28e-9):
+#         super().__init__(parent_ins, name_base)
+#         self.R = cab_r
+#         self.L = cab_l
+#         self.C = cab_c
+#         self.length = length
+#
+#     def get_equs(self, freq):
+#         length = self.length
+#         w = 2 * np.pi * freq
+#         z0 = self.R + 1j * w * self.L
+#         y0 = 1j * w * self.C
+#         zc = np.sqrt(z0 / y0)
+#         gama = np.sqrt(z0 * y0)
+#         zii = zc * np.sinh(gama * length)
+#         yii = (np.cosh(gama * length) - 1) / zc / np.sinh(gama * length)
+#         y1 = yii
+#         y2 = 1 / zii
+#         y3 = yii
+#         equ1 = Equation(varbs=[self['I1'], self['U1'], self['U2']],
+#                         values=[-1, -(y1 + y2), -y2])
+#         equ2 = Equation(varbs=[self['I2'], self['U1'], self['U2']],
+#                         values=[-1, -y2, (y2 + y3)])
+#         self.equs = [equ1, equ2]
+#
+#
+# ########################################################################################################################
+#
+# # 匹配单元
+# class TcsrBA(TPortZParallel):
+#     def __init__(self, parent_ins, name_base, z):
+#         super().__init__(parent_ins, name_base, z)
+#
+#     def get_equs(self, freq):
+#         z = self.z[self.m_freq][freq].z
+#         equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
+#                         values=[-1, -z, z])
+#         equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
+#                         values=[-1, -z, z])
+#         self.equs = [equ1, equ2]
+#
+#     @property
+#     def m_freq(self):
+#         return self.parent_ins.m_freq
+#
+#
+# # 引接线
+# class TcsrCA(TPortZSeries):
+#     def __init__(self, parent_ins, name_base, z):
+#         super().__init__(parent_ins, name_base, z)
+#
 
 ########################################################################################################################
 
 # 发送接收端
-class TCSR(ElePack):
-    def __init__(self, parent_ins, name_base, posi_flag):
-        super().__init__(parent_ins, name_base)
-        self.posi_flag = posi_flag
-        self.init_position(0)
-        self.flag_ele_list = True
-        self.flag_ele_unit = True
-        self.mode = None
-        self.md_list = get_md_list(self, [])
+# class TCSR(ElePack):
+#     new_table = {
+#         '主轨类型': 'm_type',
+#         '模式': 'mode',
+#         '匹配频率': 'm_freq',
+#         '发送电平级': 'send_level',
+#         '电缆长度': 'cable_length'
+#     }
+#     prop_table = ElePack.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, posi_flag):
+#         super().__init__(parent_ins, name_base)
+#         self.posi_flag = posi_flag
+#         self.init_position(0)
+#         self.flag_ele_list = True
+#         self.flag_ele_unit = True
+#         self.mode = None
+#         self.md_list = list()
+#
+#     @property
+#     def posi_rlt(self):
+#         posi = None
+#         parent = self.parent_ins
+#         if isinstance(parent, Section):
+#             if self.posi_flag == '左':
+#                 posi = parent['左绝缘节'].j_length / 2
+#             elif self.posi_flag == '右':
+#                 posi = parent.s_length - parent['右绝缘节'].j_length / 2
+#         elif isinstance(parent, Joint):
+#             if self.posi_flag == '左':
+#                 posi = parent.j_length / 2
+#             elif self.posi_flag == '右':
+#                 posi = - parent.j_length / 2
+#         return posi
+#
+#     @property
+#     def parent_joint(self):
+#         joint = None
+#         if isinstance(self.parent_ins, Section):
+#             name = self.posi_flag + '绝缘节'
+#             joint = self.parent_ins[name]
+#         elif isinstance(self.parent_ins, Joint):
+#             joint = self.parent_ins
+#         return joint
+#
+#     @property
+#     def m_type(self):
+#         m_type = None
+#         if isinstance(self.parent_ins, Section):
+#             m_type = self.parent_ins.m_type
+#         elif isinstance(self.parent_ins, Joint):
+#             m_type = self.parent_ins.parent_ins.m_type
+#         return m_type
+#
+#     @property
+#     def m_freq(self):
+#         m_freq = None
+#         if isinstance(self.parent_ins, Section):
+#             m_freq = self.parent_ins.m_freq
+#         elif isinstance(self.parent_ins, Joint):
+#             m_freq = change_freq(self.parent_ins.parent_ins.m_freq)
+#         return m_freq
+#
+#     @property
+#     def cable_length(self):
+#         length = None
+#         for ele in self.element.values():
+#             if isinstance(ele, TPortCable):
+#                 length = ele.length
+#         return length
+#
+#     @cable_length.setter
+#     def cable_length(self, value):
+#         for ele in self.element.values():
+#             if isinstance(ele, TPortCable):
+#                 ele.length = value
+#
+#     @property
+#     def send_level(self):
+#         level = None
+#         for ele in self.element.values():
+#             if isinstance(ele, TcsrPower):
+#                 level = ele.level
+#         return level
+#
+#     @send_level.setter
+#     def send_level(self, value):
+#         for ele in self.element.values():
+#             if isinstance(ele, TcsrPower):
+#                 ele.level = value
+#
+#     # 变量赋值
+#     def config_varb(self):
+#         for num in range(len(self.md_list) - 1):
+#             self.equal_varb([self.md_list[num], -2], [self.md_list[num + 1], 0])
+#             self.equal_varb([self.md_list[num], -1], [self.md_list[num + 1], 1])
 
-    @property
-    def posi_rlt(self):
-        posi = None
-        parent = self.parent_ins
-        if isinstance(parent, Section):
-            if self.posi_flag == '左':
-                posi = parent['左绝缘节'].j_length / 2
-            elif self.posi_flag == '右':
-                posi = parent.s_length - parent['右绝缘节'].j_length / 2
-        elif isinstance(parent, Joint):
-            if self.posi_flag == '左':
-                posi = parent.j_length / 2
-            elif self.posi_flag == '右':
-                posi = - parent.j_length / 2
-        return posi
 
-    @property
-    def parent_joint(self):
-        joint = None
-        if isinstance(self.parent_ins, Section):
-            name = self.posi_flag + '绝缘节'
-            joint = self.parent_ins[name]
-        elif isinstance(self.parent_ins, Joint):
-            joint = self.parent_ins
-        return joint
-
-    @property
-    def m_type(self):
-        m_type = None
-        if isinstance(self.parent_ins, Section):
-            m_type = self.parent_ins.m_type
-        elif isinstance(self.parent_ins, Joint):
-            m_type = self.parent_ins.parent_ins.m_type
-        return m_type
-
-    @property
-    def m_freq(self):
-        m_freq = None
-        if isinstance(self.parent_ins, Section):
-            m_freq = self.parent_ins.m_freq
-        elif isinstance(self.parent_ins, Joint):
-            m_freq = change_freq(self.parent_ins.parent_ins.m_freq)
-        return m_freq
-
-    @property
-    def cable_length(self):
-        length = None
-        for ele in self.element.values():
-            if isinstance(ele, TPortCable):
-                length = ele.length
-        return length
-
-    @cable_length.setter
-    def cable_length(self, value):
-        for ele in self.element.values():
-            if isinstance(ele, TPortCable):
-                ele.length = value
-
-    @property
-    def send_level(self):
-        level = None
-        for ele in self.element.values():
-            if isinstance(ele, TcsrPower):
-                level = ele.level
-        return level
-
-    @send_level.setter
-    def send_level(self, value):
-        for ele in self.element.values():
-            if isinstance(ele, TcsrPower):
-                ele.level = value
-
-    # 变量赋值
-    def config_varb(self):
-        for num in range(len(self.md_list) - 1):
-            equal_varb([self.md_list[num], -2], [self.md_list[num + 1], 0])
-            equal_varb([self.md_list[num], -1], [self.md_list[num + 1], 1])
-
-    def get_property(self):
-        prop = dict()
-        prop['主轨类型'] = self.m_type
-        prop['绝缘节类型'] = self.parent_joint.j_type
-        prop['模式'] = self.mode
-        prop['匹配频率'] = self.m_freq
-        prop['发送电平级'] = self.send_level
-        prop['电缆长度'] = self.cable_length
-        return prop
-
-
-class ZPW2000A_QJ_Normal(TCSR):
-    def __init__(self, parent_ins, name_base, posi_flag,
-                 cable_length, mode, level):
-        super().__init__(parent_ins, name_base, posi_flag)
-        self.posi_flag = posi_flag
-        self.init_position(0)
-        self.flag_ele_list = True
-        self.flag_ele_unit = True
-        self.mode = mode
-
-        if self.mode == '发送':
-            self.add_element('1发送器', TcsrPower(self, '1发送器', TCSR_2000A['z_pwr'], level))
-        elif self.mode == '接收':
-            self.add_element('1接收器', TcsrReceiver(self, '1接收器', TCSR_2000A['Z_rcv']))
-        self.add_element('2防雷', TcsrFL(self, '2防雷',
-                                       TCSR_2000A['FL_z1_发送端'],
-                                       TCSR_2000A['FL_z2_发送端'],
-                                       TCSR_2000A['FL_n_发送端']))
-        self.add_element('3Cab', TPortCable(self, '3Cab', cable_length))
-        self.add_element('4TAD', TcsrTAD(self, '4TAD',
-                                         TCSR_2000A['TAD_z1_发送端_区间'],
-                                         TCSR_2000A['TAD_z2_发送端_区间'],
-                                         TCSR_2000A['TAD_z3_发送端_区间'],
-                                         TCSR_2000A['TAD_n_发送端_区间'],
-                                         TCSR_2000A['TAD_c_发送端_区间']))
-        self.add_element('5BA', TcsrBA(self, '5BA', TCSR_2000A['PT']))
-        self.add_element('6CA', TcsrCA(self, '6CA', TCSR_2000A['CA_z_区间']))
-
-        self.md_list = get_md_list(self, [])
-        self.config_varb()
+# class ZPW2000A_QJ_Normal(TCSR):
+#     def __init__(self, parent_ins, name_base, posi_flag,
+#                  cable_length, mode, level):
+#         super().__init__(parent_ins, name_base, posi_flag)
+#         self.posi_flag = posi_flag
+#         self.init_position(0)
+#         self.flag_ele_list = True
+#         self.flag_ele_unit = True
+#         self.mode = mode
+#
+#         if self.mode == '发送':
+#             self.add_element('1发送器', TcsrPower(self, '1发送器', TCSR_2000A['z_pwr'], level))
+#         elif self.mode == '接收':
+#             self.add_element('1接收器', TcsrReceiver(self, '1接收器', TCSR_2000A['Z_rcv']))
+#         self.add_element('2防雷', TcsrFL(self, '2防雷',
+#                                        TCSR_2000A['FL_z1_发送端'],
+#                                        TCSR_2000A['FL_z2_发送端'],
+#                                        TCSR_2000A['FL_n_发送端']))
+#         self.add_element('3Cab', TPortCable(self, '3Cab', cable_length))
+#         self.add_element('4TAD', TcsrTAD(self, '4TAD',
+#                                          TCSR_2000A['TAD_z1_发送端_区间'],
+#                                          TCSR_2000A['TAD_z2_发送端_区间'],
+#                                          TCSR_2000A['TAD_z3_发送端_区间'],
+#                                          TCSR_2000A['TAD_n_发送端_区间'],
+#                                          TCSR_2000A['TAD_c_发送端_区间']))
+#         self.add_element('5BA', TcsrBA(self, '5BA', TCSR_2000A['PT']))
+#         self.add_element('6CA', TcsrCA(self, '6CA', TCSR_2000A['CA_z_区间']))
+#
+#         self.md_list = self.get_md_list([])
+#         self.config_varb()
 
 
 ########################################################################################################################
@@ -604,231 +723,236 @@ class SubRailPi(TwoPortNetwork):
 
 ########################################################################################################################
 
-# 绝缘节
-class Joint(ElePack):
-    def __init__(self, parent_ins, name_base, posi_flag,
-                 l_section, r_section, j_type, j_length):
-        super().__init__(parent_ins, name_base)
-        self.posi_flag = posi_flag
-        self.init_position(0)
-        self.j_type = j_type
-        self.l_section = l_section
-        self.r_section = r_section
-        self.j_length = j_length
-        self.set_element()
-
-    @property
-    def posi_rlt(self):
-        posi = self.parent_ins.s_length if self.posi_flag == '右' else 0
-        return posi
-
-    @posi_rlt.setter
-    def posi_rlt(self, value):
-        self._posi_rlt = value
-
-    @property
-    def sec_type(self):
-        # sec_type = None
-        if self.l_section and self.r_section:
-            if self.j_type == '电气':
-                if not self.l_section.m_type == self.r_section.m_type:
-                    raise KeyboardInterrupt(
-                        repr(self.l_section) + '和' + repr(self.r_section) + '区段类型不符')
-        sec_type = self.parent_ins.m_type
-        # try:
-        #     sec_type = self.l_section.m_type
-        # except AttributeError:
-        #     pass
-        # try:
-        #     sec_type = self.r_section.m_type
-        # except AttributeError:
-        #     pass
-        return sec_type
-
-    def set_element(self):
-        if self.j_type == '电气':
-            if self.sec_type == '2000A':
-                self.element['SVA'] = SVA(parent_ins=self,
-                                          name_base='SVA',
-                                          posi=0,
-                                          z=TCSR_2000A['SVA_z'])
-
-    def add_joint_tcsr(self):
-        if self.j_type == '电气':
-            name = '相邻调谐单元'
-            if not self.l_section:
-                tcsr = self.r_section['左调谐单元']
-                flag = '右'
-            elif not self.r_section:
-                tcsr = self.l_section['右调谐单元']
-                flag = '左'
-            else:
-                return
-
-            if isinstance(tcsr, ZPW2000A_QJ_Normal):
-                self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name, posi_flag=flag,
-                                                cable_length=tcsr.cable_length,
-                                                mode=change_sr_mode(tcsr.mode), level=1)
-            # elif not self.r_section:
-            #     tcsr = self.l_section['右调谐单元']
-            #     if isinstance(tcsr, QJ_2000A_Normal):
-            #         self[name] = QJ_2000A_Normal(parent_ins=self, name_base=name, posi_flag='左',
-            #                                 cable_length=tcsr.cable_length,
-            #                                 mode=change_sr_mode(tcsr.mode), level=1)
+# # 绝缘节
+# class Joint(ElePack):
+#     new_table = {
+#         '位置标志': 'posi_flag',
+#         '左侧区段': 'l_section',
+#         '右侧区段': 'r_section',
+#         '绝缘节长度': 'j_length',
+#         '区段类型': 'sec_type'
+#     }
+#     prop_table = ElePack.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base, posi_flag,
+#                  l_section, r_section, j_type, j_length):
+#         super().__init__(parent_ins, name_base)
+#         self.posi_flag = posi_flag
+#         self.init_position(0)
+#         self.j_type = j_type
+#         self.l_section = l_section
+#         self.r_section = r_section
+#         self.j_length = j_length
+#         self.set_element()
+#
+#     @property
+#     def posi_rlt(self):
+#         posi = self.parent_ins.s_length if self.posi_flag == '右' else 0
+#         return posi
+#
+#     @posi_rlt.setter
+#     def posi_rlt(self, value):
+#         self._posi_rlt = value
+#
+#     @property
+#     def sec_type(self):
+#         # sec_type = None
+#         if self.l_section and self.r_section:
+#             if self.j_type == '电气':
+#                 if not self.l_section.m_type == self.r_section.m_type:
+#                     raise KeyboardInterrupt(
+#                         repr(self.l_section) + '和' + repr(self.r_section) + '区段类型不符')
+#         sec_type = self.parent_ins.m_type
+#         return sec_type
+#
+#     def set_element(self):
+#         if self.j_type == '电气':
+#             if self.sec_type == '2000A':
+#                 self.element['SVA'] = SVA(parent_ins=self,
+#                                           name_base='SVA',
+#                                           posi=0,
+#                                           z=TCSR_2000A['SVA_z'])
+#
+#     def add_joint_tcsr(self):
+#         if self.j_type == '电气':
+#             name = '相邻调谐单元'
+#             if not self.l_section:
+#                 tcsr = self.r_section['左调谐单元']
+#                 flag = '右'
+#             elif not self.r_section:
+#                 tcsr = self.l_section['右调谐单元']
+#                 flag = '左'
+#             else:
+#                 return
+#
+#             if isinstance(tcsr, ZPW2000A_QJ_Normal):
+#                 self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name, posi_flag=flag,
+#                                                 cable_length=tcsr.cable_length,
+#                                                 mode=change_sr_mode(tcsr.mode), level=1)
 
 
-# 区段
-class Section(ElePack):
-    def __init__(self, parent_ins, name_base,
-                 m_type, m_freq, s_length,
-                 j_length, c_num, j_type, sr_mode):
-        super().__init__(parent_ins, name_base)
-        self.init_position(0)
-        self.m_type = m_type
-        self.m_freq = m_freq
-        self.s_length = s_length
-
-        # 临时变量
-        sr_mode_list = [None, None]
-        if sr_mode == '左发':
-            sr_mode_list = ['发送', '接收']
-        elif sr_mode == '右发':
-            sr_mode_list = ['接收', '发送']
-        m_length = s_length - (j_length[0] + j_length[1]) / 2
-        init_list = (j_length, c_num, sr_mode_list, j_type, m_length)
-        self.set_element(init_list)
-
-    @property
-    def posi_rlt(self):
-        posi = self.parent_ins.posi_dict[self.name_base]
-        return posi
-
-    def set_element(self, init_list):
-        j_length, c_num, sr_mode, j_type, m_length = init_list
-        if self.m_type == '2000A':
-            offset = j_length[0]
-            # 设置电容
-            lc = (m_length / c_num) if c_num > 0 else 0
-            c_posi = [(num * lc + lc / 2 + offset) for num in range(c_num)]
-            for num in range(c_num):
-                name = 'C' + str(num + 1)
-                self[name] = CapC(parent_ins=self, name_base=name,
-                                  posi=c_posi[num], z=TCSR_2000A['Ccmp_z'])
-            # 设置绝缘节
-            for num in range(2):
-                flag = ['左', '右'][num]
-                name = flag + '绝缘节'
-                l_section = None if num == 0 else self
-                r_section = self if num == 0 else None
-                self[name] = Joint(parent_ins=self, name_base=name, posi_flag=flag,
-                                   l_section=l_section, r_section=r_section,
-                                   j_length=j_length[num], j_type=j_type[num],)
-                joint = self[name]
-
-                name = flag + '调谐单元'
-                if joint.j_type == '电气':
-                    self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-                                                    posi_flag=flag, cable_length=10,
-                                                    mode=sr_mode[num], level=1)
-        else:
-            raise KeyboardInterrupt(self.m_type + '暂为不支持的主轨类型')
-
-    def get_property(self):
-        prop = dict()
-        prop['区段类型'] = self.m_type
-        prop['区段长度'] = self.s_length
-        prop['区段频率'] = self.m_freq
-        prop['区段相对位置'] = self.posi_rlt
-        return prop
+# # 区段
+# class Section(ElePack):
+#     new_table = {
+#         '区段类型': 'm_type',
+#         '区段频率': 'm_freq',
+#         '区段长度': 's_length'
+#     }
+#     prop_table = ElePack.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, parent_ins, name_base,
+#                  m_type, m_freq, s_length,
+#                  j_length, c_num, j_type, sr_mode):
+#         super().__init__(parent_ins, name_base)
+#         self.init_position(0)
+#         self.m_type = m_type
+#         self.m_freq = m_freq
+#         self.s_length = s_length
+#
+#         # 临时变量
+#         sr_mode_list = [None, None]
+#         if sr_mode == '左发':
+#             sr_mode_list = ['发送', '接收']
+#         elif sr_mode == '右发':
+#             sr_mode_list = ['接收', '发送']
+#         m_length = s_length - (j_length[0] + j_length[1]) / 2
+#         init_list = (j_length, c_num, sr_mode_list, j_type, m_length)
+#         self.set_element(init_list)
+#
+#     @property
+#     def posi_rlt(self):
+#         posi = self.parent_ins.posi_dict[self.name_base]
+#         return posi
+#
+#     def set_element(self, init_list):
+#         j_length, c_num, sr_mode, j_type, m_length = init_list
+#         if self.m_type == '2000A':
+#             offset = j_length[0]
+#             # 设置电容
+#             lc = (m_length / c_num) if c_num > 0 else 0
+#             c_posi = [(num * lc + lc / 2 + offset) for num in range(c_num)]
+#             for num in range(c_num):
+#                 name = 'C' + str(num + 1)
+#                 self[name] = CapC(parent_ins=self, name_base=name,
+#                                   posi=c_posi[num], z=TCSR_2000A['Ccmp_z'])
+#             # 设置绝缘节
+#             for num in range(2):
+#                 flag = ['左', '右'][num]
+#                 name = flag + '绝缘节'
+#                 l_section = None if num == 0 else self
+#                 r_section = self if num == 0 else None
+#                 self[name] = Joint(parent_ins=self, name_base=name, posi_flag=flag,
+#                                    l_section=l_section, r_section=r_section,
+#                                    j_length=j_length[num], j_type=j_type[num],)
+#                 joint = self[name]
+#
+#                 name = flag + '调谐单元'
+#                 if joint.j_type == '电气':
+#                     self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+#                                                     posi_flag=flag, cable_length=10,
+#                                                     mode=sr_mode[num], level=1)
+#         else:
+#             raise KeyboardInterrupt(self.m_type + '暂为不支持的主轨类型')
 
 
 ########################################################################################################################
 
 # 区段组
-class SectionGroup(ElePack):
-    def __init__(self, name_base, posi, m_num, freq1, m_length, j_length, m_type, c_num):
-        super().__init__(None, name_base)
-        self.init_position(posi)
-        init_list = (m_num, freq1, m_type, m_length, j_length, c_num)
-        self.m_num = m_num
-        self.section_list = list()
-        self.ele_posi = list()
-
-        self.init_element(init_list)
-        self.link_section()
-        self.refresh()
-
-    def init_element(self, init_list):
-        m_num, freq, m_type, m_length, j_length, c_num = init_list
-        freq_list = list()
-        for num in range(m_num):
-            freq_list.append(freq)
-            freq = change_freq(freq)
-        m_type = m_type[:m_num]
-        m_length = m_length[:m_num]
-        j_length = j_length[:(m_num + 1)]
-        c_num = c_num[:m_num]
-
-        j_type = ['电气' if num > 0 else '机械' for num in j_length]
-        j_length = [[j_length[num], j_length[num+1]] for num in range(m_num)]
-        j_type = [[j_type[num], j_type[num+1]] for num in range(m_num)]
-        # sr_type = ['PT', 'PT']
-
-        for num in range(m_num):
-            name = '区段' + str(num+1)
-            sec_t = Section(parent_ins=self, name_base=name,
-                            m_type=m_type[num], m_freq=freq_list[num], s_length=m_length[num],
-                            j_length=j_length[num], c_num=c_num[num],
-                            j_type=j_type[num], sr_mode='左发')
-            self.element[name] = sec_t
-            self.section_list.append(sec_t)
-
-    @property
-    def sec_num(self):
-        return len(self.section_list)
-
-    @property
-    def posi_dict(self):
-        posi_t = 0
-        posi_dict = dict()
-        for sec in self.section_list:
-            posi_dict[sec.name_base] = posi_t
-            posi_t = posi_t + sec.s_length
-        return posi_dict
-
-    def refresh(self):
-        set_posi_abs(self, 0)
-        # set_ele_name(self, '')
-        self.ele_posi = get_posi_abs(self, posi_list=[])
-
-    # 连接相邻区段
-    def link_section(self):
-        for num in range(self.sec_num - 1):
-            sec1 = self.section_list[num]
-            sec2 = self.section_list[num+1]
-            joint1 = sec1['右绝缘节']
-            joint2 = sec2['左绝缘节']
-            if not joint1.j_type == joint2.j_type:
-                raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '绝缘节类型不符无法相连')
-            elif not joint1.j_length == joint2.j_length:
-                raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '绝缘节长度不符无法相连')
-            elif joint1.r_section:
-                raise KeyboardInterrupt(repr(sec1) + '右侧已与区段相连')
-            elif joint2.l_section:
-                raise KeyboardInterrupt(repr(sec2) + '左侧已与区段相连')
-            elif joint1.j_type == '电气':
-                if not sec1.m_type == sec2.m_type:
-                    raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨类型不符无法相连')
-                elif not sec1.m_freq == change_freq(sec2.m_freq):
-                    raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨频率不符无法相连')
-                else:
-                    joint1.r_section = sec2
-                    sec2['左绝缘节'] = joint1
-
-        for sec in self.section_list:
-            for j_name in ['左绝缘节', '右绝缘节']:
-                sec[j_name].add_joint_tcsr()
-
+# class SectionGroup(ElePack):
+#     new_table = {
+#         '区段数量': 'sec_num',
+#         '区段列表': 'section_list',
+#         '位置列表': 'ele_posi',
+#         '位置字典': 'posi_dict'
+#     }
+#     prop_table = ElePack.prop_table.copy()
+#     prop_table.update(new_table)
+#
+#     def __init__(self, name_base, posi, m_num, freq1, m_length, j_length, m_type, c_num):
+#         super().__init__(None, name_base)
+#         self.init_position(posi)
+#         init_list = (m_num, freq1, m_type, m_length, j_length, c_num)
+#         self.m_num = m_num
+#         self.section_list = list()
+#         self.ele_posi = list()
+#
+#         self.init_element(init_list)
+#         self.link_section()
+#         self.refresh()
+#
+#     def init_element(self, init_list):
+#         m_num, freq, m_type, m_length, j_length, c_num = init_list
+#         freq_list = list()
+#         for num in range(m_num):
+#             freq_list.append(freq)
+#             freq = change_freq(freq)
+#         m_type = m_type[:m_num]
+#         m_length = m_length[:m_num]
+#         j_length = j_length[:(m_num + 1)]
+#         c_num = c_num[:m_num]
+#
+#         j_type = ['电气' if num > 0 else '机械' for num in j_length]
+#         j_length = [[j_length[num], j_length[num+1]] for num in range(m_num)]
+#         j_type = [[j_type[num], j_type[num+1]] for num in range(m_num)]
+#         # sr_type = ['PT', 'PT']
+#
+#         for num in range(m_num):
+#             name = '区段' + str(num+1)
+#             sec_t = Section(parent_ins=self, name_base=name,
+#                             m_type=m_type[num], m_freq=freq_list[num], s_length=m_length[num],
+#                             j_length=j_length[num], c_num=c_num[num],
+#                             j_type=j_type[num], sr_mode='左发')
+#             self.element[name] = sec_t
+#             self.section_list.append(sec_t)
+#
+#     @property
+#     def sec_num(self):
+#         return len(self.section_list)
+#
+#     @property
+#     def posi_dict(self):
+#         posi_t = 0
+#         posi_dict = dict()
+#         for sec in self.section_list:
+#             posi_dict[sec.name_base] = posi_t
+#             posi_t = posi_t + sec.s_length
+#         return posi_dict
+#
+#     def refresh(self):
+#         set_posi_abs(self, 0)
+#         # set_ele_name(self, '')
+#         self.ele_posi = get_posi_abs(self, posi_list=[])
+#
+#     # 连接相邻区段
+#     def link_section(self):
+#         for num in range(self.sec_num - 1):
+#             sec1 = self.section_list[num]
+#             sec2 = self.section_list[num+1]
+#             joint1 = sec1['右绝缘节']
+#             joint2 = sec2['左绝缘节']
+#             if not joint1.j_type == joint2.j_type:
+#                 raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '绝缘节类型不符无法相连')
+#             elif not joint1.j_length == joint2.j_length:
+#                 raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '绝缘节长度不符无法相连')
+#             elif joint1.r_section:
+#                 raise KeyboardInterrupt(repr(sec1) + '右侧已与区段相连')
+#             elif joint2.l_section:
+#                 raise KeyboardInterrupt(repr(sec2) + '左侧已与区段相连')
+#             elif joint1.j_type == '电气':
+#                 if not sec1.m_type == sec2.m_type:
+#                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨类型不符无法相连')
+#                 elif not sec1.m_freq == change_freq(sec2.m_freq):
+#                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨频率不符无法相连')
+#                 else:
+#                     joint1.r_section = sec2
+#                     sec2['左绝缘节'] = joint1
+#
+#         for sec in self.section_list:
+#             for j_name in ['左绝缘节', '右绝缘节']:
+#                 sec[j_name].add_joint_tcsr()
+#
 
 ########################################################################################################################
 
@@ -1017,25 +1141,25 @@ def sort_posi_list(posi_list):
 ########################################################################################################################
 
 
-# 获得元器件连接顺序的列表
-def get_md_list(vessel, md_list):
-    if vessel.flag_ele_list is True:
-        for ele in vessel.ele_list:
-            md_list = get_md_list(ele, md_list)
-    else:
-        md_list.append(vessel)
-    return md_list
+# # 获得元器件连接顺序的列表
+# def get_md_list(vessel, md_list):
+#     if vessel.flag_ele_list is True:
+#         for ele in vessel.ele_list:
+#             md_list = get_md_list(ele, md_list)
+#     else:
+#         md_list.append(vessel)
+#     return md_list
 
 
-# 使两个模块的变量映射到同一个变量对象
-def equal_varb(pack1, pack2):
-    module1 = pack1[0]
-    module2 = pack2[0]
-    num1 = pack1[1]
-    num2 = pack2[1]
-    name1 = module1.varb_name[num1]
-    name2 = module2.varb_name[num2]
-    module1.varb_dict[name1] = module2.varb_dict[name2]
+# # 使两个模块的变量映射到同一个变量对象
+# def equal_varb(pack1, pack2):
+#     module1 = pack1[0]
+#     module2 = pack2[0]
+#     num1 = pack1[1]
+#     num2 = pack2[1]
+#     name1 = module1.varb_name[num1]
+#     name2 = module2.varb_name[num2]
+#     module1.varb_dict[name1] = module2.varb_dict[name2]
 
 
 # 获得所有变量
@@ -1150,9 +1274,9 @@ class SingleLineModel(ElePack):
         for node in self.node_dict.values():
             for ele in node.element.values():
                 if node.track[1] is not None:
-                    equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                    self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
                 else:
-                    equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
+                    self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
 
 
 class MainModel(ElePack):
@@ -1280,22 +1404,22 @@ def set_varb_num(var_set):
 
 ########################################################################################################################
 
-# 方程
-class Equation:
-    def __init__(self, varbs=None, values=None, constant=0, name=''):
-        self.name = name
-        if varbs is not None:
-            self.vb_list = list(zip(varbs, values))
-        else:
-            self.vb_list = []
-        self.constant = constant
-
-    def set_varbs(self, varbs, values):
-        self.vb_list = list(zip(varbs, values))
-
-    def add_varb(self, varb, value):
-        tuple1 = (varb, value)
-        self.vb_list.append(tuple1)
+# # 方程
+# class Equation:
+#     def __init__(self, varbs=None, values=None, constant=0, name=''):
+#         self.name = name
+#         if varbs is not None:
+#             self.vb_list = list(zip(varbs, values))
+#         else:
+#             self.vb_list = []
+#         self.constant = constant
+#
+#     def set_varbs(self, varbs, values):
+#         self.vb_list = list(zip(varbs, values))
+#
+#     def add_varb(self, varb, value):
+#         tuple1 = (varb, value)
+#         self.vb_list.append(tuple1)
 
 
 ########################################################################################################################
