@@ -1,8 +1,6 @@
-from src.ElePack import ElePack
 from src.BasicOutsideModel import SVA
+from src.ZPW2000A_QJ_Normal import *
 
-
-import src.TrackCircuitCalculator3 as tc
 
 # 绝缘节
 class Joint(ElePack):
@@ -19,6 +17,7 @@ class Joint(ElePack):
     def __init__(self, parent_ins, name_base, posi_flag,
                  l_section, r_section, j_type, j_length):
         super().__init__(parent_ins, name_base)
+        self.parameter = parent_ins.parameter
         self.posi_flag = posi_flag
         self.init_position(0)
         self.j_type = j_type
@@ -53,7 +52,7 @@ class Joint(ElePack):
                 self.element['SVA'] = SVA(parent_ins=self,
                                           name_base='SVA',
                                           posi=0,
-                                          z=tc.TCSR_2000A['SVA_z'])
+                                          z=self.parameter['SVA_z'])
 
     def add_joint_tcsr(self):
         if self.j_type == '电气':
@@ -67,7 +66,18 @@ class Joint(ElePack):
             else:
                 return
 
-            if isinstance(tcsr, tc.ZPW2000A_QJ_Normal):
-                self[name] = tc.ZPW2000A_QJ_Normal(parent_ins=self, name_base=name, posi_flag=flag,
-                                                cable_length=tcsr.cable_length,
-                                                mode=tc.change_sr_mode(tcsr.mode), level=1)
+            if isinstance(tcsr, ZPW2000A_QJ_Normal):
+                self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+                                                posi_flag=flag, cable_length=tcsr.cable_length,
+                                                mode=self.change_sr_mode(tcsr.mode), level=1)
+
+    # 交换发送接收
+    @staticmethod
+    def change_sr_mode(mode):
+        new = None
+        if mode == '发送':
+            new = '接收'
+        elif mode == '接收':
+            new = '发送'
+        return new
+

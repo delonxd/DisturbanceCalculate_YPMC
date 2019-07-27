@@ -184,17 +184,21 @@ class MainWin(QWidget):
                                m_length=[480, 500, 320],
                                j_length=[29, 29, 29, 29],
                                m_type=['2000A', '2000A', '2000A'],
-                               c_num=[6, 6, 5])
+                               c_num=[6, 6, 5],
+                               parameter=tcc.TCSR_2000A)
 
         sg2 = tcc.SectionGroup(name_base='地面', posi=0, m_num=2, freq1=1700,
                                m_length=[480, 200, 320],
                                j_length=[29, 29, 29, 29],
                                m_type=['2000A', '2000A', '2000A'],
-                               c_num=[8, 6, 5])
-        train1 = tcc.Train(parent_ins=None, name_base='列车1', posi_abs=0)
+                               c_num=[8, 6, 5],
+                               parameter=tcc.TCSR_2000A)
+        train1 = tcc.Train(name_base='列车1', posi_abs=0, parameter=tcc.TCSR_2000A)
         # 生成线路
-        l1 = tcc.Line(name_base='线路1', sec_group=sg1, train=train1)
-        l2 = tcc.Line(name_base='线路2', sec_group=sg2)
+        l1 = tcc.Line(name_base='线路1', sec_group=sg1, train=train1,
+                      parameter=tcc.TCSR_2000A)
+        l2 = tcc.Line(name_base='线路2', sec_group=sg2,
+                      parameter=tcc.TCSR_2000A)
         lg = tcc.LineGroup(l1, l2, name_base='线路组')
 
         tree = ElementTree(lg)

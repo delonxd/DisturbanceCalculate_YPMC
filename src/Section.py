@@ -1,11 +1,5 @@
-from src.ElePack import ElePack
 from src.BasicOutsideModel import CapC
-
-
-import src.TrackCircuitCalculator3 as tc
-from src.ZPW2000A_QJ_Normal import *
-import src.Joint as
-
+from src.Joint import *
 
 # 区段
 class Section(ElePack):
@@ -21,6 +15,7 @@ class Section(ElePack):
                  m_type, m_freq, s_length,
                  j_length, c_num, j_type, sr_mode):
         super().__init__(parent_ins, name_base)
+        self.parameter = parent_ins.parameter
         self.init_position(0)
         self.m_type = m_type
         self.m_freq = m_freq
@@ -51,16 +46,16 @@ class Section(ElePack):
             for num in range(c_num):
                 name = 'C' + str(num + 1)
                 self[name] = CapC(parent_ins=self, name_base=name,
-                                  posi=c_posi[num], z=tc.TCSR_2000A['Ccmp_z'])
+                                  posi=c_posi[num], z=self.parameter['Ccmp_z'])
             # 设置绝缘节
             for num in range(2):
                 flag = ['左', '右'][num]
                 name = flag + '绝缘节'
                 l_section = None if num == 0 else self
                 r_section = self if num == 0 else None
-                self[name] = Joint.Joint(parent_ins=self, name_base=name, posi_flag=flag,
-                                         l_section=l_section, r_section=r_section,
-                                         j_length=j_length[num], j_type=j_type[num],)
+                self[name] = Joint(parent_ins=self, name_base=name, posi_flag=flag,
+                                   l_section=l_section, r_section=r_section,
+                                   j_length=j_length[num], j_type=j_type[num])
                 joint = self[name]
 
                 name = flag + '调谐单元'

@@ -1,9 +1,4 @@
-from src.ElePack import ElePack
-
-
 from src.Section import *
-import src.TrackCircuitCalculator3 as tc
-
 
 class SectionGroup(ElePack):
     new_table = {
@@ -15,9 +10,11 @@ class SectionGroup(ElePack):
     prop_table = ElePack.prop_table.copy()
     prop_table.update(new_table)
 
-    def __init__(self, name_base, posi, m_num, freq1, m_length, j_length, m_type, c_num):
+    def __init__(self, name_base, posi, m_num, freq1, m_length, j_length, m_type, c_num,
+                 parameter):
         super().__init__(None, name_base)
         self.init_position(posi)
+        self.parameter = parameter
         init_list = (m_num, freq1, m_type, m_length, j_length, c_num)
         self.m_num = m_num
         self.section_list = list()
@@ -32,7 +29,7 @@ class SectionGroup(ElePack):
         freq_list = list()
         for num in range(m_num):
             freq_list.append(freq)
-            freq = tc.change_freq(freq)
+            freq = self.change_freq(freq)
         m_type = m_type[:m_num]
         m_length = m_length[:m_num]
         j_length = j_length[:(m_num + 1)]
@@ -66,9 +63,9 @@ class SectionGroup(ElePack):
         return posi_dict
 
     def refresh(self):
-        tc.set_posi_abs(self, 0)
+        self.set_posi_abs(0)
         # set_ele_name(self, '')
-        self.ele_posi = tc.get_posi_abs(self, posi_list=[])
+        self.ele_posi = self.get_posi_abs(posi_list=[])
 
     # 连接相邻区段
     def link_section(self):
@@ -88,7 +85,7 @@ class SectionGroup(ElePack):
             elif joint1.j_type == '电气':
                 if not sec1.m_type == sec2.m_type:
                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨类型不符无法相连')
-                elif not sec1.m_freq == tc.change_freq(sec2.m_freq):
+                elif not sec1.m_freq == self.change_freq(sec2.m_freq):
                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨频率不符无法相连')
                 else:
                     joint1.r_section = sec2
@@ -98,3 +95,16 @@ class SectionGroup(ElePack):
             for j_name in ['左绝缘节', '右绝缘节']:
                 sec[j_name].add_joint_tcsr()
 
+    # 变换频率
+    @staticmethod
+    def change_freq(freq):
+        new = None
+        if freq == 1700:
+            new = 2300
+        elif freq == 2000:
+            new = 2600
+        elif freq == 2300:
+            new = 1700
+        elif freq == 2600:
+            new = 2000
+        return new

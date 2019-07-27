@@ -1,13 +1,14 @@
 # 元素包
 class ElePack:
     prop_table = {
-        # '父对象': 'parent_ins',
+        '父对象': 'parent_ins',
         '基础名称': 'name_base',
+        '名称': 'name',
         '元素字典': 'element',
         '元素列表': 'ele_list',
-        # '室外元素标识': 'flag_outside',
-        # '元素列表标识': 'flag_ele_list',
-        # '单位元素标识': 'flag_ele_unit',
+        '室外元素标识': 'flag_outside',
+        '元素列表标识': 'flag_ele_list',
+        '单位元素标识': 'flag_ele_unit',
         '相对位置': 'posi_rlt',
         '绝对位置': 'posi_abs',
     }
@@ -83,6 +84,64 @@ class ElePack:
             md_list.append(self)
         return md_list
 
+    # 设置绝对位置
+    def set_posi_abs(self, abs_posi):
+        if self.flag_outside is True:
+            if self.parent_ins is None:
+                self.posi_abs = self.posi_rlt + abs_posi
+            else:
+                self.posi_abs = self.parent_ins.posi_abs + self.posi_rlt
+            if self.flag_ele_unit is False:
+                for ele in self.element.values():
+                    ele.set_posi_abs(abs_posi)
+
+    # 获取元器件绝对位置
+    def get_posi_abs(self, posi_list):
+        posi_list = posi_list.copy()
+        if self.flag_ele_unit is False:
+            for ele in self.element.values():
+                posi_list = ele.get_posi_abs(posi_list)
+        else:
+            posi_list.append(self.posi_abs)
+            posi_list = self.sort_posi_list(posi_list)
+        return posi_list
+
+    # 快速获取绝对位置
+    def get_posi_fast(self,ele_set):
+        posi_all = list()
+        for ele in ele_set:
+            posi_all.append(ele.posi_abs)
+        posi_all = self.sort_posi_list(posi_all)
+        return posi_all
+
+    # 配置元器件的名称
+    def set_ele_name(self, prefix=''):
+        if self.parent_ins is None:
+            self.name = prefix + self.name_base
+        else:
+            self.name = self.parent_ins.name + '_' + self.name_base
+        for ele in self.element.values():
+            ele.set_ele_name(prefix=prefix)
+
+    # 获得所有元器件的字典
+    def get_element(self, ele_set, flag_ele_unit=True):
+        if not (flag_ele_unit * self.flag_ele_unit):
+            for ele in self.element.values():
+                ele_set = ele.get_element(ele_set=ele_set, flag_ele_unit=flag_ele_unit)
+        else:
+            ele_set.add(self)
+        return ele_set
+
+    # 获得所有变量
+    def get_varb(self, varb_set):
+        if hasattr(self, 'varb_dict'):
+            for ele in self.varb_dict.values():
+                varb_set.add(ele)
+        else:
+            for ele in self.element.values():
+                varb_set = ele.get_varb(varb_set)
+        return varb_set.copy()
+
     # 使两个模块的变量映射到同一个变量对象
     @staticmethod
     def equal_varb(pack1, pack2):
@@ -94,3 +153,9 @@ class ElePack:
         name2 = module2.varb_name[num2]
         module1.varb_dict[name1] = module2.varb_dict[name2]
 
+    # 节点排序
+    @staticmethod
+    def sort_posi_list(posi_list):
+        new_list = list(set(posi_list))
+        new_list.sort()
+        return new_list

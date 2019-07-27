@@ -1,8 +1,8 @@
 from src.CableModel import *
 from src.TcsrModule import *
 
-import src.Joint as Joint
-import src.Section as Section
+import src.Section as sc
+import src.Joint as jt
 
 class TCSR(ElePack):
     new_table = {
@@ -28,12 +28,12 @@ class TCSR(ElePack):
     def posi_rlt(self):
         posi = None
         parent = self.parent_ins
-        if isinstance(parent, Section.Section):
+        if isinstance(parent, sc.Section):
             if self.posi_flag == '左':
                 posi = parent['左绝缘节'].j_length / 2
             elif self.posi_flag == '右':
                 posi = parent.s_length - parent['右绝缘节'].j_length / 2
-        elif isinstance(parent, Joint.Joint):
+        elif isinstance(parent, jt.Joint):
             if self.posi_flag == '左':
                 posi = parent.j_length / 2
             elif self.posi_flag == '右':
@@ -43,28 +43,28 @@ class TCSR(ElePack):
     @property
     def parent_joint(self):
         joint = None
-        if isinstance(self.parent_ins, Section.Section):
+        if isinstance(self.parent_ins, sc.Section):
             name = self.posi_flag + '绝缘节'
             joint = self.parent_ins[name]
-        elif isinstance(self.parent_ins, Joint.Joint):
+        elif isinstance(self.parent_ins, jt.Joint):
             joint = self.parent_ins
         return joint
 
     @property
     def m_type(self):
         m_type = None
-        if isinstance(self.parent_ins, Section.Section):
+        if isinstance(self.parent_ins, sc.Section):
             m_type = self.parent_ins.m_type
-        elif isinstance(self.parent_ins, Joint.Joint):
+        elif isinstance(self.parent_ins, jt.Joint):
             m_type = self.parent_ins.parent_ins.m_type
         return m_type
 
     @property
     def m_freq(self):
         m_freq = None
-        if isinstance(self.parent_ins, Section.Section):
+        if isinstance(self.parent_ins, sc.Section):
             m_freq = self.parent_ins.m_freq
-        elif isinstance(self.parent_ins, Joint.Joint):
+        elif isinstance(self.parent_ins, jt.Joint):
             m_freq = None
             # m_freq = change_freq(self.parent_ins.parent_ins.m_freq)
         return m_freq

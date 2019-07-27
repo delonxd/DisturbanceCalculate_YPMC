@@ -1,5 +1,4 @@
 from src.ElePack import ElePack
-from src.PortNetwork import TwoPortNetwork
 from src.BasicCircuitModel import *
 from src.Equation import Equation
 
