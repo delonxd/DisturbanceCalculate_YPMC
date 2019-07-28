@@ -1,7 +1,10 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+
 import src.TrackCircuitCalculator3 as tcc
+from src.TestModel import *
+
 import sys
 import time
 
@@ -178,28 +181,9 @@ class MainWin(QWidget):
         self.setWindowTitle('轨道电路传输计算Demo')
         hbox = QHBoxLayout()
 
-        sg1 = tcc.SectionGroup(name_base='地面', posi=0, m_num=3, freq1=2600,
-                               m_length=[480, 500, 320],
-                               j_length=[29, 29, 29, 29],
-                               m_type=['2000A', '2000A', '2000A'],
-                               c_num=[6, 6, 5],
-                               parameter=tcc.TCSR_2000A)
+        md = TestModel()
 
-        sg2 = tcc.SectionGroup(name_base='地面', posi=0, m_num=2, freq1=1700,
-                               m_length=[480, 200, 320],
-                               j_length=[29, 29, 29, 29],
-                               m_type=['2000A', '2000A', '2000A'],
-                               c_num=[8, 6, 5],
-                               parameter=tcc.TCSR_2000A)
-        train1 = tcc.Train(name_base='列车1', posi_abs=0, parameter=tcc.TCSR_2000A)
-        # 生成线路
-        l1 = tcc.Line(name_base='线路1', sec_group=sg1, train=train1,
-                      parameter=tcc.TCSR_2000A)
-        l2 = tcc.Line(name_base='线路2', sec_group=sg2,
-                      parameter=tcc.TCSR_2000A)
-        lg = tcc.LineGroup(l1, l2, name_base='线路组')
-
-        tree = ElementTree(lg)
+        tree = ElementTree(md.line_group)
         window1 = ShowText()
         window2 = ParameterTree()
         hbox.addWidget(tree, 1)

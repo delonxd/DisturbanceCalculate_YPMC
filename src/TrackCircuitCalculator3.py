@@ -1,34 +1,10 @@
-import pickle
-from src import ElectricParameter as pc
-
 from src.TrackCircuitElement.SectionGroup import *
 from src.TrackCircuitElement.Train import *
 from src.TrackCircuitElement.Line import *
 from src.TrackCircuitElement.LineGroup import *
 from src.MainModel import *
 from src.ModelParameter import *
-
-
-########################################################################################################################
-
-def show_ele(vessel, para=''):
-    if isinstance(vessel, (list, set)):
-        list_t = list()
-        for ele in vessel:
-            if para == '':
-                list_t.append(ele.__repr__())
-            else:
-                list_t.append(ele.__dict__[para].__repr__())
-        list_t.sort()
-        for ele in list_t:
-            print(ele)
-    elif isinstance(vessel, (dict, ElePack)):
-        keys = sorted(list(vessel.keys()))
-        for key in keys:
-            if para == '':
-                print(key, ':', vessel[key])
-            else:
-                print(vessel[key].__dict__[para])
+from src.Function import show_ele
 
 
 #######################################################################################################################
@@ -64,7 +40,7 @@ if __name__ == '__main__':
 
     # 建立模型
     model = MainModel(lg)
-
+    show_ele('111')
     a = 1
     pass
     # output = []

@@ -2,6 +2,7 @@ import pickle
 from src import ElectricParameter as pc
 
 
+# 模型参数
 class ModelParameter:
     def __init__(self, name='原始参数'):
         self.name = name
@@ -38,11 +39,18 @@ class ModelParameter:
     def __setitem__(self, key, value):
         self.parameter[key] = value
 
+    def values(self):
+        return self.element.values()
+
+    def keys(self):
+        return self.element.keys()
+
+    def items(self):
+        return self.element.items()
+
 
 if __name__ == '__main__':
     # print(time.asctime(time.localtime()))
 
     # 导入参数
     para = ModelParameter()
-
-    x = 1
