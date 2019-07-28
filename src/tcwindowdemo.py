@@ -2,8 +2,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-import src.TrackCircuitCalculator3 as tcc
+
 from src.TestModel import *
+from src.ElectricParameter import ParaMultiF
+from src.AbstractClass.ElePack import *
 
 import sys
 import time
@@ -21,16 +23,16 @@ class ParameterTreeItem(QTreeWidgetItem):
 
     @property
     def value(self):
-        if isinstance(self.vessel, tcc.ElePack):
+        if isinstance(self.vessel, ElePack):
             return self.vessel.get_property(self.key)
-        elif isinstance(self.vessel, (dict, tcc.pc.ParaMultiF)):
+        elif isinstance(self.vessel, (dict, ParaMultiF)):
             return self.vessel[self.key]
         else:
             return None
 
     @value.setter
     def value(self, text):
-        if isinstance(self.vessel, tcc.ElePack):
+        if isinstance(self.vessel, ElePack):
             self.vessel.set_property(self.key, text)
         # elif isinstance(self.vessel, (dict, tcc.pc.ParaMultiF)):
         #     if self.vessel[self.key] = value
@@ -39,7 +41,7 @@ class ParameterTreeItem(QTreeWidgetItem):
     def init_child(self):
         value = self.value
         self.setText(0, str(self.key))
-        if isinstance(value, (dict, tcc.pc.ParaMultiF)):
+        if isinstance(value, (dict, ParaMultiF)):
             for key in value.keys():
                 ParameterTreeItem(parent=self,vessel=value,key=key)
         else:
@@ -65,8 +67,6 @@ class ParameterTree(QTreeWidget):
         for key in vessel.prop_table.keys():
             ParameterTreeItem(parent=self, vessel=vessel, key=key)
 
-
-
     def open_editor(self, item, column):
         if column == 1:
             self.current_editor = (item, column)
@@ -77,7 +77,7 @@ class ParameterTree(QTreeWidget):
         if not (item, column) == (None, None):
             value = item.value
             text = item.text(1)
-            self.closePersistentEditor(item, column)
+            self.closePersistentEditor(item, column=column)
             if isinstance(value, str):
                 item.value = item.text(1)
             else:
@@ -91,7 +91,6 @@ class ParameterTree(QTreeWidget):
     def test_slot(self):
         item = self.currentItem()
         # print(item.text(1))
-
 
 
 class ElementTreeItem(QTreeWidgetItem):
@@ -108,7 +107,7 @@ class ElementTreeItem(QTreeWidgetItem):
 
 
 class ElementTree(QTreeWidget):
-    sendmsg = pyqtSignal(tcc.ElePack)
+    sendmsg = pyqtSignal(ElePack)
 
     def __init__(self, vessel):
         super().__init__()

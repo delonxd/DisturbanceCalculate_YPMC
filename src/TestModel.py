@@ -25,7 +25,7 @@ class TestModel:
                            m_type=['2000A', '2000A', '2000A'],
                            c_num=[8, 6, 5],
                            parameter=parameter)
-        train1 = Train(name_base='列车1', posi_abs=0, parameter=para)
+        train1 = Train(name_base='列车1', posi_abs=0, parameter=parameter)
 
         # 生成线路
         l1 = Line(name_base='线路1', sec_group=sg1, train=train1,
