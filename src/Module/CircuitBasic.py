@@ -1,5 +1,6 @@
 from src.Module.PortNetwork import *
 from src.AbstractClass.Equation import *
+from src.Module.ParameterType import *
 
 
 # 并联阻抗
@@ -10,9 +11,15 @@ class OPortZ(OnePortNetwork):
     prop_table = OnePortNetwork.prop_table.copy()
     prop_table.update(new_table)
 
+    # 变量类型
+    para_type = {
+        'z': VariableImpedance}
+
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base)
         self.z = z
+
+        # self.z = VariableImpedance(parent=OPortZ, name='z', value=z)
 
     # def get_equs(self, freq):
     #     z = self.z[freq].z
@@ -38,9 +45,14 @@ class OPortPowerU(OnePortNetwork):
     prop_table = OnePortNetwork.prop_table.copy()
     prop_table.update(new_table)
 
+    # 变量类型
+    para_type = {
+        'z': Constant}
+
     def __init__(self, parent_ins, name_base, voltage=0):
         super().__init__(parent_ins, name_base)
         self.voltage = voltage
+
 
     # def get_equs(self, freq):
     #     equ1 = Equation(varbs=[self['U']], values=[1])

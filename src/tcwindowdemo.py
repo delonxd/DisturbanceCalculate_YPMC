@@ -54,9 +54,14 @@ class ParameterTree(QTreeWidget):
         self.element = None
         self.setColumnCount(2)
         self.setHeaderLabels(['参数名', '值'])
+
+        header = self.header()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        header.setStretchLastSection(False)
         # self.show_dict()
 
         self.current_editor = (None, None)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
         self.itemDoubleClicked.connect(self.open_editor)
         self.itemSelectionChanged.connect(self.close_editor)
@@ -116,7 +121,13 @@ class ElementTree(QTreeWidget):
         root = ElementTreeItem(parent=self, vessel=self.vessel)
         root.setText(0, root.vessel.name)
 
+        header = self.header()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        header.setStretchLastSection(False)
         # self.setMouseTracking(True)
+        # self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        # self.setSectionResizeMode
 
         self.current_editor = (None, None)
 
@@ -176,13 +187,13 @@ class ShowText(QTextEdit):
 class MainWin(QWidget):
     def __init__(self):
         super().__init__()
-        self.resize(800, 600)
+        self.resize(1280, 900)
         self.setWindowTitle('轨道电路传输计算Demo')
         hbox = QHBoxLayout()
 
         md = TestModel()
 
-        tree = ElementTree(md.line_group)
+        tree = ElementTree(md.model)
         window1 = ShowText()
         window2 = ParameterTree()
         hbox.addWidget(tree, 1)

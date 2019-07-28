@@ -1,6 +1,7 @@
 import numpy as np
 from src.Module.PortNetwork import *
 from src.AbstractClass.Equation import *
+from src.Module.ParameterType import Constant
 
 
 # 电缆等效电路
@@ -14,8 +15,21 @@ class TPortCable(TwoPortNetwork):
     prop_table = TwoPortNetwork.prop_table.copy()
     prop_table.update(new_table)
 
+    # 变量类型
+    para_type = {
+        'R': Constant,
+        'L': Constant,
+        'C': Constant,
+        'length': Constant}
+
     def __init__(self, parent_ins, name_base, length, cab_r=43, cab_l=825e-6, cab_c=28e-9):
         super().__init__(parent_ins, name_base)
+
+        # self.R = Constant(parent=TPortCable, name='R', value=cab_r)
+        # self.L = Constant(parent=TPortCable, name='L', value=cab_l)
+        # self.C = Constant(parent=TPortCable, name='C', value=cab_c)
+        # self.length = Constant(parent=TPortCable, name='length', value=length)
+
         self.R = cab_r
         self.L = cab_l
         self.C = cab_c
