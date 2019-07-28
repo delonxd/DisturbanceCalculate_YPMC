@@ -1,5 +1,6 @@
 from src.ElePack import *
 
+
 class LineGroup(ElePack):
     def __init__(self, *lines, name_base=''):
         super().__init__(None, name_base)

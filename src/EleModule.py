@@ -1,5 +1,7 @@
-from src.ElePack import ElePack
+from src.ElePack import *
 
+
+# 电气模块
 class EleModule(ElePack):
     new_table = {
         '变量名': 'varb_name',
@@ -34,3 +36,8 @@ class EleModule(ElePack):
 
     def items(self):
         return self.varb_dict.items()
+
+    def get_varb(self, index):
+        key = self.varb_name[index]
+        varb = self.varb_dict[key]
+        return varb

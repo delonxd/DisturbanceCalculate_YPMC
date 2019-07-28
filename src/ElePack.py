@@ -107,7 +107,7 @@ class ElePack:
         return posi_list
 
     # 快速获取绝对位置
-    def get_posi_fast(self,ele_set):
+    def get_posi_fast(self, ele_set):
         posi_all = list()
         for ele in ele_set:
             posi_all.append(ele.posi_abs)
@@ -132,15 +132,15 @@ class ElePack:
             ele_set.add(self)
         return ele_set
 
-    # 获得所有变量
-    def get_varb(self, varb_set):
-        if hasattr(self, 'varb_dict'):
-            for ele in self.varb_dict.values():
-                varb_set.add(ele)
-        else:
-            for ele in self.element.values():
-                varb_set = ele.get_varb(varb_set)
-        return varb_set.copy()
+    # # 获得所有变量
+    # def get_varb(self, varb_set):
+    #     if hasattr(self, 'varb_dict'):
+    #         for ele in self.varb_dict.values():
+    #             varb_set.add(ele)
+    #     else:
+    #         for ele in self.element.values():
+    #             varb_set = ele.get_varb(varb_set)
+    #     return varb_set.copy()
 
     # 使两个模块的变量映射到同一个变量对象
     @staticmethod
@@ -159,3 +159,18 @@ class ElePack:
         new_list = list(set(posi_list))
         new_list.sort()
         return new_list
+
+    # 变换频率
+    @staticmethod
+    def change_freq(freq):
+        new = None
+        if freq == 1700:
+            new = 2300
+        elif freq == 2000:
+            new = 2600
+        elif freq == 2300:
+            new = 1700
+        elif freq == 2600:
+            new = 2000
+        return new
+

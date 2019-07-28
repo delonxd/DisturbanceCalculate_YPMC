@@ -42,141 +42,167 @@ class MainModel(ElePack):
     def __init__(self, line_group):
         super().__init__(None, line_group.name_base)
         self.line_group = line_group
+        self.init_model()
+        self.ele_set = set()
+        self.equs = self.get_equs_kirchhoff()
+        self.varbs = self.equs.get_varbs()
+        self.varbs.config_varb_num()
+        self.matrx, self.cons = self.config_matrix()
 
-        for line in line_group.element.values():
+    def config_matrix(self):
+        length = len(self.equs)
+        matrix_main = np.matlib.zeros((length, length), dtype=complex)
+        constant = [0] * length
+
+        self.equs.sort_by_name()
+        equ_list = self.equs.equs
+        for row in range(length):
+            equ = equ_list[row]
+            for item in equ.items:
+                column = item.varb.num
+                value = item.coefficient
+                matrix_main[row, column] = value
+            constant[row] = equ.constant
+        return matrix_main, constant
+
+    def init_model(self):
+        for line in self.line_group.values():
             self[line.name_base] = SingleLineModel(self, line)
-        self.set_line_mutual()
-        # self.ele_set = get_element()
-        self.equs_kirchhoff = self.get_equs_kirchhoff()
+        self.config_mutual()
+        self.get_ele_set()
 
-    def set_line_mutual(self):
+    def get_ele_set(self):
+        ele_set = self.get_element(ele_set=set())
+        self.ele_set = ele_set
+        return ele_set
+
+    def config_mutual(self):
         if len(self.element) == 2:
-            lines = list(self.element.values())
-            set1 = set(lines[0].node_dict.keys())
-            set2 = set(lines[1].node_dict.keys())
+            line1, line2 = list(self.element.values())
+            set1 = set(line1.node_dict.keys())
+            set2 = set(line2.node_dict.keys())
             node_set = list(set1.intersection(set2))
             node_set.sort()
             for posi in node_set[:-1]:
-                lines[0].node_dict[posi].track[1].mutual_trk = lines[1].node_dict[posi].track[1]
-                lines[1].node_dict[posi].track[1].mutual_trk = lines[0].node_dict[posi].track[1]
+                line1.node_dict[posi].r_track.mutual_trk = line2.node_dict[posi].r_track
+                line2.node_dict[posi].r_track.mutual_trk = line1.node_dict[posi].r_track
 
+    # 获得基尔霍夫电压电流方程
     def get_equs_kirchhoff(self):
-        equs = list()
+        equs = EquationGroup()
         for line_model in self.element.values():
-            # equs.extend(self.get_equ_unit(line_model, freq))
-            equs.extend(self.get_equ_kcl(line_model))
-            equs.extend(self.get_equ_kvl(line_model))
+            equs.add_equations(self.get_equ_unit(line_model, 1700))
+            print(len(equs))
+            equs.add_equations(self.get_equ_kcl(line_model))
+            print(len(equs))
+            equs.add_equations(self.get_equ_kvl(line_model))
+            print(len(equs))
         return equs
+
+    # # 元器件方程
+    # @staticmethod
+    # def get_equ_unit(ele_set, freq):
+    #     equs = EquationGroup()
+    #     for ele in ele_set:
+    #         for module in ele.md_list:
+    #             module.get_equs(freq)
+    #             num = 1
+    #             for equ in module.equs:
+    #                 equ.name = module.name + '方程' + str(num)
+    #                 equs.add_equation(equ)
+    #                 num += 1
+    #     return equs
+    #
+    # # KCL方程
+    # @staticmethod
+    # def get_equ_kcl(line):
+    #     equs = EquationGroup()
+    #     for num in range(len(line.posi_line)):
+    #         node = line.node_dict[line.posi_line[num]]
+    #         name = line.name + '_节点KCL方程' + str(num + 1)
+    #         equ = Equation(name=name)
+    #         for ele in node.element.values():
+    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
+    #             equ.add_varb(vb, 1)
+    #         if node.track[0] is not None:
+    #             ele = node.track[0]
+    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
+    #             equ.add_varb(vb, 1)
+    #         if node.track[1] is not None:
+    #             ele = node.track[1]
+    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[1]]
+    #             equ.add_varb(vb, 1)
+    #         equs.add_equation(equ)
+    #     return equs
+    #
+    # # KVL方程
+    # @staticmethod
+    # def get_equ_kvl(line):
+    #     equs = EquationGroup()
+    #     posi_line = line.posi_line[1:-1]
+    #     for num in range(len(posi_line)):
+    #         node = line.node_dict[posi_line[num]]
+    #         name = line.name + '_节点KVL方程' + str(num + 1)
+    #         equ = Equation(name=name)
+    #         if node.track[0] is not None:
+    #             ele = node.track[0]
+    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-2]]
+    #             equ.add_varb(vb, 1)
+    #         if node.track[1] is not None:
+    #             ele = node.track[1]
+    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[0]]
+    #             equ.add_varb(vb, -1)
+    #         equs.add_equation(equ)
+    #     return equs
 
     # 元器件方程
     @staticmethod
-    def get_equ_unit(vessel, freq, equs):
-        ele_set = vessel.get_element(ele_set=set())
-        # equs = []
+    def get_equ_unit(line_model, freq):
+        equs = EquationGroup()
+        ele_set = line_model.get_element(ele_set=set())
         for ele in ele_set:
             for module in ele.md_list:
-                module.get_equs(freq)
-                num = 1
-                for equ in module.equs:
-                    equ.name = module.name + '方程' + str(num)
-                    equs.append(equ)
-                    num += 1
+                equs.add_equations(module.get_equs(freq))
+            print(len(equs), ele.name)
         return equs
 
     # KCL方程
     @staticmethod
     def get_equ_kcl(line):
-        equs = list()
+        equs = EquationGroup()
         for num in range(len(line.posi_line)):
             node = line.node_dict[line.posi_line[num]]
             name = line.name + '_节点KCL方程' + str(num+1)
             equ = Equation(name=name)
             for ele in node.element.values():
-                vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
-                equ.add_varb(vb, 1)
-            if node.track[0] is not None:
-                ele = node.track[0]
-                vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
-                equ.add_varb(vb, 1)
-            if node.track[1] is not None:
-                ele = node.track[1]
-                vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[1]]
-                equ.add_varb(vb, 1)
-            equs.append(equ)
+                vb = ele.md_list[-1].get_varb(-1)
+                equ.add_items(EquItem(vb, 1))
+            if node.l_track is not None:
+                vb = node.l_track.get_varb(-1)
+                equ.add_items(EquItem(vb, 1))
+            if node.r_track is not None:
+                vb = node.r_track.get_varb(1)
+                equ.add_items(EquItem(vb, 1))
+            equs.add_equation(equ)
         return equs
 
     # KVL方程
     @staticmethod
     def get_equ_kvl(line):
-        equs = list()
+        equs = EquationGroup()
         posi_line = line.posi_line[1:-1]
         for num in range(len(posi_line)):
             node = line.node_dict[posi_line[num]]
             name = line.name + '_节点KVL方程' + str(num+1)
             equ = Equation(name=name)
-            if node.track[0] is not None:
-                ele = node.track[0]
-                vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-2]]
-                equ.add_varb(vb, 1)
-            if node.track[1] is not None:
-                ele = node.track[1]
-                vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[0]]
-                equ.add_varb(vb, -1)
-            equs.append(equ)
+            if node.l_track is not None:
+                vb = node.l_track.get_varb(-2)
+                equ.add_items(EquItem(vb, 1))
+            if node.r_track is not None:
+                vb = node.r_track.get_varb(0)
+                equ.add_items(EquItem(vb, 1))
+            equs.add_equation(equ)
         return equs
-
-
-# 从等式获取变量
-def get_varb_set(equs):
-    varb_set = set()
-    for equ in equs:
-        for ele in equ.vb_list:
-            varb_set.add(ele[0])
-    return varb_set.copy()
-
-
-def get_matrix(equs):
-    varb_set = get_varb_set(equs)
-    set_varb_num(varb_set)
-    length = len(equs)
-    mtrx = np.matlib.zeros((length, length), dtype=complex)
-
-    for num in range(length):
-        for varb, value in equs[num].vb_list:
-            mtrx[num, varb.num] = value
-    return mtrx
-
-
-# 变量编号
-def set_varb_num(var_set):
-    name_list = []
-    for varb in var_set:
-        name_list.append(varb.get_varb_name())
-    name_list.sort()
-    varb_list = [None] * len(name_list)
-    for varb in var_set:
-        name = varb.get_varb_name()
-        varb.num = name_list.index(name)
-        varb_list[varb.num] = varb
-    return varb_list
-
-
-########################################################################################################################
-
-# 方程组排序
-def equ_sort(equs):
-    name_list = []
-    for equ in equs:
-        name_list.append(equ.name)
-    name_list.sort()
-    equ_dict = {}
-    equ_list = [None] * len(name_list)
-    for equ in equs:
-        name = equ.name
-        equ.num = name_list.index(name)
-        equ_list[equ.num] = equ
-        equ_dict[name] = equ
-    return equ_list, equ_dict
 
 
 ########################################################################################################################
@@ -225,31 +251,6 @@ def show_ele(vessel, para=''):
                 print(vessel[key].__dict__[para])
 
 
-# with open('TCSR_2000A_data_lib.pkl', 'rb') as pk_f:
-#     TCSR_2000A = pickle.load(pk_f)
-#
-# TCSR_2000A['Ccmp_z'] = pc.ParaMultiF(1700, 2000, 2300, 2600)
-# TCSR_2000A['Ccmp_z'].rlc_s = {
-#     1700: [10e-3, None, 25e-6],
-#     2000: [10e-3, None, 25e-6],
-#     2300: [10e-3, None, 25e-6],
-#     2600: [10e-3, None, 25e-6]}
-#
-# # 钢轨阻抗
-# TCSR_2000A['Trk_z'] = pc.ParaMultiF(1700, 2000, 2300, 2600)
-# TCSR_2000A['Trk_z'].rlc_s = {
-#     1700: [1.177, 1.314e-3, None],
-#     2000: [1.306, 1.304e-3, None],
-#     2300: [1.435, 1.297e-3, None],
-#     2600: [1.558, 1.291e-3, None]}
-#
-# TCSR_2000A['Rd'] = 10000
-# TCSR_2000A['Rsht_z'] = 10e-3
-#
-# # 载频
-# FREQ = 2600
-
-
 #######################################################################################################################
 
 if __name__ == '__main__':
@@ -262,7 +263,7 @@ if __name__ == '__main__':
     #           rd=[TCSR_2000A['Rd']])
 
     # 轨道电路初始化
-    sg1 = SectionGroup(name_base='地面', posi=0, m_num=2, freq1=2600,
+    sg1 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,
                        m_length=[509, 389, 320],
                        j_length=[29, 29, 29, 29],
                        m_type=['2000A', '2000A', '2000A'],

@@ -1,12 +1,13 @@
 from src.ElePack import *
 import numpy as np
 
+
 # 钢轨
 class Rail:
     def __init__(self, parant_line, l_posi, r_posi, ztrk, rd):
         self.parant_line = parant_line
         if l_posi >= r_posi:
-            KeyboardInterrupt('钢轨左坐标不能大于右坐标')
+            raise KeyboardInterrupt('钢轨左坐标不能大于右坐标')
         self.l_posi = l_posi
         self.r_posi = r_posi
         self.ztrk = ztrk
@@ -60,76 +61,36 @@ class RailGroup(ElePack):
         for rail in list(self.rail_set):
             rail.parant_line = parent_line
 
-
     # 添加钢轨段
     def add_rail(self, new_rail):
         new_l = new_rail.l_posi
         new_r = new_rail.r_posi
         for rail in list(self.rail_set):
-            l = rail.l_posi
-            r = rail.r_posi
-            if r <= new_l or new_r <= l:
+            left = rail.l_posi
+            right = rail.r_posi
+            if right <= new_l or new_r <= left:
                 pass
-            elif l < new_l < r <= new_r:
+            elif left < new_l < right <= new_r:
                 rail.r_posi = new_l
-            elif l < new_l < new_r< r:
+            elif left < new_l < new_r < right:
                 rail.r_posi = new_l
                 rail_t = Rail(parant_line=rail.parant_line,
-                              l_posi=new_r, r_posi=r,
+                              l_posi=new_r, r_posi=right,
                               ztrk=rail.ztrk, rd=rail.rd)
                 self.rail_set.add(rail_t)
-            elif new_l <= l < new_r < r:
+            elif new_l <= left < new_r < right:
                 rail.l_posi = new_r
-            elif new_l <= l < r <= new_r:
+            elif new_l <= left < right <= new_r:
                 self.rail_set.discard(rail)
         new_rail.parant_line = self.parent_ins
         self.rail_set.add(new_rail)
 
 
-# # 钢轨分割段
-# class RailSegment:
-#     def __init__(self, l_posi, r_posi, ztrk, rd):
-#         self.l_posi = l_posi
-#         self.r_posi = r_posi
-#         self.ztrk = ztrk
-#         self.rd = rd
-
-# # 钢轨
-# class Rail(ElePack):
-#     def __init__(self, parent_ins, name_base, parameter,
-#                  trk_num=1, posi=None, ztrk=None, rd=None):
-#         super().__init__(parent_ins, name_base)
-#         posi = [-np.inf, np.inf] if posi is None else posi
-#         ztrk = [parameter['Trk_z']] if ztrk is None else ztrk
-#         rd = [parameter['Rd']] if rd is None else rd
-#         init_list = [trk_num, posi, ztrk, rd]
-#         self.posi_list = list()
-#         self.rail_list = list()
-#         # self.sub_rail_list = list()
-#         self.init_rail_list(init_list)
-#
-#     def init_rail_list(self, init_list):
-#         trk_num = init_list[0]
-#         posi_list = init_list[1][:(trk_num+1)]
-#         ztrk_list = init_list[2][:trk_num]
-#         rd_list = init_list[3][:trk_num]
-#
-#         self.posi_list = posi_list
-#         for num in range(trk_num):
-#             self.rail_list.append(RailSegment(l_posi=posi_list[num],
-#                                               r_posi=posi_list[num + 1],
-#                                               ztrk=ztrk_list[num],
-#                                               rd=rd_list[num]))
-
-
 if __name__ == '__main__':
     import src.TrackCircuitCalculator3 as tc
-
 
     a = Rail(parant_line=None, l_posi=-20, r_posi=300, ztrk=1.314, rd=1000)
     rg = RailGroup(parent_ins=None, name_base='akdla', parameter=tc.TCSR_2000A)
     rg.add_rail(a)
 
-
     b = 1
-

@@ -6,8 +6,6 @@ import sys
 import time
 
 
-
-
 class ParameterTreeItem(QTreeWidgetItem):
     def __init__(self, parent, vessel, key):
         super().__init__(parent)

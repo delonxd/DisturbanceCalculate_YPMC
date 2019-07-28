@@ -95,16 +95,3 @@ class SectionGroup(ElePack):
             for j_name in ['左绝缘节', '右绝缘节']:
                 sec[j_name].add_joint_tcsr()
 
-    # 变换频率
-    @staticmethod
-    def change_freq(freq):
-        new = None
-        if freq == 1700:
-            new = 2300
-        elif freq == 2000:
-            new = 2600
-        elif freq == 2300:
-            new = 1700
-        elif freq == 2600:
-            new = 2000
-        return new

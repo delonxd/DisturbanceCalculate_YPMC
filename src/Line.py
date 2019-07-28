@@ -1,5 +1,6 @@
 from src.Rail import *
 
+
 # 线路
 class Line(ElePack):
     def __init__(self, name_base, parameter, parent_ins=None,
@@ -16,6 +17,7 @@ class Line(ElePack):
             self.add_element(sec_group.name_base, sec_group)
         if train is not None:
             self.add_element(train.name_base, train)
+
         self.ele_set = self.get_element(ele_set=set())
         self.set_ele_name(prefix='')
 

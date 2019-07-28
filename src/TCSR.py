@@ -4,6 +4,7 @@ from src.TcsrModule import *
 import src.Section as sc
 import src.Joint as jt
 
+
 class TCSR(ElePack):
     new_table = {
         '主轨类型': 'm_type',
@@ -65,8 +66,8 @@ class TCSR(ElePack):
         if isinstance(self.parent_ins, sc.Section):
             m_freq = self.parent_ins.m_freq
         elif isinstance(self.parent_ins, jt.Joint):
-            m_freq = None
-            # m_freq = change_freq(self.parent_ins.parent_ins.m_freq)
+            section = self.parent_ins.parent_ins
+            m_freq = section.change_freq(section.m_freq)
         return m_freq
 
     @property

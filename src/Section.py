@@ -1,6 +1,7 @@
 from src.BasicOutsideModel import CapC
 from src.Joint import *
 
+
 # 区段
 class Section(ElePack):
     new_table = {

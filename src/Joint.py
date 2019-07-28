@@ -80,4 +80,3 @@ class Joint(ElePack):
         elif mode == '接收':
             new = '发送'
         return new
-

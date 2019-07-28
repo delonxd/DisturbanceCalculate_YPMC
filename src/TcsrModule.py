@@ -1,8 +1,9 @@
 from src.ElePack import ElePack
 from src.BasicCircuitModel import *
-from src.Equation import Equation
+from src.Equation import *
 
 ########################################################################################################################
+
 
 # 发送器模型
 class TcsrPower(ElePack):
@@ -53,13 +54,25 @@ class TcsrPowerZ(TwoPortNetwork):
         self.z = z
         self.level = level
 
+    # def get_equs(self, freq):
+    #     z = self.z[self.level][freq].z
+    #     equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
+    #                     values=[1, -1, z])
+    #     equ2 = Equation(varbs=[self['I1'], self['I2']],
+    #                     values=[-1, 1])
+    #     self.equs = [equ1, equ2]
+
     def get_equs(self, freq):
         z = self.z[self.level][freq].z
-        equ1 = Equation(varbs=[self['U1'], self['U2'], self['I2']],
-                        values=[1, -1, z])
-        equ2 = Equation(varbs=[self['I1'], self['I2']],
-                        values=[-1, 1])
-        self.equs = [equ1, equ2]
+        equ1 = Equation(name=self.name+'_方程1')
+        equ2 = Equation(name=self.name+'_方程2')
+        equ1.add_items(EquItem(self['U1'], 1),
+                       EquItem(self['U2'], -1),
+                       EquItem(self['I2'], z))
+        equ2.add_items(EquItem(self['I1'], -1),
+                       EquItem(self['I2'], 1))
+        self.equs = EquationGroup(equ1, equ2)
+        return self.equs
 
 
 ########################################################################################################################
@@ -109,13 +122,26 @@ class TcsrBA(TPortZParallel):
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base, z)
 
+    # def get_equs(self, freq):
+    #     z = self.z[self.m_freq][freq].z
+    #     equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
+    #                     values=[-1, -z, z])
+    #     equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
+    #                     values=[-1, -z, z])
+    #     self.equs = [equ1, equ2]
+
     def get_equs(self, freq):
         z = self.z[self.m_freq][freq].z
-        equ1 = Equation(varbs=[self['U1'], self['I1'], self['I2']],
-                        values=[-1, -z, z])
-        equ2 = Equation(varbs=[self['U2'], self['I1'], self['I2']],
-                        values=[-1, -z, z])
-        self.equs = [equ1, equ2]
+        equ1 = Equation(name=self.name+'_方程1')
+        equ2 = Equation(name=self.name+'_方程2')
+        equ1.add_items(EquItem(self['U1'], -1),
+                       EquItem(self['I1'], -z),
+                       EquItem(self['I2'], z))
+        equ2.add_items(EquItem(self['U2'], -1),
+                       EquItem(self['I1'], -z),
+                       EquItem(self['I2'], z))
+        self.equs = EquationGroup(equ1, equ2)
+        return self.equs
 
     @property
     def m_freq(self):
