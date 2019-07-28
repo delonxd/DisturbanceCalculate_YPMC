@@ -1,8 +1,8 @@
-from src.CableModel import *
-from src.TcsrModule import *
+from src.Module.Cable import *
+from src.Module.TcsrElement import *
 
-import src.Section as sc
-import src.Joint as jt
+import src.TrackCircuitElement.Section as sc
+import src.TrackCircuitElement.Joint as jt
 
 
 class TCSR(ElePack):

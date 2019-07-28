@@ -1,5 +1,5 @@
-from src.PortNetwork import *
-from src.Equation import *
+from src.Module.PortNetwork import *
+from src.AbstractClass.Equation import *
 
 
 # 并联阻抗

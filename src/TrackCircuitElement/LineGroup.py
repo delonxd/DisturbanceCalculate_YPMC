@@ -1,4 +1,4 @@
-from src.ElePack import *
+from src.AbstractClass.ElePack import *
 
 
 class LineGroup(ElePack):

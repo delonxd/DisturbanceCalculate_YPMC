@@ -1,5 +1,7 @@
-from src.Section import *
+from src.TrackCircuitElement.Section import *
 
+
+# 区段组
 class SectionGroup(ElePack):
     new_table = {
         '区段数量': 'sec_num',

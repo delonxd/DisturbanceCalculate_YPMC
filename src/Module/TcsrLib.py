@@ -1,6 +1,7 @@
-from src.TCSR import *
+from src.Module.TCSRBasic import *
 
 
+# ZPW2000A区间标准配置
 class ZPW2000A_QJ_Normal(TCSR):
     def __init__(self, parent_ins, name_base,
                  posi_flag, cable_length, mode, level):

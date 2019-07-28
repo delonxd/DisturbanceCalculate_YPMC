@@ -1,38 +1,10 @@
-import numpy.matlib
 import pickle
-import time
 from src import ElectricParameter as pc
-from matplotlib import pyplot as plt
 
-
-with open('TCSR_2000A_data_lib.pkl', 'rb') as pk_f:
-    TCSR_2000A = pickle.load(pk_f)
-
-TCSR_2000A['Ccmp_z'] = pc.ParaMultiF(1700, 2000, 2300, 2600)
-TCSR_2000A['Ccmp_z'].rlc_s = {
-    1700: [10e-3, None, 25e-6],
-    2000: [10e-3, None, 25e-6],
-    2300: [10e-3, None, 25e-6],
-    2600: [10e-3, None, 25e-6]}
-
-# 钢轨阻抗
-TCSR_2000A['Trk_z'] = pc.ParaMultiF(1700, 2000, 2300, 2600)
-TCSR_2000A['Trk_z'].rlc_s = {
-    1700: [1.177, 1.314e-3, None],
-    2000: [1.306, 1.304e-3, None],
-    2300: [1.435, 1.297e-3, None],
-    2600: [1.558, 1.291e-3, None]}
-
-TCSR_2000A['Rd'] = 10000
-TCSR_2000A['Rsht_z'] = 10e-3
-
-# 载频
-FREQ = 2600
-
-from src.SectionGroup import *
-from src.Train import *
-from src.Line import *
-from src.LineGroup import *
+from src.TrackCircuitElement.SectionGroup import *
+from src.TrackCircuitElement.Train import *
+from src.TrackCircuitElement.Line import *
+from src.TrackCircuitElement.LineGroup import *
 from src.SingleLineModel import *
 
 
@@ -98,62 +70,6 @@ class MainModel(ElePack):
             equs.add_equations(self.get_equ_kvl(line_model))
             print(len(equs))
         return equs
-
-    # # 元器件方程
-    # @staticmethod
-    # def get_equ_unit(ele_set, freq):
-    #     equs = EquationGroup()
-    #     for ele in ele_set:
-    #         for module in ele.md_list:
-    #             module.get_equs(freq)
-    #             num = 1
-    #             for equ in module.equs:
-    #                 equ.name = module.name + '方程' + str(num)
-    #                 equs.add_equation(equ)
-    #                 num += 1
-    #     return equs
-    #
-    # # KCL方程
-    # @staticmethod
-    # def get_equ_kcl(line):
-    #     equs = EquationGroup()
-    #     for num in range(len(line.posi_line)):
-    #         node = line.node_dict[line.posi_line[num]]
-    #         name = line.name + '_节点KCL方程' + str(num + 1)
-    #         equ = Equation(name=name)
-    #         for ele in node.element.values():
-    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
-    #             equ.add_varb(vb, 1)
-    #         if node.track[0] is not None:
-    #             ele = node.track[0]
-    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-1]]
-    #             equ.add_varb(vb, 1)
-    #         if node.track[1] is not None:
-    #             ele = node.track[1]
-    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[1]]
-    #             equ.add_varb(vb, 1)
-    #         equs.add_equation(equ)
-    #     return equs
-    #
-    # # KVL方程
-    # @staticmethod
-    # def get_equ_kvl(line):
-    #     equs = EquationGroup()
-    #     posi_line = line.posi_line[1:-1]
-    #     for num in range(len(posi_line)):
-    #         node = line.node_dict[posi_line[num]]
-    #         name = line.name + '_节点KVL方程' + str(num + 1)
-    #         equ = Equation(name=name)
-    #         if node.track[0] is not None:
-    #             ele = node.track[0]
-    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[-2]]
-    #             equ.add_varb(vb, 1)
-    #         if node.track[1] is not None:
-    #             ele = node.track[1]
-    #             vb = ele.md_list[-1].varb_dict[ele.md_list[-1].varb_name[0]]
-    #             equ.add_varb(vb, -1)
-    #         equs.add_equation(equ)
-    #     return equs
 
     # 元器件方程
     @staticmethod
@@ -251,16 +167,35 @@ def show_ele(vessel, para=''):
                 print(vessel[key].__dict__[para])
 
 
+with open('parameter_lib/TCSR_2000A_data_lib.pkl', 'rb') as pk_f:
+    TCSR_2000A = pickle.load(pk_f)
+
+TCSR_2000A['Ccmp_z'] = pc.ParaMultiF(1700, 2000, 2300, 2600)
+TCSR_2000A['Ccmp_z'].rlc_s = {
+    1700: [10e-3, None, 25e-6],
+    2000: [10e-3, None, 25e-6],
+    2300: [10e-3, None, 25e-6],
+    2600: [10e-3, None, 25e-6]}
+
+# 钢轨阻抗
+TCSR_2000A['Trk_z'] = pc.ParaMultiF(1700, 2000, 2300, 2600)
+TCSR_2000A['Trk_z'].rlc_s = {
+    1700: [1.177, 1.314e-3, None],
+    2000: [1.306, 1.304e-3, None],
+    2300: [1.435, 1.297e-3, None],
+    2600: [1.558, 1.291e-3, None]}
+
+TCSR_2000A['Rd'] = 10000
+TCSR_2000A['Rsht_z'] = 10e-3
+
+# 载频
+FREQ = 2600
+
+
 #######################################################################################################################
 
 if __name__ == '__main__':
     # print(time.asctime(time.localtime()))
-    # # 载频
-    # # 钢轨初始化
-    # r1 = Rail(upper_ins=None, name_base='主串钢轨', trk_num=1,
-    #           posi=[-np.inf, np.inf],
-    #           ztrk=[TCSR_2000A['Trk_z']],
-    #           rd=[TCSR_2000A['Rd']])
 
     # 轨道电路初始化
     sg1 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,

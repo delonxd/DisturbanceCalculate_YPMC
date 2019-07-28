@@ -1,4 +1,4 @@
-from src.Varb import *
+from src.AbstractClass.Varb import *
 
 
 # 方程组

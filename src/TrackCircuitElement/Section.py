@@ -1,5 +1,5 @@
-from src.BasicOutsideModel import CapC
-from src.Joint import *
+from src.Module.OutsideElement import CapC
+from src.TrackCircuitElement.Joint import *
 
 
 # 区段

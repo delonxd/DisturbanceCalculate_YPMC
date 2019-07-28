@@ -1,5 +1,5 @@
-from src.EleModule import *
-from src.Varb import *
+from src.AbstractClass.EleModule import *
+from src.AbstractClass.Varb import *
 
 
 # 一端口元件

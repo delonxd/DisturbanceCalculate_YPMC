@@ -1,6 +1,6 @@
 import numpy as np
-from src.PortNetwork import *
-from src.Equation import *
+from src.Module.PortNetwork import *
+from src.AbstractClass.Equation import *
 
 
 # 电缆等效电路

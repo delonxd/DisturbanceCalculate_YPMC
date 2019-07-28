@@ -1,9 +1,5 @@
+# 变量
 class Varb:
-    # def __init__(self, upper_module=None):im
-    #     self.upper_name = upper_module
-    #     self.num = None
-    #     self.name = ''
-
     def __init__(self, parent_module, name_base):
         self.parent_module = parent_module
         self.name_base = name_base
@@ -19,6 +15,7 @@ class Varb:
         return repr((self.get_varb_name(), self.num))
 
 
+# 变量组
 class VarbGroup:
     def __init__(self, *varbs):
         self.varb_set = set()

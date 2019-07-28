@@ -1,4 +1,4 @@
-from src.ElePack import *
+from src.AbstractClass.ElePack import *
 
 
 # 电气模块

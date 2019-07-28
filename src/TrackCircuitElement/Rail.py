@@ -1,4 +1,4 @@
-from src.ElePack import *
+from src.AbstractClass.ElePack import *
 import numpy as np
 
 

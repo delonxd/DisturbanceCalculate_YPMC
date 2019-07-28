@@ -1,5 +1,5 @@
-from src.PortNetwork import TwoPortNetwork
-from src.Equation import *
+from src.Module.PortNetwork import TwoPortNetwork
+from src.AbstractClass.Equation import *
 
 
 # 钢轨段模型

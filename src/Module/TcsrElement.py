@@ -1,6 +1,5 @@
-from src.ElePack import ElePack
-from src.BasicCircuitModel import *
-from src.Equation import *
+from src.Module.CircuitBasic import *
+from src.AbstractClass.Equation import *
 
 ########################################################################################################################
 

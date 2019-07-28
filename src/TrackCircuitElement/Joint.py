@@ -1,5 +1,5 @@
-from src.BasicOutsideModel import SVA
-from src.ZPW2000A_QJ_Normal import *
+from src.Module.OutsideElement import SVA
+from src.Module.TcsrLib import *
 
 
 # 绝缘节
