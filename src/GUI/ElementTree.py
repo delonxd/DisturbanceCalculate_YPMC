@@ -48,3 +48,22 @@ class ElementTree(QTreeWidget):
     def emit_vessel(self, index):
         item = self.currentItem()
         self.sendmsg.emit(item.vessel)
+
+
+if __name__ == '__main__':
+    from src.Model.TestModel import *
+    import sys
+    import time
+
+    # 显示当前时间
+    print(time.asctime(time.localtime()))
+
+    # 载入测试模型
+    md = TestModel()
+
+    # 运行GUI
+    app = QApplication(sys.argv)
+
+    main = ElementTree(md.line_group)
+    main.show()
+    sys.exit(app.exec_())

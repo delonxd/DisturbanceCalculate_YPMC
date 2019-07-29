@@ -57,11 +57,11 @@ class MainModel(ElePack):
         equs = EquationGroup()
         for line_model in self.element.values():
             equs.add_equations(self.get_equ_unit(line_model, 1700))
-            print(len(equs))
+            # print(len(equs))
             equs.add_equations(self.get_equ_kcl(line_model))
-            print(len(equs))
+            # print(len(equs))
             equs.add_equations(self.get_equ_kvl(line_model))
-            print(len(equs))
+            # print(len(equs))
         return equs
 
     # 元器件方程
@@ -72,7 +72,7 @@ class MainModel(ElePack):
         for ele in ele_set:
             for module in ele.md_list:
                 equs.add_equations(module.get_equs(freq))
-            print(len(equs), ele.name)
+            # print(len(equs), ele.name)
         return equs
 
     # KCL方程
