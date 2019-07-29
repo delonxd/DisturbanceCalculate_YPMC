@@ -49,7 +49,7 @@ Parameter['FL_n_接收端'] = {
     2600: 0.9656}
 
 
-with open('Parameter_FL.pkl', 'wb') as pk_f:
+with open('../parameter_pkl/Parameter_FL.pkl', 'wb') as pk_f:
     pickle.dump(Parameter, pk_f)
 
 if __name__ == '__main__':

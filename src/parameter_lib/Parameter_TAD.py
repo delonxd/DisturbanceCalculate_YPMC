@@ -113,7 +113,7 @@ Parameter['TAD_n_发送端_区间'] = {
     2600: 8.7085}
 
 
-with open('Parameter_TAD.pkl', 'wb') as pk_f:
+with open('../parameter_pkl/Parameter_TAD.pkl', 'wb') as pk_f:
     pickle.dump(Parameter, pk_f)
 
 if __name__ == '__main__':

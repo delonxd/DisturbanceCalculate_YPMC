@@ -3,6 +3,7 @@ from src.ImpedanceParaType import *
 
 # 发送器参数
 Parameter = dict()
+Parameter['z_pwr'] = dict()
 
 ########################################################################################################################
 Parameter['z_pwr'][1] = ImpedanceMultiFreq()
@@ -69,7 +70,7 @@ Parameter['z_pwr'][9].z = {
     2600: (3.21 + 4.10j)}
 
 
-with open('Parameter_Power.pkl', 'wb') as pk_f:
+with open('../parameter_pkl/Parameter_Power.pkl', 'wb') as pk_f:
     pickle.dump(Parameter, pk_f)
 
 if __name__ == '__main__':

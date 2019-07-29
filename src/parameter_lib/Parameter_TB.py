@@ -3,9 +3,9 @@ from src.ImpedanceParaType import *
 
 # TB参数
 Parameter = dict()
+Parameter['TB'] = dict()
 
 ########################################################################################################################
-Parameter['TB'] = {}
 Parameter['TB'][1700] = ImpedanceMultiFreq()
 Parameter['TB'][1700].rlc_s = {
     1700: (38.70e-3, None, 25.58e-6),
@@ -35,7 +35,7 @@ Parameter['TB'][2600].rlc_s = {
     2600: (182.545e-3, None, 25.48e-6)}
 
 
-with open('Parameter_TB.pkl', 'wb') as pk_f:
+with open('../parameter_pkl/Parameter_TB.pkl', 'wb') as pk_f:
     pickle.dump(Parameter, pk_f)
 
 if __name__ == '__main__':

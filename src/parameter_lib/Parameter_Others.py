@@ -53,7 +53,7 @@ Parameter['Cable_L'] = 825e-6
 Parameter['Cable_C'] = 28e-9
 
 
-with open('Parameter_Others.pkl', 'wb') as pk_f:
+with open('../parameter_pkl/Parameter_Others.pkl', 'wb') as pk_f:
     pickle.dump(Parameter, pk_f)
 
 if __name__ == '__main__':

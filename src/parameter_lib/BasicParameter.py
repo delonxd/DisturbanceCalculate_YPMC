@@ -1,5 +1,5 @@
 import pickle
-from src.ElectricParameter1 import *
+from src.ImpedanceParaType import *
 
 Parameter = dict()
 
@@ -322,7 +322,7 @@ Parameter['Cable_R'] = 43
 Parameter['Cable_L'] = 825e-6
 Parameter['Cable_C'] = 28e-9
 
-with open('Parameter_data.pkl', 'wb') as pk_f:
+with open('../parameter_pkl/BasicParameter.pkl', 'wb') as pk_f:
     pickle.dump(Parameter, pk_f)
 
 if __name__ == '__main__':
