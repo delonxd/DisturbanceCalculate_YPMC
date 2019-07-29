@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.matlib
-from src.SingleLineModel import *
+from src.Model.SingleLineModel import *
 
 
 class MainModel(ElePack):

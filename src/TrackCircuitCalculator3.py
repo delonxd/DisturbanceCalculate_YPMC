@@ -2,8 +2,8 @@ from src.TrackCircuitElement.SectionGroup import *
 from src.TrackCircuitElement.Train import *
 from src.TrackCircuitElement.Line import *
 from src.TrackCircuitElement.LineGroup import *
-from src.MainModel import *
-from src.ModelParameter import *
+from src.Model.MainModel import *
+from src.Model.ModelParameter import *
 from src.Method import show_ele
 
 
