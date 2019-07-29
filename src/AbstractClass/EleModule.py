@@ -12,6 +12,8 @@ class EleModule(ElePack):
     prop_table = ElePack.prop_table.copy()
     prop_table.update(new_table)
 
+    para_type = dict()
+
     def __init__(self, parent_ins, name_base):
         super().__init__(parent_ins, name_base)
         self.varb_name = list()
@@ -41,3 +43,9 @@ class EleModule(ElePack):
         key = self.varb_name[index]
         varb = self.varb_dict[key]
         return varb
+
+    def get_value(self, *items):
+        for item in items:
+            cls = self.para_type[item]
+            value = self.__getattribute__(item)
+

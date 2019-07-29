@@ -24,6 +24,7 @@ class TCSR(ElePack):
         self.flag_ele_unit = True
         self.mode = None
         self.md_list = list()
+        self.send_level = 1
 
     @property
     def posi_rlt(self):
@@ -84,19 +85,19 @@ class TCSR(ElePack):
             if isinstance(ele, TPortCable):
                 ele.length = value
 
-    @property
-    def send_level(self):
-        level = None
-        for ele in self.element.values():
-            if isinstance(ele, TcsrPower):
-                level = ele.level
-        return level
-
-    @send_level.setter
-    def send_level(self, value):
-        for ele in self.element.values():
-            if isinstance(ele, TcsrPower):
-                ele.level = value
+    # @property
+    # def send_level(self):
+    #     level = None
+    #     for ele in self.element.values():
+    #         if isinstance(ele, TcsrPower):
+    #             level = ele.level
+    #     return level
+    #
+    # @send_level.setter
+    # def send_level(self, value):
+    #     for ele in self.element.values():
+    #         if isinstance(ele, TcsrPower):
+    #             ele.level = value
 
     # 变量赋值
     def config_varb(self):

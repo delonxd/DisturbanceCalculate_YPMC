@@ -317,6 +317,10 @@ Parameter['TB'][2600].rlc_s = {
     2300: (193.005e-3, 0.098589567e-3, None),
     2600: (182.545e-3, None, 25.48e-6)}
 
+# 电缆参数
+Parameter['Cable_R'] = 43
+Parameter['Cable_L'] = 825e-6
+Parameter['Cable_C'] = 28e-9
 
 with open('Parameter_data.pkl', 'wb') as pk_f:
     pickle.dump(Parameter, pk_f)

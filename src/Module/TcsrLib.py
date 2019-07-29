@@ -12,16 +12,20 @@ class ZPW2000A_QJ_Normal(TCSR):
         self.flag_ele_list = True
         self.flag_ele_unit = True
         self.mode = mode
+        self.send_level = level
 
         if self.mode == '发送':
-            self.add_element('1发送器', TcsrPower(self, '1发送器', para['z_pwr'], level))
+            self.add_element('1发送器', TcsrPower(self, '1发送器', para['z_pwr']))
         elif self.mode == '接收':
             self.add_element('1接收器', TcsrReceiver(self, '1接收器', para['Z_rcv']))
         self.add_element('2防雷', TcsrFL(self, '2防雷',
                                        para['FL_z1_发送端'],
                                        para['FL_z2_发送端'],
                                        para['FL_n_发送端']))
-        self.add_element('3Cab', TPortCable(self, '3Cab', cable_length))
+        self.add_element('3Cab', TPortCable(self, '3Cab', cable_length,
+                                            para['Cable_R'],
+                                            para['Cable_L'],
+                                            para['Cable_C']))
         self.add_element('4TAD', TcsrTAD(self, '4TAD',
                                          para['TAD_z1_发送端_区间'],
                                          para['TAD_z2_发送端_区间'],

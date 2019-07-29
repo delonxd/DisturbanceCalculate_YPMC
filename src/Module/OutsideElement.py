@@ -1,5 +1,5 @@
 from src.Module.CircuitBasic import OPortZ, OPortPowerU
-from src.AbstractClass.Equation import *
+from src.Module.ParameterType import *
 
 
 class UPowerOut(OPortPowerU):
@@ -37,19 +37,14 @@ class TB(ZOutside):
 
 # 室外电阻
 class ROutside(ZOutside):
+    # 变量类型
+    para_type = {
+        'z': Constant}
+
     def __init__(self, parent_ins, name_base, posi, z):
         super().__init__(parent_ins, name_base, posi, z)
 
-    # def get_equs(self, freq):
-    #     z = self.z
-    #     equ1 = Equation(varbs=[self['U'], self['I']],
-    #                     values=[-1, z])
-    #     self.equs = [equ1]
-
     def get_equs(self, freq):
         z = self.z
-        equ1 = Equation(name=self.name + '_方程')
-        equ1.add_items(EquItem(self['U'], -1),
-                       EquItem(self['I'], z))
-        self.equs = EquationGroup(equ1)
-        return self.equs
+        equs = self.value2equs(z)
+        return equs

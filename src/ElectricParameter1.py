@@ -8,6 +8,10 @@ class ImpedanceWithFreq:
         self._z = None
 
     @property
+    def z(self):
+        return self._z
+
+    @property
     def omega(self):
         value = 2 * math.pi * self.freq
         return value
@@ -147,10 +151,10 @@ class ImpedanceMultiFreq:
     def __init__(self):
         self.freq_dict = {}
 
-    def get_value(self, freq):
-        para = self.freq_dict[freq]
-        z = para.z_complex
-        return z
+    # def get_value(self, freq):
+    #     para = self.freq_dict[freq]
+    #     z = para.z_complex
+    #     return z
 
     def config_impedance(self, value):
         if isinstance(value, ImpedanceWithFreq):
