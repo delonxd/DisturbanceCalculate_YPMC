@@ -7,7 +7,7 @@ class ModelParameter:
     def __init__(self, name='原始参数'):
         self.name = name
         self.parameter = dict()
-        with open('parameter_pkl/BasicParameter.pkl', 'rb') as pk_f:
+        with open('../parameter_pkl/BasicParameter.pkl', 'rb') as pk_f:
             parameter = pickle.load(pk_f)
 
         parameter['Ccmp_z'] = ImpedanceMultiFreq()
