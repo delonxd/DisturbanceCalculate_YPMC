@@ -251,7 +251,7 @@ Parameter['SVA1_z'].rlc_s = {
 
 # 接收端内阻
 Parameter['Z_rcv'] = ImpedanceMultiFreq()
-Parameter['Z_rcv'].rlc_s = {
+Parameter['Z_rcv'].rlc_p = {
     1700: (23e3, 3.370340e-3, None),
     2000: (23e3, 3.366127e-3, None),
     2300: (23e3, 3.363013e-3, None),
