@@ -1,6 +1,5 @@
 import pickle
-# from src import ElectricParameter as pc
-from src import ElectricParameter1 as pc
+from src.ImpedanceParaType import ImpedanceMultiFreq
 
 
 # 模型参数
@@ -8,10 +7,10 @@ class ModelParameter:
     def __init__(self, name='原始参数'):
         self.name = name
         self.parameter = dict()
-        with open('parameter_lib/Parameter_data.pkl', 'rb') as pk_f:
+        with open('parameter_pkl/BasicParameter.pkl', 'rb') as pk_f:
             parameter = pickle.load(pk_f)
 
-        parameter['Ccmp_z'] = pc.ImpedanceMultiFreq()
+        parameter['Ccmp_z'] = ImpedanceMultiFreq()
         parameter['Ccmp_z'].rlc_s = {
             1700: [10e-3, None, 25e-6],
             2000: [10e-3, None, 25e-6],
@@ -19,7 +18,7 @@ class ModelParameter:
             2600: [10e-3, None, 25e-6]}
 
         # 钢轨阻抗
-        parameter['Trk_z'] = pc.ImpedanceMultiFreq()
+        parameter['Trk_z'] = ImpedanceMultiFreq()
         parameter['Trk_z'].rlc_s = {
             1700: [1.177, 1.314e-3, None],
             2000: [1.306, 1.304e-3, None],

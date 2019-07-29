@@ -4,7 +4,7 @@ from src.TrackCircuitElement.Line import *
 from src.TrackCircuitElement.LineGroup import *
 from src.MainModel import *
 from src.ModelParameter import *
-from src.Function import show_ele
+from src.Method import show_ele
 
 
 #######################################################################################################################

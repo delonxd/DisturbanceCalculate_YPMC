@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 
 
 from src.TestModel import *
-from src.ElectricParameter import ParaMultiF
+from src.ImpedanceParaType import ImpedanceMultiFreq
 from src.AbstractClass.ElePack import *
 
 import sys
@@ -25,25 +25,25 @@ class ParameterTreeItem(QTreeWidgetItem):
     def value(self):
         if isinstance(self.vessel, ElePack):
             return self.vessel.get_property(self.key)
-        elif isinstance(self.vessel, (dict, ParaMultiF)):
+        elif isinstance(self.vessel, (dict, ImpedanceMultiFreq)):
             return self.vessel[self.key]
         else:
             return None
 
-    @value.setter
-    def value(self, text):
-        if isinstance(self.vessel, ElePack):
-            self.vessel.set_property(self.key, text)
-        # elif isinstance(self.vessel, (dict, tcc.pc.ParaMultiF)):
-        #     if self.vessel[self.key] = value
-        pass
+    # @value.setter
+    # def value(self, text):
+    #     if isinstance(self.vessel, ElePack):
+    #         self.vessel.set_property(self.key, text)
+    #     # elif isinstance(self.vessel, (dict, tcc.pc.ParaMultiF)):
+    #     #     if self.vessel[self.key] = value
+    #     pass
 
     def init_child(self):
         value = self.value
         self.setText(0, str(self.key))
-        if isinstance(value, (dict, ParaMultiF)):
+        if isinstance(value, (dict, ImpedanceMultiFreq)):
             for key in value.keys():
-                ParameterTreeItem(parent=self,vessel=value,key=key)
+                ParameterTreeItem(parent=self, vessel=value, key=key)
         else:
             self.setText(1, str(value))
 
@@ -60,42 +60,42 @@ class ParameterTree(QTreeWidget):
         header.setStretchLastSection(False)
         # self.show_dict()
 
+        # 当前编辑器
         self.current_editor = (None, None)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-
+        # 双击开启编辑器
         self.itemDoubleClicked.connect(self.open_editor)
+        # 目标改变关闭编辑器
         self.itemSelectionChanged.connect(self.close_editor)
-        self.itemSelectionChanged.connect(self.test_slot)
 
     def show_dict(self, vessel):
         self.clear()
         for key in vessel.prop_table.keys():
             ParameterTreeItem(parent=self, vessel=vessel, key=key)
 
+    # 激活编辑器
     def open_editor(self, item, column):
         if column == 1:
             self.current_editor = (item, column)
             self.openPersistentEditor(item, column)
 
+    # 关闭编辑器
     def close_editor(self):
         item, column = self.current_editor
         if not (item, column) == (None, None):
-            value = item.value
+            key = item.key
+            vessel = item.vessel
             text = item.text(1)
             self.closePersistentEditor(item, column=column)
-            if isinstance(value, str):
-                item.value = item.text(1)
-            else:
+            value_t = item.text(1)
+            flag = vessel.set_property(key, value_t)
+            if flag is False:
                 item.setText(1, text)
         self.current_editor = (None, None)
 
+    # 回车关闭编辑器
     def keyPressEvent(self, event):
         if event.key() == 16777220:
             self.close_editor()
-
-    def test_slot(self):
-        item = self.currentItem()
-        # print(item.text(1))
 
 
 class ElementTreeItem(QTreeWidgetItem):
@@ -118,53 +118,28 @@ class ElementTree(QTreeWidget):
         super().__init__()
         self.vessel = vessel
         self.setHeaderLabel('列表')
+
+        # 子元素初始化
         root = ElementTreeItem(parent=self, vessel=self.vessel)
         root.setText(0, root.vessel.name)
 
+        # 设置水平滚动条
         header = self.header()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setStretchLastSection(False)
+
         # self.setMouseTracking(True)
         # self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         # self.setSectionResizeMode
-
-        self.current_editor = (None, None)
-
         # self.setExpandsOnDoubleClick(False)
 
+        # 单击发送容器对象
         self.clicked.connect(self.emit_vessel)
-
-        self.itemDoubleClicked.connect(self.open_editor)
-        self.itemSelectionChanged.connect(self.close_editor)
-
-        # self.expanded.connect(self.test_slot)
 
     def emit_vessel(self, index):
         item = self.currentItem()
         self.sendmsg.emit(item.vessel)
-
-    def open_editor(self, item, column):
-        self.current_editor = (item, column)
-        self.openPersistentEditor(item, column)
-
-    def close_editor(self):
-        item, column = self.current_editor
-        if not (item, column) == (None, None):
-            self.closePersistentEditor(item, column)
-        self.current_editor = (None, None)
-
-    def keyPressEvent(self, event):
-        print(event.text())
-        if event.key() == 16777220:
-            self.close_editor()
-
-    def test_slot(self, item):
-        print(item)
-
-
-    def refresh(self):
-        pass
 
 
 class ShowText(QTextEdit):
@@ -175,11 +150,6 @@ class ShowText(QTextEdit):
 
     def print_name(self, vessel):
         self.setText('')
-        # if isinstance(vessel, (tcc.Section, tcc.TCSR, tcc.TcsrBA)):
-        #     prop = vessel.get_property()
-        #     for key, value in prop.items():
-        #         self.append(key + ': ' + str(value))
-        # else:
         for item in vessel.__dict__.items():
             self.append(str(item))
 
@@ -189,21 +159,30 @@ class MainWin(QWidget):
         super().__init__()
         self.resize(1280, 900)
         self.setWindowTitle('轨道电路传输计算Demo')
-        hbox = QHBoxLayout()
+
 
         md = TestModel()
 
-        tree = ElementTree(md.model)
+        tree = ElementTree(md.line_group)
         window1 = ShowText()
         window2 = ParameterTree()
+
+        hbox = QHBoxLayout()
         hbox.addWidget(tree, 1)
-        layout = QVBoxLayout()
+        hbox.addWidget(window2, 3)
+
         # layout.addWidget(window1)
-        layout.addWidget(window2)
 
-        hbox.addLayout(layout, 3)
+        hbox2 = QHBoxLayout()
+        hbox2.addStretch(1)
+        hbox2.addWidget(QPushButton('计算'))
+        hbox2.addWidget(QPushButton('关闭'))
 
-        self.setLayout(hbox)
+        vbox = QVBoxLayout()
+        vbox.addLayout(hbox)
+        vbox.addLayout(hbox2)
+
+        self.setLayout(vbox)
 
         tree.sendmsg.connect(window1.print_name)
         tree.sendmsg.connect(window2.show_dict)

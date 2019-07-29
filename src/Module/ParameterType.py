@@ -1,4 +1,4 @@
-from src.ElectricParameter1 import ImpedanceMultiFreq
+from src.ImpedanceParaType import ImpedanceMultiFreq
 
 
 # 常量
@@ -13,8 +13,8 @@ class Constant:
         return func
 
 
-# 随频率变化的变量
-class VariableByFreq:
+# 多频率的变量
+class VariableMultiFreq:
     def __init__(self, name, value):
         self.name = name
         if isinstance(value, dict):
@@ -24,6 +24,11 @@ class VariableByFreq:
 
     def value(self, freq):
         return self._value[freq]
+
+class VariableByFreq:
+    def __init__(self, name, value):
+        self.name = name
+        pass
 
 
 # 阻抗类型变量

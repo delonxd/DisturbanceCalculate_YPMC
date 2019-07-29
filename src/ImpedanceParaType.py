@@ -189,8 +189,22 @@ class ImpedanceMultiFreq:
     def __getitem__(self, key):
         return self.freq_dict[key]
 
+    def get_property(self, key):
+        value = None
+        try:
+            value = self.freq_dict[key]
+        except KeyError:
+            pass
+        return value
 
-
+    def set_property(self, key, value_t):
+        command = 'self[key].z_complex = ' + value_t
+        try:
+            exec(command)
+        except Exception as reason:
+            print(reason)
+            return False
+        return True
 
     
 if __name__ == '__main__':

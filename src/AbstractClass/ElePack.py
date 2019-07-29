@@ -61,20 +61,6 @@ class ElePack:
     def items(self):
         return self.element.items()
 
-    def set_property(self, key, value):
-        prop_name = self.prop_table[key]
-        exec('self.' + prop_name + ' = value')
-        pass
-
-    def get_property(self, key):
-        value = None
-        try:
-            prop_name = self.prop_table[key]
-            value = eval('self.' + prop_name)
-        except KeyError:
-            pass
-        return value
-
     # 获得元器件连接顺序的列表
     def get_md_list(self, md_list):
         if self.flag_ele_list is True:
@@ -174,3 +160,26 @@ class ElePack:
             new = 2000
         return new
 
+    def get_property(self, key):
+        value = None
+        try:
+            prop_name = self.prop_table[key]
+            value = eval('self.' + prop_name)
+        except KeyError:
+            pass
+        return value
+
+    def set_property(self, key, value_t):
+        prop_t = self.prop_table[key]
+        value = eval('self.' + prop_t)
+        print(type(value))
+        if isinstance(value, str):
+            command = 'self.' + prop_t + ' = value_t'
+        else:
+            command = 'self.' + prop_t + ' = ' + value_t
+        try:
+            exec(command)
+        except Exception as reason:
+            print(reason)
+            return False
+        return True
