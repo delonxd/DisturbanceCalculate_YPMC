@@ -27,20 +27,19 @@ class MainModel(ElePack):
         self.value_c = np.linalg.solve(self.matrx, self.cons)
         # print(self.value_c)
 
-        for posi in self.element['线路1'].node_dict.keys():
-            if posi >= 0:
-                num = self.element['线路1'].node_dict[posi].l_track['U2'].num
-                value = abs(self.value_c[num])
-                print(value)
+        # for posi in self.element['线路1'].node_dict.keys():
+        #     if posi >= 0:
+        #         num = self.element['线路1'].node_dict[posi].l_track['U2'].num
+        #         value = abs(self.value_c[num])
+        #         # print(value)
 
         self.set_varbs_value()
-        a = 1
+        # a = 1
 
     def set_varbs_value(self):
         for varb in self.varbs.varb_set:
             varb.value = self.value_c[varb.num]
             varb.value_c = abs(self.value_c[varb.num])
-
 
     def config_matrix(self):
         length = len(self.equs)

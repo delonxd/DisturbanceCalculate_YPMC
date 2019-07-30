@@ -5,7 +5,7 @@ class ElePack:
         '基础名称': 'name_base',
         '名称': 'name',
         '元素字典': 'element',
-        '元素列表': 'ele_list',
+        # '元素列表': 'ele_list',
         '室外元素标识': 'flag_outside',
         '元素列表标识': 'flag_ele_list',
         '单位元素标识': 'flag_ele_unit',

@@ -34,18 +34,16 @@ class TestModel:
                   parameter=parameter)
         l2 = Line(name_base='线路2', sec_group=sg2,
                   parameter=parameter)
-        lg = LineGroup(l1, name_base='线路组')
+        self.lg = LineGroup(l1, name_base='线路组')
 
         # 建立模型
-        model = MainModel(lg)
+        # self.model = MainModel(self.lg)
 
         self.section_group1 = sg1
         self.section_group2 = sg2
         # self.train1 = train1
         self.line1 = l1
         self.line2 = l2
-        self.line_group = lg
-        self.model = model
 
 
 if __name__ == '__main__':
