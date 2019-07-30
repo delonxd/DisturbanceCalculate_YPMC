@@ -48,7 +48,7 @@ class ParameterTree(QTreeWidget):
         # self.show_dict()
 
         # 当前编辑器
-        self.current_editor = (None, None)
+        self.current_editor = (None, None, None)
         # 双击开启编辑器
         self.itemDoubleClicked.connect(self.open_editor)
         # 目标改变关闭编辑器
@@ -62,24 +62,28 @@ class ParameterTree(QTreeWidget):
     # 激活编辑器
     def open_editor(self, item, column):
         if column == 1:
-            self.current_editor = (item, column)
+            self.current_editor = (item, column, item.text(1))
             self.openPersistentEditor(item, column)
 
     # 关闭编辑器
     def close_editor(self):
-        item, column = self.current_editor
-        if not (item, column) == (None, None):
+        item, column, text = self.current_editor
+        if not (item, column, text) == (None, None, None):
             key = item.key
             vessel = item.vessel
-            text = item.text(1)
             self.closePersistentEditor(item, column=column)
             value_t = item.text(1)
-            flag = vessel.set_property(key, value_t)
-            if flag is False:
+            try:
+                flag = vessel.set_property(key, value_t)
+                if flag is False:
+                    item.setText(1, text)
+            except Exception as reason:
+                print(reason)
                 item.setText(1, text)
-        self.current_editor = (None, None)
+        self.current_editor = (None, None, None)
 
     # 回车关闭编辑器
     def keyPressEvent(self, event):
+        print(event.key())
         if event.key() == 16777220:
             self.close_editor()

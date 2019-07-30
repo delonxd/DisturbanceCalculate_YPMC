@@ -8,6 +8,8 @@ class EleModule(ElePack):
         '变量字典': 'varb_dict',
         '公式列表': 'equs',
         '模块列表': 'md_list',
+        '变量值': 'varb_value',
+        '变量模值': 'varb_value_c',
     }
     prop_table = ElePack.prop_table.copy()
     prop_table.update(new_table)
@@ -49,3 +51,18 @@ class EleModule(ElePack):
             cls = self.para_type[item]
             value = self.__getattribute__(item)
 
+    @property
+    def varb_value(self):
+        varb_value = dict()
+        for key in self.varb_name:
+            varb = self.varb_dict[key]
+            varb_value[key] = varb.value
+        return varb_value
+
+    @property
+    def varb_value_c(self):
+        varb_value = dict()
+        for key in self.varb_name:
+            varb = self.varb_dict[key]
+            varb_value[key] = varb.value_c
+        return varb_value

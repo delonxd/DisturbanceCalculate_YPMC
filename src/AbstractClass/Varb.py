@@ -5,6 +5,8 @@ class Varb:
         self.name_base = name_base
         self.num = None
         self.name = ''
+        self.value = None
+        self.value_c = None
         self.get_varb_name()
 
     def get_varb_name(self):

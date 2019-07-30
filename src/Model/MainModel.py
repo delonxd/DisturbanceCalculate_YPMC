@@ -14,10 +14,38 @@ class MainModel(ElePack):
         self.varbs.config_varb_num()
         self.matrx, self.cons = self.config_matrix()
 
+        self.equ = self.equs.equ_dict['线路组_线路1_地面_区段1_左调谐单元_1发送器_1电压源_方程']
+        num = self.equs.equs.index(self.equ)
+        self.cons[num] = 181
+        print(self.equ, num)
+
+        for value in self.cons:
+            # print(value)
+            pass
+
+        # 结果
+        self.value_c = np.linalg.solve(self.matrx, self.cons)
+        # print(self.value_c)
+
+        for posi in self.element['线路1'].node_dict.keys():
+            if posi >= 0:
+                num = self.element['线路1'].node_dict[posi].l_track['U2'].num
+                value = abs(self.value_c[num])
+                print(value)
+
+        self.set_varbs_value()
+        a = 1
+
+    def set_varbs_value(self):
+        for varb in self.varbs.varb_set:
+            varb.value = self.value_c[varb.num]
+            varb.value_c = abs(self.value_c[varb.num])
+
+
     def config_matrix(self):
         length = len(self.equs)
         matrix_main = np.matlib.zeros((length, length), dtype=complex)
-        constant = [0] * length
+        constant = np.zeros(length, dtype=complex)
 
         self.equs.sort_by_name()
         equ_list = self.equs.equs
@@ -56,7 +84,7 @@ class MainModel(ElePack):
     def get_equs_kirchhoff(self):
         equs = EquationGroup()
         for line_model in self.element.values():
-            equs.add_equations(self.get_equ_unit(line_model, 1700))
+            equs.add_equations(self.get_equ_unit(line_model, 2600))
             # print(len(equs))
             equs.add_equations(self.get_equ_kcl(line_model))
             # print(len(equs))
@@ -109,6 +137,6 @@ class MainModel(ElePack):
                 equ.add_items(EquItem(vb, 1))
             if node.r_track is not None:
                 vb = node.r_track.get_varb(0)
-                equ.add_items(EquItem(vb, 1))
+                equ.add_items(EquItem(vb, -1))
             equs.add_equation(equ)
         return equs

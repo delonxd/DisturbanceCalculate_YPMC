@@ -25,10 +25,12 @@ class TestModel:
                            m_type=['2000A', '2000A', '2000A'],
                            c_num=[8, 6, 5],
                            parameter=parameter)
-        train1 = Train(name_base='列车1', posi_abs=0, parameter=parameter)
+        # train1 = Train(name_base='列车1', posi_abs=0, parameter=parameter)
 
         # 生成线路
-        l1 = Line(name_base='线路1', sec_group=sg1, train=train1,
+        # l1 = Line(name_base='线路1', sec_group=sg1, train=train1,
+        #           parameter=parameter)
+        l1 = Line(name_base='线路1', sec_group=sg1,
                   parameter=parameter)
         l2 = Line(name_base='线路2', sec_group=sg2,
                   parameter=parameter)
@@ -39,8 +41,12 @@ class TestModel:
 
         self.section_group1 = sg1
         self.section_group2 = sg2
-        self.train1 = train1
+        # self.train1 = train1
         self.line1 = l1
         self.line2 = l2
         self.line_group = lg
         self.model = model
+
+
+if __name__ == '__main__':
+    md = TestModel()

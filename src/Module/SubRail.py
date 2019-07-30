@@ -5,6 +5,16 @@ from src.Module.ParameterType import *
 
 # 钢轨段模型
 class SubRailPi(TwoPortNetwork):
+    new_table = {
+        '左端位置': 'l_posi',
+        '右端位置': 'r_posi',
+        '长度': 'track_length',
+        '钢轨阻抗': 'z_trk',
+        '道床电组': 'rd'
+    }
+    prop_table = TwoPortNetwork.prop_table.copy()
+    prop_table.update(new_table)
+
     # 变量类型
     para_type = {
         'z_trk': VariableImpedance,
