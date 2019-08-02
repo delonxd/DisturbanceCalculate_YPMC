@@ -46,23 +46,45 @@ class Section(ElePack):
             c_posi = [(num * lc + lc / 2 + offset) for num in range(c_num)]
             for num in range(c_num):
                 name = 'C' + str(num + 1)
-                self[name] = CapC(parent_ins=self, name_base=name,
-                                  posi=c_posi[num], z=self.parameter['Ccmp_z'])
+                # self[name] = CapC(parent_ins=self, name_base=name,
+                #                   posi=c_posi[num], z=self.parameter['Ccmp_z'])
+                ele = CapC(parent_ins=self, name_base=name,
+                           posi=c_posi[num], z=self.parameter['Ccmp_z'])
+                self.add_element(name, ele)
+
             # 设置绝缘节
             for num in range(2):
                 flag = ['左', '右'][num]
                 name = flag + '绝缘节'
                 l_section = None if num == 0 else self
                 r_section = self if num == 0 else None
-                self[name] = Joint(parent_ins=self, name_base=name, posi_flag=flag,
-                                   l_section=l_section, r_section=r_section,
-                                   j_length=j_length[num], j_type=j_type[num])
-                joint = self[name]
+                # self[name] = Joint(parent_ins=self, name_base=name, posi_flag=flag,
+                #                    l_section=l_section, r_section=r_section,
+                #                    j_length=j_length[num], j_type=j_type[num])
+                # joint = self[name]
+                joint = Joint(parent_ins=self, name_base=name, posi_flag=flag,
+                              l_section=l_section, r_section=r_section,
+                              j_length=j_length[num], j_type=j_type[num])
+                self.add_element(name, joint)
 
                 name = flag + '调谐单元'
                 if joint.j_type == '电气':
-                    self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-                                                    posi_flag=flag, cable_length=10,
-                                                    mode=sr_mode[num], level=1)
+                    # self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+                    #                                 posi_flag=flag, cable_length=10,
+                    #                                 mode=sr_mode[num], level=1)
+                    ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+                                             posi_flag=flag, cable_length=10,
+                                             mode=sr_mode[num], level=1)
+                    self.add_element(name, ele)
+
+                elif joint.j_type == '机械':
+                    # self[name] = ZPW2000A_ZN_PTSVA1(parent_ins=self, name_base=name,
+                    #                                 posi_flag=flag, cable_length=10,
+                    #                                 mode=sr_mode[num], level=1)
+                    ele = ZPW2000A_ZN_PTSVA1(parent_ins=self, name_base=name,
+                                             posi_flag=flag, cable_length=10,
+                                             mode=sr_mode[num], level=1)
+                    self.add_element(name, ele)
+
         else:
             raise KeyboardInterrupt(self.m_type + '暂为不支持的主轨类型')

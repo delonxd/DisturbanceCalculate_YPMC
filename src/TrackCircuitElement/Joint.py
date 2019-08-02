@@ -49,10 +49,15 @@ class Joint(ElePack):
     def set_element(self):
         if self.j_type == '电气':
             if self.sec_type == '2000A':
-                self.element['SVA'] = SVA(parent_ins=self,
-                                          name_base='SVA',
-                                          posi=0,
-                                          z=self.parameter['SVA_z'])
+                # self.element['SVA'] = SVA(parent_ins=self,
+                #                           name_base='SVA',
+                #                           posi=0,
+                #                           z=self.parameter['SVA_z'])
+                ele = SVA(parent_ins=self,
+                          name_base='SVA',
+                          posi=0,
+                          z=self.parameter['SVA_z'])
+                self.add_element('SVA', ele)
 
     def add_joint_tcsr(self):
         if self.j_type == '电气':
@@ -67,9 +72,13 @@ class Joint(ElePack):
                 return
 
             if isinstance(tcsr, ZPW2000A_QJ_Normal):
-                self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-                                                posi_flag=flag, cable_length=tcsr.cable_length,
-                                                mode=self.change_sr_mode(tcsr.mode), level=1)
+                # self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+                #                                 posi_flag=flag, cable_length=tcsr.cable_length,
+                #                                 mode=self.change_sr_mode(tcsr.mode), level=1)
+                ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+                                         posi_flag=flag, cable_length=tcsr.cable_length,
+                                         mode=self.change_sr_mode(tcsr.mode), level=1)
+                self.add_element(name, ele)
 
     # 交换发送接收
     @staticmethod

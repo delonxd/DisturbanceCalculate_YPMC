@@ -15,7 +15,8 @@ class TreeElement(QTreeWidget):
         super().__init__()
         self.vessel = vessel
         # 子元素初始化
-        for key in vessel.keys():
+        # for key in vessel.keys():
+        for key, _ in vessel.items_by_posi():
             item = TreeItemElement(parent=self, vessel=vessel, key=key)
             self.addTopLevelItem(item)
 
@@ -42,23 +43,33 @@ class TreeElement(QTreeWidget):
         y = screen_pos.y()
         screen_pos.setY(y + 23)
         menu = QMenu()
-        item1 = menu.addAction('添加')
-        item2 = menu.addAction('删除')
-        item3 = menu.addAction('编辑')
-        item4 = menu.addAction('添加电容')
+        action1 = menu.addAction('添加')
+        action2 = menu.addAction('删除')
+        action3 = menu.addAction('编辑')
+        action4 = menu.addAction('添加电容')
 
         action = menu.exec(screen_pos)
-        if action == item4:
-            if isinstance(item.vessel, Section):
-                section = item.vessel
+        if action == action4:
+            parent_ins = item.vessel[item.key]
+            if isinstance(parent_ins, Section):
                 name = '新增电容'
-                section[name] = CapC(parent_ins=section, name_base=name,
-                                     posi=0, z=section.parameter['Ccmp_z'])
-
-                TreeItemElement(parent=item.parent(), vessel=section, key=name)
-
-                print(item.parent().vessel)
-                item.parent().refresh_text()
+                if name not in parent_ins.keys():
+                    posi = 233.7
+                    new_c = CapC(parent_ins=parent_ins, name_base=name,
+                                 posi=posi, z=parent_ins.parameter['Ccmp_z'])
+                    new_c.set_posi_abs(0)
+                    parent_ins[name] = new_c
+                    values = parent_ins.values_by_posi()
+                    index = values.index(new_c)
+                    new_item = TreeItemElement(parent=None, vessel=parent_ins, key=name)
+                    item.insertChild(index, new_item)
+                    print(item.parent().vessel)
+                    # item.parent().refresh_text()
+                    self.refresh_text()
+                    self.vessel.refresh()
+        elif action == action2:
+            element = item.vessel[item.key]
+            element.parent_ins.element.pop(element.name_base)
 
 
 

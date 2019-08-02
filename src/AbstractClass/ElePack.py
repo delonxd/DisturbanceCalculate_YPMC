@@ -12,6 +12,7 @@ class ElePack:
         '单位元素标识': 'flag_ele_unit',
         '相对位置': 'posi_rlt',
         '绝对位置': 'posi_abs',
+        '调用对象': 'called_set'
     }
 
     def __init__(self, parent_ins, name_base):
@@ -26,6 +27,7 @@ class ElePack:
         self.posi_abs = None
         self.flag_ele_list = False
         self.flag_ele_unit = False
+        self.called_set = set()
 
     @property
     def posi_rlt(self):
@@ -41,8 +43,9 @@ class ElePack:
         self.posi_abs = 0
 
     def add_element(self, name, instance):
-        if self.flag_ele_list:
+        # if self.flag_ele_list:
             self.element[name] = instance
+            instance.called_set.add(self)
             self.ele_list.append(instance)
 
     def __len__(self):
@@ -59,6 +62,32 @@ class ElePack:
 
     def keys(self):
         return self.element.keys()
+
+    def keys_sort_by_name(self):
+        keys = list(self.element.keys())
+        keys.sort()
+        return keys
+
+    def items_by_posi(self):
+        for value in self.values():
+            if not hasattr(value, 'flag_outside'):
+                return self.element.items()
+            elif value.flag_outside is False:
+                return self.element.items()
+        items = list(self.element.items())
+        items.sort(key=lambda item: item[1].posi_abs)
+        # keys = list(map(lambda item: item[0], items))
+        return items
+
+    def keys_by_posi(self):
+        items = self.items_by_posi()
+        keys = list(map(lambda item: item[0], items))
+        return keys
+
+    def values_by_posi(self):
+        items = self.items_by_posi()
+        values = list(map(lambda item: item[1], items))
+        return values
 
     def items(self):
         return self.element.items()
@@ -110,15 +139,6 @@ class ElePack:
             self.name = self.parent_ins.name + '_' + self.name_base
         for ele in self.element.values():
             ele.set_ele_name(prefix=prefix)
-
-    # # 获得所有元器件的字典
-    # def get_element(self, ele_set, flag_ele_unit=True):
-    #     if not (flag_ele_unit * self.flag_ele_unit):
-    #         for ele in self.element.values():
-    #             ele_set = ele.get_element(ele_set=ele_set, flag_ele_unit=flag_ele_unit)
-    #     else:
-    #         ele_set.add(self)
-    #     return ele_set
 
     # 获得所有元器件的字典
     def get_ele_set(self, ele_set, flag_ele_unit=True):

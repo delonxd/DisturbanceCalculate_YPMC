@@ -18,9 +18,9 @@ class Line(ElePack):
         if train is not None:
             self.add_element(train.name_base, train)
 
-    def add_element(self, name, instance):
-        self.element[name] = instance
-        instance.parent_ins = self
+    # def add_element(self, name, instance):
+    #     self.element[name] = instance
+    #     instance.parent_ins = self
 
     def refresh(self):
         self.get_ele_set(ele_set=set())

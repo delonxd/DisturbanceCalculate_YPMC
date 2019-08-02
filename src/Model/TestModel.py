@@ -12,7 +12,7 @@ class TestModel:
         parameter = ModelParameter()
         self.parameter = parameter
         # 轨道电路初始化
-        sg1 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,
+        sg1 = SectionGroup(name_base='地面', posi=0, m_num=3, freq1=2600,
                            m_length=[509, 389, 320],
                            j_length=[29, 29, 29, 29],
                            m_type=['2000A', '2000A', '2000A'],
@@ -25,6 +25,14 @@ class TestModel:
                            m_type=['2000A', '2000A', '2000A'],
                            c_num=[8, 6, 5],
                            parameter=parameter)
+
+        sg3 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2300,
+                           m_length=[94],
+                           j_length=[0, 0],
+                           m_type=['2000A'],
+                           c_num=[0],
+                           parameter=parameter)
+
         # train1 = Train(name_base='列车1', posi_abs=0, parameter=parameter)
 
         # 生成线路
@@ -33,6 +41,8 @@ class TestModel:
         l1 = Line(name_base='线路1', sec_group=sg1,
                   parameter=parameter)
         l2 = Line(name_base='线路2', sec_group=sg2,
+                  parameter=parameter)
+        l3 = Line(name_base='线路3', sec_group=sg3,
                   parameter=parameter)
         self.lg = LineGroup(l1, name_base='线路组')
 

@@ -6,7 +6,8 @@ class LineGroup(ElePack):
         super().__init__(None, name_base)
         for line in lines:
             line.parent_ins = self
-            self.element[line.name_base] = line
+            # self.element[line.name_base] = line
+            self.add_element(line.name_base, line)
         self.refresh()
 
     def refresh(self):

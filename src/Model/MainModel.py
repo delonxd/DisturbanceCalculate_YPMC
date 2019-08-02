@@ -35,7 +35,6 @@ class MainModel(ElePack):
 
         self.set_varbs_value()
 
-
     def set_varbs_value(self):
         for varb in self.varbs.varb_set:
             varb.value = self.value_c[varb.num]
