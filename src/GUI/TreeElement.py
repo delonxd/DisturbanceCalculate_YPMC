@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 
 from src.AbstractClass.ElePack import *
 from src.GUI.TreeItemElement import *
+from src.TrackCircuitElement.Section import *
 
 
 # 元素树控件
@@ -13,12 +14,12 @@ class TreeElement(QTreeWidget):
     def __init__(self, vessel):
         super().__init__()
         self.vessel = vessel
-
-        # 名称
-        self.setHeaderLabel(vessel.name)
         # 子元素初始化
         for key in vessel.keys():
-            TreeItemElement(parent=self, vessel=vessel, key=key)
+            item = TreeItemElement(parent=self, vessel=vessel, key=key)
+            self.addTopLevelItem(item)
+
+        self.refresh_text()
 
         # 设置水平滚动条
         header = self.header()
@@ -26,9 +27,50 @@ class TreeElement(QTreeWidget):
         header.setStretchLastSection(False)
 
         # 单击发送容器对象
-        self.clicked.connect(self.emit_vessel)
+        self.clicked.connect(self.on_tree_clicked)
 
-    def emit_vessel(self, index):
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.generate_menu)
+
+    def generate_menu(self, pos):
+        # QItemSelection
+        # QItemSelectionModel
+        item = self.selectionModel().selection().indexes()
+        item = self.currentItem()
+
+        screen_pos = self.mapToGlobal(pos)
+        y = screen_pos.y()
+        screen_pos.setY(y + 23)
+        menu = QMenu()
+        item1 = menu.addAction('添加')
+        item2 = menu.addAction('删除')
+        item3 = menu.addAction('编辑')
+        item4 = menu.addAction('添加电容')
+
+        action = menu.exec(screen_pos)
+        if action == item4:
+            if isinstance(item.vessel, Section):
+                section = item.vessel
+                name = '新增电容'
+                section[name] = CapC(parent_ins=section, name_base=name,
+                                     posi=0, z=section.parameter['Ccmp_z'])
+
+                TreeItemElement(parent=item.parent(), vessel=section, key=name)
+
+                print(item.parent().vessel)
+                item.parent().refresh_text()
+
+
+
+        # self.topLevelItem(item)
+        # a = item[0].row()
+        # print(item, item.vessel[item.key])
+        pass
+
+
+
+
+    def on_tree_clicked(self, index):
         item = self.currentItem()
         self.sendmsg.emit(item.vessel[item.key])
 
@@ -39,11 +81,18 @@ class TreeElement(QTreeWidget):
             print(item.vessel.name)
 
     def refresh_text(self):
-        self.setText(0, self.vessel.name)
+        # 名称
+        self.setHeaderLabel(self.vessel.name)
         count = self.topLevelItemCount()
         for index in range(count):
             item = self.topLevelItem(index)
             item.refresh_text()
+
+    # 回车关闭编辑器
+    def keyPressEvent(self, event):
+        print(event.key())
+        if event.key() == 16777220:
+            self.close_editor()
 
 
 if __name__ == '__main__':
@@ -60,6 +109,6 @@ if __name__ == '__main__':
     # 运行GUI
     app = QApplication(sys.argv)
 
-    main = TreeElement(md.line_group)
+    main = TreeElement(md.lg)
     main.show()
     sys.exit(app.exec_())

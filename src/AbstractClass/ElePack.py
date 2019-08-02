@@ -6,6 +6,7 @@ class ElePack:
         '名称': 'name',
         '元素字典': 'element',
         # '元素列表': 'ele_list',
+        '元素集合': 'ele_set_show',
         '室外元素标识': 'flag_outside',
         '元素列表标识': 'flag_ele_list',
         '单位元素标识': 'flag_ele_unit',
@@ -19,6 +20,7 @@ class ElePack:
         self.name = str()
         self.element = dict()
         self.ele_list = list()
+        self.ele_set = set()
         self.flag_outside = False
         self._posi_rlt = None
         self.posi_abs = None
@@ -109,14 +111,35 @@ class ElePack:
         for ele in self.element.values():
             ele.set_ele_name(prefix=prefix)
 
+    # # 获得所有元器件的字典
+    # def get_element(self, ele_set, flag_ele_unit=True):
+    #     if not (flag_ele_unit * self.flag_ele_unit):
+    #         for ele in self.element.values():
+    #             ele_set = ele.get_element(ele_set=ele_set, flag_ele_unit=flag_ele_unit)
+    #     else:
+    #         ele_set.add(self)
+    #     return ele_set
+
     # 获得所有元器件的字典
-    def get_element(self, ele_set, flag_ele_unit=True):
-        if not (flag_ele_unit * self.flag_ele_unit):
-            for ele in self.element.values():
-                ele_set = ele.get_element(ele_set=ele_set, flag_ele_unit=flag_ele_unit)
-        else:
-            ele_set.add(self)
+    def get_ele_set(self, ele_set, flag_ele_unit=True):
+        ele_self = set()
+        for ele in self.element.values():
+            if not (flag_ele_unit * ele.flag_ele_unit):
+                set_temp = ele.get_ele_set(ele_set=set(), flag_ele_unit=flag_ele_unit)
+                ele_self.update(set_temp)
+            else:
+                ele_self.add(ele)
+        self.ele_set = ele_self
+        ele_set.update(ele_self)
         return ele_set
+
+    @property
+    def ele_set_show(self):
+        show_list = list()
+        for ele in self.ele_set:
+            show_list.append(ele.name)
+        show_list.sort()
+        return show_list
 
     # # 获得所有变量
     # def get_varb(self, varb_set):

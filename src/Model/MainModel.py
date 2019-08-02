@@ -8,7 +8,7 @@ class MainModel(ElePack):
         super().__init__(None, line_group.name_base)
         self.line_group = line_group
         self.init_model()
-        self.ele_set = set()
+        # self.ele_set = set()
         self.equs = self.get_equs_kirchhoff()
         self.varbs = self.equs.get_varbs()
         self.varbs.config_varb_num()
@@ -34,7 +34,7 @@ class MainModel(ElePack):
         #         # print(value)
 
         self.set_varbs_value()
-        # a = 1
+
 
     def set_varbs_value(self):
         for varb in self.varbs.varb_set:
@@ -61,12 +61,7 @@ class MainModel(ElePack):
         for line in self.line_group.values():
             self[line.name_base] = SingleLineModel(self, line)
         self.config_mutual()
-        self.get_ele_set()
-
-    def get_ele_set(self):
-        ele_set = self.get_element(ele_set=set())
-        self.ele_set = ele_set
-        return ele_set
+        self.get_ele_set(ele_set=set())
 
     def config_mutual(self):
         if len(self.element) == 2:
@@ -95,7 +90,7 @@ class MainModel(ElePack):
     @staticmethod
     def get_equ_unit(line_model, freq):
         equs = EquationGroup()
-        ele_set = line_model.get_element(ele_set=set())
+        ele_set = line_model.get_ele_set(ele_set=set())
         for ele in ele_set:
             for module in ele.md_list:
                 equs.add_equations(module.get_equs(freq))

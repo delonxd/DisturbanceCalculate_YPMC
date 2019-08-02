@@ -48,3 +48,6 @@ class TestModel:
 
 if __name__ == '__main__':
     md = TestModel()
+    m1 = MainModel(md.lg)
+
+    pass
