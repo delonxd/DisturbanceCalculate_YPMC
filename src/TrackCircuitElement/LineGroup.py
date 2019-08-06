@@ -7,7 +7,7 @@ class LineGroup(ElePack):
         for line in lines:
             line.parent_ins = self
             # self.element[line.name_base] = line
-            self.add_element(line.name_base, line)
+            self.add_child(line.name_base, line)
         self.refresh()
 
     def refresh(self):

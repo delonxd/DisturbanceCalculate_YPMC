@@ -14,9 +14,11 @@ class Line(ElePack):
             self.rail_group = RailGroup(parent_ins=self, name_base='钢轨',
                                         parameter=self.parameter)
         if sec_group is not None:
-            self.add_element(sec_group.name_base, sec_group)
+            self.add_child(sec_group.name_base, sec_group)
+            sec_group.parent_ins = self
         if train is not None:
-            self.add_element(train.name_base, train)
+            self.add_child(train.name_base, train)
+            train.parent_ins = self
 
     # def add_element(self, name, instance):
     #     self.element[name] = instance

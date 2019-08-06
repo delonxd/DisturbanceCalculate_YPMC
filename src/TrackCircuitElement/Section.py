@@ -50,7 +50,7 @@ class Section(ElePack):
                 #                   posi=c_posi[num], z=self.parameter['Ccmp_z'])
                 ele = CapC(parent_ins=self, name_base=name,
                            posi=c_posi[num], z=self.parameter['Ccmp_z'])
-                self.add_element(name, ele)
+                self.add_child(name, ele)
 
             # 设置绝缘节
             for num in range(2):
@@ -65,7 +65,7 @@ class Section(ElePack):
                 joint = Joint(parent_ins=self, name_base=name, posi_flag=flag,
                               l_section=l_section, r_section=r_section,
                               j_length=j_length[num], j_type=j_type[num])
-                self.add_element(name, joint)
+                self.add_child(name, joint)
 
                 name = flag + '调谐单元'
                 if joint.j_type == '电气':
@@ -75,7 +75,7 @@ class Section(ElePack):
                     ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
                                              posi_flag=flag, cable_length=10,
                                              mode=sr_mode[num], level=1)
-                    self.add_element(name, ele)
+                    self.add_child(name, ele)
 
                 elif joint.j_type == '机械':
                     # self[name] = ZPW2000A_ZN_PTSVA1(parent_ins=self, name_base=name,
@@ -84,7 +84,7 @@ class Section(ElePack):
                     ele = ZPW2000A_ZN_PTSVA1(parent_ins=self, name_base=name,
                                              posi_flag=flag, cable_length=10,
                                              mode=sr_mode[num], level=1)
-                    self.add_element(name, ele)
+                    self.add_child(name, ele)
 
         else:
             raise KeyboardInterrupt(self.m_type + '暂为不支持的主轨类型')

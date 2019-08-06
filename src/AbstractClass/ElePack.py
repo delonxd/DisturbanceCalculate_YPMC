@@ -42,11 +42,17 @@ class ElePack:
         self._posi_rlt = posi
         self.posi_abs = 0
 
-    def add_element(self, name, instance):
+    def add_child(self, name, instance):
         # if self.flag_ele_list:
             self.element[name] = instance
             instance.called_set.add(self)
             self.ele_list.append(instance)
+
+    # def add_element(self, name, instance):
+    #     # if self.flag_ele_list:
+    #     self.element[name] = instance
+    #     instance.called_set.add(self)
+    #     self.ele_list.append(instance)
 
     def __len__(self):
         return len(self.element)

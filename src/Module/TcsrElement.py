@@ -16,8 +16,8 @@ class TcsrPower(ElePack):
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
-        self.add_element('1电压源', OPortPowerU(self, '1电压源', voltage=0))
-        self.add_element('2内阻', TcsrPowerZ(self, '2内阻', z))
+        self.add_child('1电压源', OPortPowerU(self, '1电压源', voltage=0))
+        self.add_child('2内阻', TcsrPowerZ(self, '2内阻', z))
 
     @property
     def voltage(self):
@@ -84,8 +84,8 @@ class TcsrTransformer(ElePack):
     def __init__(self, parent_ins, name_base, z1, z2, n):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
-        self.add_element('1等效内阻', TPortCircuitT(self, '1等效内阻', z1, z2, z1))
-        self.add_element('2变压器', TPortCircuitN(self, '2变压器', n))
+        self.add_child('1等效内阻', TPortCircuitT(self, '1等效内阻', z1, z2, z1))
+        self.add_child('2变压器', TPortCircuitN(self, '2变压器', n))
 
 
 ########################################################################################################################
@@ -103,10 +103,10 @@ class TcsrTAD(ElePack):
     def __init__(self, parent_ins, name_base, z1, z2, z3, n, zc):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
-        self.add_element('1共模电感', TPortZSeries(self, '1共模电感', z3))
-        self.add_element('2等效内阻', TPortCircuitT(self, '2等效内阻', z1, z2, z1))
-        self.add_element('3变压器', TPortCircuitN(self, '3变压器', n))
-        self.add_element('4串联电容', TPortZSeries(self, '4串联电容', zc))
+        self.add_child('1共模电感', TPortZSeries(self, '1共模电感', z3))
+        self.add_child('2等效内阻', TPortCircuitT(self, '2等效内阻', z1, z2, z1))
+        self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))
+        self.add_child('4串联电容', TPortZSeries(self, '4串联电容', zc))
 
 
 ########################################################################################################################

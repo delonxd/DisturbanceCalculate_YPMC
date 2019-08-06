@@ -12,7 +12,7 @@ class TestModel:
         parameter = ModelParameter()
         self.parameter = parameter
         # 轨道电路初始化
-        sg1 = SectionGroup(name_base='地面', posi=0, m_num=3, freq1=2600,
+        sg1 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,
                            m_length=[509, 389, 320],
                            j_length=[29, 29, 29, 29],
                            m_type=['2000A', '2000A', '2000A'],

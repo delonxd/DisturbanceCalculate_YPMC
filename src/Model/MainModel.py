@@ -13,6 +13,8 @@ class MainModel(ElePack):
         self.varbs = self.equs.get_varbs()
         self.varbs.config_varb_num()
         self.matrx, self.cons = self.config_matrix()
+        print(len(self.cons))
+        print(self.equs)
 
         self.equ = self.equs.equ_dict['线路组_线路1_地面_区段1_左调谐单元_1发送器_1电压源_方程']
         num = self.equs.equs.index(self.equ)
