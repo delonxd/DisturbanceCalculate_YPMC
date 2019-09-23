@@ -4,8 +4,11 @@ from src.Model.SingleLineModel import *
 
 
 class MainModel(ElePack):
-    def __init__(self, line_group):
+    def __init__(self, line_group, md):
         super().__init__(None, line_group.name_base)
+        self.pwr_U = [45, 37.5, 30, 22.5][md.parameter['level']-1]
+        self.freq = md.parameter['freq']
+
         self.line_group = line_group
         self.init_model()
         # self.ele_set = set()
@@ -13,13 +16,10 @@ class MainModel(ElePack):
         self.varbs = self.equs.get_varbs()
         self.varbs.config_varb_num()
         self.matrx, self.cons = self.config_matrix()
-        print(len(self.cons))
-        print(self.equs)
 
-        self.equ = self.equs.equ_dict['线路组_线路1_地面_区段1_左调谐单元_1发送器_1电压源_方程']
+        self.equ = self.equs.equ_dict['线路组_线路3_地面_区段1_左调谐单元_1发送器_1电压源_方程']
         num = self.equs.equs.index(self.equ)
-        self.cons[num] = 181
-        print(self.equ, num)
+        self.cons[num] = self.pwr_U
 
         for value in self.cons:
             # print(value)
@@ -79,7 +79,7 @@ class MainModel(ElePack):
     def get_equs_kirchhoff(self):
         equs = EquationGroup()
         for line_model in self.element.values():
-            equs.add_equations(self.get_equ_unit(line_model, 2600))
+            equs.add_equations(self.get_equ_unit(line_model, self.freq))
             # print(len(equs))
             equs.add_equations(self.get_equ_kcl(line_model))
             # print(len(equs))
@@ -95,7 +95,6 @@ class MainModel(ElePack):
         for ele in ele_set:
             for module in ele.md_list:
                 equs.add_equations(module.get_equs(freq))
-            # print(len(equs), ele.name)
         return equs
 
     # KCL方程

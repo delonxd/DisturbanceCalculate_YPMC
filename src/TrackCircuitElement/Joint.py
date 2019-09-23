@@ -47,38 +47,44 @@ class Joint(ElePack):
         return sec_type
 
     def set_element(self):
-        if self.j_type == '电气':
-            if self.sec_type == '2000A':
-                # self.element['SVA'] = SVA(parent_ins=self,
-                #                           name_base='SVA',
-                #                           posi=0,
-                #                           z=self.parameter['SVA_z'])
-                ele = SVA(parent_ins=self,
-                          name_base='SVA',
-                          posi=0,
-                          z=self.parameter['SVA_z'])
-                self.add_child('SVA', ele)
+        pass
 
     def add_joint_tcsr(self):
-        if self.j_type == '电气':
-            name = '相邻调谐单元'
-            if not self.l_section:
-                tcsr = self.r_section['左调谐单元']
-                flag = '右'
-            elif not self.r_section:
-                tcsr = self.l_section['右调谐单元']
-                flag = '左'
-            else:
-                return
+        pass
 
-            if isinstance(tcsr, ZPW2000A_QJ_Normal):
-                # self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-                #                                 posi_flag=flag, cable_length=tcsr.cable_length,
-                #                                 mode=self.change_sr_mode(tcsr.mode), level=1)
-                ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-                                         posi_flag=flag, cable_length=tcsr.cable_length,
-                                         mode=self.change_sr_mode(tcsr.mode), level=1)
-                self.add_child(name, ele)
+    # def set_element(self):
+    #     if self.j_type == '电气':
+    #         if self.sec_type == '2000A':
+    #             # self.element['SVA'] = SVA(parent_ins=self,
+    #             #                           name_base='SVA',
+    #             #                           posi=0,
+    #             #                           z=self.parameter['SVA_z'])
+    #             ele = SVA(parent_ins=self,
+    #                       name_base='SVA',
+    #                       posi=0,
+    #                       z=self.parameter['SVA_z'])
+    #             self.add_child('SVA', ele)
+    #
+    # def add_joint_tcsr(self):
+    #     if self.j_type == '电气':
+    #         name = '相邻调谐单元'
+    #         if not self.l_section:
+    #             tcsr = self.r_section['左调谐单元']
+    #             flag = '右'
+    #         elif not self.r_section:
+    #             tcsr = self.l_section['右调谐单元']
+    #             flag = '左'
+    #         else:
+    #             return
+    #
+    #         if isinstance(tcsr, ZPW2000A_QJ_Normal):
+    #             # self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+    #             #                                 posi_flag=flag, cable_length=tcsr.cable_length,
+    #             #                                 mode=self.change_sr_mode(tcsr.mode), level=1)
+    #             ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+    #                                      posi_flag=flag, cable_length=tcsr.cable_length,
+    #                                      mode=self.change_sr_mode(tcsr.mode), level=1)
+    #             self.add_child(name, ele)
 
     # 交换发送接收
     @staticmethod
@@ -89,3 +95,39 @@ class Joint(ElePack):
         elif mode == '接收':
             new = '发送'
         return new
+
+
+# 机械绝缘节
+class Joint_Mechanical(Joint):
+    def set_element(self):
+        pass
+
+    def add_joint_tcsr(self):
+        pass
+
+
+# 2000A电气绝缘节
+class Joint_2000A_Electric(Joint):
+    def set_element(self):
+        ele = SVA(parent_ins=self,
+                  name_base='SVA',
+                  posi=0,
+                  z=self.parameter['SVA_z'])
+        self.add_child('SVA', ele)
+
+    def add_joint_tcsr(self):
+        name = '相邻调谐单元'
+        if not self.l_section:
+            tcsr = self.r_section['左调谐单元']
+            flag = '右'
+        elif not self.r_section:
+            tcsr = self.l_section['右调谐单元']
+            flag = '左'
+        else:
+            return
+
+        if isinstance(tcsr, ZPW2000A_QJ_Normal):
+            ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
+                                     posi_flag=flag, cable_length=tcsr.cable_length,
+                                     mode=self.change_sr_mode(tcsr.mode), level=1)
+            self.add_child(name, ele)

@@ -32,7 +32,6 @@ class OPortZ(OnePortNetwork):
         return self.equs
 
 
-
 ########################################################################################################################
 
 # 并联电压源
@@ -129,7 +128,7 @@ class TPortCircuitPi(TwoPortNetwork):
         equ2 = Equation(name=self.name+'_方程2')
         equ1.add_items(EquItem(self['I1'], -1),
                        EquItem(self['U1'], -(y1 + y2)),
-                       EquItem(self['U2'], -y2))
+                       EquItem(self['U2'], +y2))
         equ2.add_items(EquItem(self['I2'], -1),
                        EquItem(self['U1'], -y2),
                        EquItem(self['U2'], (y2 + y3)))

@@ -42,6 +42,13 @@ class TcsrPower(ElePack):
         self.parent_ins.send_level = value
 
 
+# 发送器模型
+class TcsrPowerYPMC(TcsrPower):
+    def __init__(self, parent_ins, name_base, z, z_iso):
+        super().__init__(parent_ins, name_base, z)
+        self.add_child('3隔离元件', TPortZSeries(self, '3隔离元件', z_iso))
+
+
 ########################################################################################################################
 
 # 发送器内阻
@@ -77,6 +84,16 @@ class TcsrReceiver(OPortZ):
         super().__init__(parent_ins, name_base, z)
 
 
+# 变压器模板
+class TcsrReceiverYPMC(ElePack):
+    def __init__(self, parent_ins, name_base, z_iso2, z_iso, z_rcv):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('0接收器', OPortZ(self, '0接收器', z_rcv))
+        self.add_child('1隔离元件', TPortZSeries(self, '1隔离元件', z_iso))
+        self.add_child('2隔离元件', TPortZParallel(self, '2隔离元件', z_iso2))
+
+
 ########################################################################################################################
 
 # 变压器模板
@@ -86,6 +103,28 @@ class TcsrTransformer(ElePack):
         self.flag_ele_list = True
         self.add_child('1等效内阻', TPortCircuitT(self, '1等效内阻', z1, z2, z1))
         self.add_child('2变压器', TPortCircuitN(self, '2变压器', n))
+
+
+# 移频脉冲变压器模板
+class TcsrTransformerYPMC(ElePack):
+    def __init__(self, parent_ins, name_base, z1, z2, n):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1短路阻抗', TPortZSeries(self, '1短路阻抗', z1))
+        self.add_child('2开路阻抗', TPortZParallel(self, '2开路阻抗', z2))
+        self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))
+
+
+# 移频脉冲防雷变压器
+class TcsrFLYPMC(TcsrTransformerYPMC):
+    def __init__(self, parent_ins, name_base, z1, z2, n):
+        super().__init__(parent_ins, name_base, z1, z2, n)
+
+
+# 移频脉冲防雷变压器
+class TcsrELYPMC(TcsrTransformerYPMC):
+    def __init__(self, parent_ins, name_base, z1, z2, n):
+        super().__init__(parent_ins, name_base, z1, z2, n)
 
 
 ########################################################################################################################
@@ -132,3 +171,13 @@ class TcsrBA(TPortZParallel):
 class TcsrCA(TPortZSeries):
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base, z)
+
+
+class TcsrCableComp(TPortZSeries):
+    def __init__(self, parent_ins, name_base, z=45*9):
+        super().__init__(parent_ins, name_base, z)
+
+    def get_equs(self, freq):
+        z = self.z
+        equs = self.value2equs(z)
+        return equs
