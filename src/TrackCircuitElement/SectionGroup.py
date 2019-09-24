@@ -44,14 +44,17 @@ class SectionGroup(ElePack):
 
         for num in range(m_num):
             name = '区段' + str(num+1)
-            # sec_t = Section(parent_ins=self, name_base=name,
-            #                 m_type=m_type[num], m_freq=freq_list[num], s_length=m_length[num],
-            #                 j_length=j_length[num], c_num=c_num[num],
-            #                 j_type=j_type[num], sr_mode='左发')
-            sec_t = Section_ZPW2000A(parent_ins=self, name_base=name,
-                                     m_freq=freq_list[num], s_length=m_length[num],
-                                     j_length=j_length[num], c_num=c_num[num],
-                                     j_type=j_type[num], sr_mode='左发')
+            sec_t = None
+            if m_type[num] == '2000A':
+                sec_t = Section_ZPW2000A(parent_ins=self, name_base=name,
+                                         m_freq=freq_list[num], s_length=m_length[num],
+                                         j_length=j_length[num], c_num=c_num[num],
+                                         j_type=j_type[num], sr_mode='左发')
+            elif m_type[num] == '2000A_YPMC':
+                sec_t = Section_ZPW2000A_YPMC(parent_ins=self, name_base=name,
+                                              m_freq=freq_list[num], s_length=m_length[num],
+                                              j_length=j_length[num], c_num=c_num[num],
+                                              j_type=j_type[num], sr_mode='左发')
             self.add_child(name, sec_t)
             # self.element[name] = sec_t
             self.section_list.append(sec_t)

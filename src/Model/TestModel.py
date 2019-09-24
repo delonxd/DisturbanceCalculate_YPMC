@@ -45,7 +45,7 @@ class TestModel:
         sg3 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=freq,
                            m_length=[length],
                            j_length=[0, 0],
-                           m_type=['2000A'],
+                           m_type=['2000A_YPMC'],
                            c_num=[c_num],
                            parameter=parameter)
 
@@ -76,9 +76,9 @@ class TestModel:
 
 
 if __name__ == '__main__':
-    df = pd.read_excel('西宁验证版.xlsx', header=None)
+    df = pd.read_excel('测试版.xlsx', header=None)
 
-    sec_num = 6
+    sec_num = 1
     excel_list = []
     for num in range(sec_num):
         output = 8 * [0]

@@ -44,6 +44,7 @@ class ElePack:
 
     def add_child(self, name, instance):
         # if self.flag_ele_list:
+        if instance is not None:
             self.element[name] = instance
             instance.called_set.add(self)
             self.ele_list.append(instance)
