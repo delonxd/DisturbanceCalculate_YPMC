@@ -35,7 +35,7 @@ class SubRailPi(TwoPortNetwork):
         rd = self.rd
         length = self.track_length / 1000
         y_tk = 1 / z_trk[freq].z / length
-        y_rd = 1 / rd * length
+        y_rd = 1 / rd * length / 2
         equ1 = Equation(name=self.name+'_方程1')
         equ2 = Equation(name=self.name+'_方程2')
         equ1.add_items(EquItem(self['I1'], -1),
