@@ -32,6 +32,17 @@ class OPortZ(OnePortNetwork):
         return self.equs
 
 
+class OPortJumperWire(OnePortNetwork):
+    # 变量类型
+    para_type = {}
+
+    def __init__(self, parent_ins, name_base):
+        super().__init__(parent_ins, name_base)
+
+    def get_equs(self, freq):
+        return None
+
+
 ########################################################################################################################
 
 # 并联电压源

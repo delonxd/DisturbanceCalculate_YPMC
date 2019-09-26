@@ -22,6 +22,8 @@ class EquationGroup:
             else:
                 self.equs.append(equ)
                 self.equ_dict[equ.name] = equ
+        elif equ is None:
+            pass
         else:
             raise KeyboardInterrupt('类型异常: 需添加Equation类型')
 
@@ -29,6 +31,8 @@ class EquationGroup:
         if isinstance(equs, EquationGroup):
             for equ in equs.equs:
                 self.add_equation(equ)
+        elif equs is None:
+            pass
         else:
             raise KeyboardInterrupt('类型异常: 需添加EquationGroup类型')
 

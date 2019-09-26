@@ -1,15 +1,18 @@
 import numpy as np
 import numpy.matlib
 from src.Model.SingleLineModel import *
+from src.TrackCircuitElement.Line import Line, Turnout
+from src.TrackCircuitElement.JumperWires import *
 
 
 class MainModel(ElePack):
     def __init__(self, line_group, md):
         super().__init__(None, line_group.name_base)
-        self.pwr_U = [45, 37.5, 30, 22.5][md.parameter['level']-1]
+        self.pwr_U = [45, 37.5, 30, 22.5][int(md.parameter['level'])-1]
         self.freq = md.parameter['freq']
 
         self.line_group = line_group
+        self.jumper_dict = dict()
         self.init_model()
         # self.ele_set = set()
         self.equs = self.get_equs_kirchhoff()
@@ -59,9 +62,13 @@ class MainModel(ElePack):
         return matrix_main, constant
 
     def init_model(self):
-        for line in self.line_group.values():
-            self[line.name_base] = SingleLineModel(self, line)
-        self.config_mutual()
+        for ele in self.line_group.values():
+            if isinstance(ele, Line):
+                self[ele.name_base] = SingleLineModel(self, ele)
+            if isinstance(ele, Turnout):
+                for jumper in ele.jumper_list:
+                    self.jumper_dict[jumper.name_base] = jumper
+        # self.config_mutual()
         self.get_ele_set(ele_set=set())
 
     def config_mutual(self):
@@ -85,6 +92,8 @@ class MainModel(ElePack):
             # print(len(equs))
             equs.add_equations(self.get_equ_kvl(line_model))
             # print(len(equs))
+        for jumper in self.jumper_dict.values():
+            equs.add_equations(jumper.get_equs())
         return equs
 
     # 元器件方程

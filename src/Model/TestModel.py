@@ -6,9 +6,11 @@ from src.Model.MainModel import *
 from src.Model.ModelParameter import *
 
 import pandas as pd
+import time
+
 
 class TestModel:
-    def __init__(self, freq, length, c_num, level, rd, r_cable, cab_len):
+    def __init__(self, freq, length, c_num, level, rd, r_cable, cab_len, turnout_list):
         # 导入参数
         parameter = ModelParameter()
         parameter['freq'] = freq
@@ -21,25 +23,18 @@ class TestModel:
 
         self.parameter = parameter
         # 轨道电路初始化
-        sg1 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,
-                           m_length=[509, 389, 320],
-                           j_length=[29, 29, 29, 29],
-                           m_type=['2000A', '2000A', '2000A'],
-                           c_num=[6, 6, 5],
-                           parameter=parameter)
+        # sg1 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2600,
+        #                    m_length=[509, 389, 320],
+        #                    j_length=[29, 29, 29, 29],
+        #                    m_type=['2000A', '2000A', '2000A'],
+        #                    c_num=[6, 6, 5],
+        #                    parameter=parameter)
 
-        sg2 = SectionGroup(name_base='地面', posi=0, m_num=2, freq1=1700,
-                           m_length=[480, 200, 320],
-                           j_length=[29, 29, 29, 29],
-                           m_type=['2000A', '2000A', '2000A'],
-                           c_num=[8, 6, 5],
-                           parameter=parameter)
-
-        # sg3 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=2300,
-        #                    m_length=[90],
-        #                    j_length=[0, 0],
-        #                    m_type=['2000A'],
-        #                    c_num=[0],
+        # sg2 = SectionGroup(name_base='地面', posi=0, m_num=2, freq1=1700,
+        #                    m_length=[480, 200, 320],
+        #                    j_length=[29, 29, 29, 29],
+        #                    m_type=['2000A', '2000A', '2000A'],
+        #                    c_num=[8, 6, 5],
         #                    parameter=parameter)
 
         sg3 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=freq,
@@ -54,37 +49,62 @@ class TestModel:
         # 生成线路
         # l1 = Line(name_base='线路1', sec_group=sg1, train=train1,
         #           parameter=parameter)
-        l1 = Line(name_base='线路1', sec_group=sg1,
-                  parameter=parameter)
-        l2 = Line(name_base='线路2', sec_group=sg2,
-                  parameter=parameter)
+        # l1 = Line(name_base='线路1', sec_group=sg1,
+        #           parameter=parameter)
+        # l2 = Line(name_base='线路2', sec_group=sg2,
+        #           parameter=parameter)
+
         l3 = Line(name_base='线路3', sec_group=sg3,
                   parameter=parameter)
-        # self.lg = LineGroup(l1, name_base='线路组')
         self.lg = LineGroup(l3, name_base='线路组')
+
+        for i in range(len(turnout_list)):
+            name = '道岔' + str(i+1)
+            posi1, posi2 = turnout_list[i]
+            turnout = Turnout(name_base=name, parameter=parameter,
+                              main_line=l3, posi1=posi1, posi2=posi2)
+            self.lg.add_turnout(turnout)
+
+        self.lg.refresh()
 
         # 建立模型
         # self.model = MainModel(self.lg)
 
-        self.section_group1 = sg1
-        self.section_group2 = sg2
+        # self.section_group1 = sg1
+        # self.section_group2 = sg2
         self.section_group3 = sg3
+
         # self.train1 = train1
-        self.line1 = l1
-        self.line2 = l2
-        self.line3 = l3
+        # self.line1 = l1
+        # self.line2 = l2
+        # self.line3 = l3
 
 
 if __name__ == '__main__':
-    df = pd.read_excel('测试版.xlsx', header=None)
+    df = pd.read_excel('../Input/襄阳动车所输入参数_有道岔版.xlsx', header=None)
 
-    sec_num = 1
+    localtime = time.localtime()
+    timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
+    print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
+
+    sec_num = 79
     excel_list = []
     for num in range(sec_num):
         output = 8 * [0]
         row = 2 * num + 2
         freq = df.loc[row, 3]
         length = df.loc[row, 4]
+        turnout_num = df.loc[row, 5]
+        turnout_list = []
+        if turnout_num > 0:
+            p1 = length - df.loc[row, 6]
+            p2 = length - df.loc[row, 7]
+            turnout_list.append((p1, p2))
+        if turnout_num == 2:
+            p1 = length - df.loc[row, 9]
+            p2 = length - df.loc[row, 10]
+            turnout_list.append((p1, p2))
+
         c_num = df.loc[row, 19]
         level = df.loc[row, 20]
         cab_len = df.loc[row, 14]
@@ -95,7 +115,8 @@ if __name__ == '__main__':
                        level=level,
                        rd=10000,
                        r_cable=43,
-                       cab_len=cab_len)
+                       cab_len=cab_len,
+                       turnout_list=turnout_list)
         m1 = MainModel(md.lg, md=md)
         v_rcv = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['2隔离元件']['U2'].value_c
         v_rcv_true = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['0接收器']['U'].value_c
@@ -120,7 +141,8 @@ if __name__ == '__main__':
                        level=level,
                        rd=2,
                        r_cable=47,
-                       cab_len=cab_len)
+                       cab_len=cab_len,
+                       turnout_list=turnout_list)
         m1 = MainModel(md.lg, md=md)
         v_rcv = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['2隔离元件']['U2'].value_c
         v_rcv_true = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['0接收器']['U'].value_c
@@ -140,7 +162,8 @@ if __name__ == '__main__':
                                            '发送轨面电压最小值', '发送轨面电压最大值',
                                            '接收轨面电压最小值', '接收轨面电压最大值'])
     # 保存到本地excel
-    with pd.ExcelWriter('移频脉冲调整表_西宁验证.xlsx') as writer:
+    filename = '../Output/襄阳动车所_调整表_有岔计算_' + timestamp + '.xlsx'
+    with pd.ExcelWriter(filename) as writer:
         df.to_excel(writer, sheet_name="调整表", index=False)
 
     pass

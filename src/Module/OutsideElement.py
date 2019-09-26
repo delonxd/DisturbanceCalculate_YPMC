@@ -1,4 +1,4 @@
-from src.Module.CircuitBasic import OPortZ, OPortPowerU
+from src.Module.CircuitBasic import OPortZ, OPortPowerU, OPortJumperWire
 from src.Module.ParameterType import *
 
 
@@ -48,3 +48,10 @@ class ROutside(ZOutside):
         z = self.z
         equs = self.value2equs(z)
         return equs
+
+
+class JumperWireOutside(OPortJumperWire):
+    def __init__(self, parent_ins, name_base, posi):
+        super().__init__(parent_ins, name_base)
+        self.init_position(posi)
+        self.flag_ele_unit = True

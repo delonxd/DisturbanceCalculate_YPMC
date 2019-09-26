@@ -12,12 +12,14 @@ import time
 
 # 主窗口
 class WindowMain(QWidget):
-    def __init__(self, line_group):
+    def __init__(self, line_group, md):
         super().__init__()
         self.resize(1280, 900)
         self.setWindowTitle('轨道电路传输计算Demo')
 
         self.line_group = line_group
+        self.md = md
+
         self.tree = TreeElement(self.line_group)
         # self.window1 = ShowText()
         self.window2 = TreeParameter()
@@ -47,7 +49,7 @@ class WindowMain(QWidget):
         button2.clicked.connect(self.close)
 
     def modeling(self):
-        self.model = MainModel(self.line_group)
+        self.model = MainModel(self.line_group, self.md)
         self.model_window = WindowModel(self.model)
 
         print(len(self.model.equs))
@@ -58,8 +60,39 @@ if __name__ == '__main__':
     print(time.asctime(time.localtime()))
     app = QApplication(sys.argv)
 
-    md = TestModel()
+    #读取参数
+    df = pd.read_excel('../Input/襄阳动车所输入参数_有道岔版.xlsx', header=None)
 
-    main = WindowMain(md.lg)
+    sec_num = 1
+    num = 2
+    output = 8 * [0]
+    row = 2 * num + 2
+    freq = df.loc[row, 3]
+    length = df.loc[row, 4]
+    turnout_num = df.loc[row, 5]
+    turnout_list = []
+    if turnout_num > 0:
+        p1 = length - df.loc[row, 6]
+        p2 = length - df.loc[row, 7]
+        turnout_list.append((p1, p2))
+    if turnout_num == 2:
+        p1 = length - df.loc[row, 9]
+        p2 = length - df.loc[row, 10]
+        turnout_list.append((p1, p2))
+
+    c_num = df.loc[row, 19]
+    level = df.loc[row, 20]
+    cab_len = df.loc[row, 14]
+
+    md = TestModel(freq=freq,
+                   length=length,
+                   c_num=c_num,
+                   level=level,
+                   rd=10000,
+                   r_cable=43,
+                   cab_len=cab_len,
+                   turnout_list=turnout_list)
+
+    main = WindowMain(md.lg, md)
     main.show()
     sys.exit(app.exec_())
