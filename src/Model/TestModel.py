@@ -80,15 +80,35 @@ class TestModel:
         # self.line3 = l3
 
 
+def get_output(lg):
+    output = 13 * [0]
+    output[0] = lg['线路3']['地面']['区段1']['左调谐单元']['1发送器']['2内阻']['U2'].value_c
+    output[1] = lg['线路3']['地面']['区段1']['左调谐单元']['1发送器']['3隔离元件']['U2'].value_c
+    output[2] = lg['线路3']['地面']['区段1']['左调谐单元']['1发送器']['3隔离元件']['I2'].value_c
+    output[3] = lg['线路3']['地面']['区段1']['左调谐单元']['2防雷']['1开路阻抗']['U1'].value_c
+    output[4] = lg['线路3']['地面']['区段1']['左调谐单元']['2防雷']['3变压器']['U2'].value_c
+    output[5] = lg['线路3']['地面']['区段1']['左调谐单元']['3Cab']['U2'].value_c
+    output[6] = lg['线路3']['地面']['区段1']['左调谐单元']['6CA']['U2'].value_c
+    output[7] = lg['线路3']['地面']['区段1']['右调谐单元']['6CA']['U2'].value_c
+    output[8] = lg['线路3']['地面']['区段1']['右调谐单元']['3Cab']['U2'].value_c
+    output[9] = lg['线路3']['地面']['区段1']['右调谐单元']['2防雷']['3变压器']['U2'].value_c
+    output[10] = lg['线路3']['地面']['区段1']['右调谐单元']['2防雷']['1开路阻抗']['U1'].value_c
+    output[11] = lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['1隔离元件']['U2'].value_c
+    output[12] = lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['0接收器']['U'].value_c
+    return output
+
+
 if __name__ == '__main__':
-    df = pd.read_excel('../Input/襄阳动车所输入参数_有道岔版.xlsx', header=None)
+    df = pd.read_excel('../Input/实验室验证输入参数.xlsx', header=None)
 
     localtime = time.localtime()
     timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
     print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
 
-    sec_num = 79
+    sec_num = 3
     excel_list = []
+    excel_list1 = []
+
     for num in range(sec_num):
         output = 8 * [0]
         row = 2 * num + 2
@@ -128,18 +148,21 @@ if __name__ == '__main__':
         output[5] = v_fs_guimian
         output[7] = v_js_guimian
 
+        excel_list1.append(get_output(md.lg))
+
         row = 2 * num + 3
         freq = df.loc[row, 3]
         length = df.loc[row, 4]
         c_num = df.loc[row, 19]
         level = df.loc[row, 20]
         cab_len = df.loc[row, 14]
+        r_d = df.loc[row, 16]
 
         md = TestModel(freq=freq,
                        length=length,
                        c_num=c_num,
                        level=level,
-                       rd=2,
+                       rd=r_d,
                        r_cable=47,
                        cab_len=cab_len,
                        turnout_list=turnout_list)
@@ -155,15 +178,21 @@ if __name__ == '__main__':
         output[6] = v_js_guimian
 
         excel_list.append(output)
+        excel_list1.append(get_output(md.lg))
         print('xxx', output)
 
-    df = pd.DataFrame(excel_list, columns=['真轨入最小值(V)', '真轨入最大值(V)',
-                                           '轨入最小值(V)', '轨入最大值(V)',
-                                           '发送轨面电压最小值', '发送轨面电压最大值',
-                                           '接收轨面电压最小值', '接收轨面电压最大值'])
+    # df = pd.DataFrame(excel_list, columns=['真轨入最小值(V)', '真轨入最大值(V)',
+    #                                        '轨入最小值(V)', '轨入最大值(V)',
+    #                                        '发送轨面电压最小值', '发送轨面电压最大值',
+    #                                        '接收轨面电压最小值', '接收轨面电压最大值'])
+
+    df = pd.DataFrame(excel_list1, columns=['电源', '功出电压', '功出电流',
+                                            '发送设备侧', '发送防雷侧', '发送电缆侧', '发送钢轨侧',
+                                            '接收钢轨侧', '接收电缆侧', '接收防雷侧', '接收设备侧',
+                                            '隔离盒', '真轨入'])
+
     # 保存到本地excel
-    filename = '../Output/襄阳动车所_调整表_有岔计算_' + timestamp + '.xlsx'
+    filename = '../Output/实验室验证_调整表_有岔计算_' + timestamp + '.xlsx'
     with pd.ExcelWriter(filename) as writer:
         df.to_excel(writer, sheet_name="调整表", index=False)
-
-    pass
+        pass
