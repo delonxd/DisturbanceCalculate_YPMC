@@ -48,14 +48,16 @@ class ModelParameter:
 
         parameter['z1_FL_ypmc'] = ImpedanceMultiFreq()
         parameter['z1_FL_ypmc'].rlc_s = {
-            1700: [15.55, 6.90e-3, None],
+            # 1700: [15.55, 6.90e-3, None],
+            1700: [13.401, 6.683e-3, None],
             2000: [16.24, 6.86e-3, None],
             2300: [16.93, 6.84e-3, None],
             2600: [17.63, 6.81e-3, None]}
 
         parameter['z2_FL_ypmc'] = ImpedanceMultiFreq()
         parameter['z2_FL_ypmc'].rlc_s = {
-            1700: [1883, 929e-3, None],
+            # 1700: [1883, 929e-3, None],
+            1700: [1060, 663.437e-3, None],
             2000: [2611, 948e-3, None],
             2300: [3511, 972e-3, None],
             2600: [4643, 1003e-3, None]}
@@ -69,14 +71,16 @@ class ModelParameter:
 
         parameter['z1_EL_ypmc'] = ImpedanceMultiFreq()
         parameter['z1_EL_ypmc'].rlc_s = {
-            1700: [1.539, 502e-6, None],
+            # 1700: [1.539, 502e-6, None],
+            1700: [1.539, 502.818e-6, None],
             2000: [1.595, 500e-6, None],
             2300: [1.652, 498e-6, None],
             2600: [1.712, 496e-6, None]}
 
         parameter['z2_EL_ypmc'] = ImpedanceMultiFreq()
         parameter['z2_EL_ypmc'].rlc_s = {
-            1700: [221, 44.2e-3, None],
+            # 1700: [221, 44.2e-3, None],
+            1700: [221.835, 44.169e-3, None],
             2000: [253, 40.9e-3, None],
             2300: [277, 38.3e-3, None],
             2600: [298, 36.1e-3, None]}
@@ -86,13 +90,6 @@ class ModelParameter:
             2000: 5,
             2300: 5,
             2600: 5}
-
-        parameter['z2_EL_ypmc'] = ImpedanceMultiFreq()
-        parameter['z2_EL_ypmc'].rlc_s = {
-            1700: [221, 44.2e-3, None],
-            2000: [253, 40.9e-3, None],
-            2300: [277, 38.3e-3, None],
-            2600: [298, 36.1e-3, None]}
 
         parameter['z_rcv_ypmc_iso'] = ImpedanceMultiFreq()
         parameter['z_rcv_ypmc_iso'].rlc_s = {
@@ -142,7 +139,8 @@ class ModelParameter:
         # 钢轨阻抗21
         parameter['Trk_z'] = ImpedanceMultiFreq()
         parameter['Trk_z'].rlc_s = {
-            1700: [1.177, 1.314e-3, None],
+            # 1700: [1.177, 1.314e-3, None],
+            1700: [1.349, 1.316e-3, None],
             2000: [1.306, 1.304e-3, None],
             2300: [1.435, 1.297e-3, None],
             2600: [1.558, 1.291e-3, None]}
