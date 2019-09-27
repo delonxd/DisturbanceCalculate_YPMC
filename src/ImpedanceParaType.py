@@ -11,6 +11,10 @@ class ImpedanceWithFreq:
     def z(self):
         return self._z
 
+    @z.setter
+    def z(self, value):
+        self.z_complex = value
+
     @property
     def omega(self):
         value = 2 * math.pi * self.freq
@@ -125,6 +129,12 @@ class ImpedanceWithFreq:
         else:
             self._z = 1 / y
 
+    def __add__(self, other):
+        z_new = self._z + other
+        object = ImpedanceWithFreq(self.freq)
+        object.z_complex = z_new
+        return object
+
     def __repr__(self):
         return str(self._z)
 
@@ -217,12 +227,21 @@ if __name__ == '__main__':
     # a = ParaMultiF(data = bb, datatype = 'rlc_s')
     # b = ParaMultiF(1700,2000,2300,2600)
 
-    a = ImpedanceWithFreq(1700)
+    a = ImpedanceMultiFreq()
+    a.rlc_s = {
+        # 1700: [1.539, 502e-6, None],
+        1700: [1.539, 502.818e-6, None],
+        2000: [1.595, 500e-6, None],
+        2300: [1.652, 498e-6, None],
+        2600: [1.712, 496e-6, None]}
+
     b = ImpedanceMultiFreq()
-    b.z = {
-        1700: (0.006459333 + 0.030996667j),
-        2000: (0.007119667 + 0.035956660j),
-        2300: (0.007735333 + 0.040813333j),
-        2600: (0.008341333 + 0.045740000j)}
+    b.rlc_s = {
+        # 1700: [221, 44.2e-3, None],
+        1700: [221.835, 44.169e-3, None],
+        2000: [253, 40.9e-3, None],
+        2300: [277, 38.3e-3, None],
+        2600: [298, 36.1e-3, None]}
+    c = ImpedanceWithFreq(1700)
 
     xxx = 10
