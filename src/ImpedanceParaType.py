@@ -3,9 +3,10 @@ import math
 
 # 单一频率阻抗
 class ImpedanceWithFreq:
-    def __init__(self, freq):
+    def __init__(self, freq, value=0):
         self.freq = freq
         self._z = None
+        self.z_complex = value
 
     @property
     def z(self):
@@ -27,10 +28,12 @@ class ImpedanceWithFreq:
 
     @z_complex.setter
     def z_complex(self, value):
-        if value.real >= 0:
+        # if value.real >= 0:
+        #     self._z = value
+        # else:
+        #     raise KeyboardInterrupt('复数实部不能为负数')
+        if value.real or value.real == 0:
             self._z = value
-        else:
-            raise KeyboardInterrupt('复数实部不能为负数')
 
     # 阻抗极坐标形式
     @property
@@ -46,12 +49,12 @@ class ImpedanceWithFreq:
     def z_polar(self, value):
         r, angle = value
         if r >= 0:
-            if -90 <= angle <= 90:
-                imag = r * math.sin(math.radians(angle))
-                real = r * math.cos(math.radians(angle))
-                self._z = complex(real, imag)
-            else:
-                raise KeyboardInterrupt('辐角需要在正负90度之间')
+            # if -90 <= angle <= 90:
+            imag = r * math.sin(math.radians(angle))
+            real = r * math.cos(math.radians(angle))
+            self._z = complex(real, imag)
+            # else:
+            #     raise KeyboardInterrupt('辐角需要在正负90度之间')
         else:
             raise KeyboardInterrupt('模值不能为负数')
 
@@ -97,6 +100,8 @@ class ImpedanceWithFreq:
         if self._z:
             y = 1 / self._z
             real = y.real
+            if real < 0:
+                return None
             imag = y.imag
             resistance = None if real == 0 else 1 / real
             if imag < 0:
@@ -129,11 +134,84 @@ class ImpedanceWithFreq:
         else:
             self._z = 1 / y
 
+    def copy(self):
+        obj = ImpedanceWithFreq(self.freq, self.z)
+        return obj
+
     def __add__(self, other):
-        z_new = self._z + other
-        object = ImpedanceWithFreq(self.freq)
-        object.z_complex = z_new
-        return object
+        if isinstance(other, ImpedanceWithFreq):
+            if other.freq == self.freq:
+                z_new = self._z + other._z
+            else:
+                raise KeyboardInterrupt('频率不同不能运算')
+        else:
+            z_new = self._z + other
+        obj = ImpedanceWithFreq(self.freq)
+        obj.z = z_new
+        return obj
+
+    def __radd__(self, other):
+        obj = self.__add__(other)
+        return obj
+
+    def __sub__(self, other):
+        obj = -other
+        return self.__add__(obj)
+
+    def __rsub__(self, other):
+        obj = -self
+        return obj.__add__(other)
+
+    def __neg__(self):
+        obj = ImpedanceWithFreq(self.freq)
+        obj.z = -self.z
+        return obj
+
+    def __mul__(self, other):
+        if isinstance(other, ImpedanceWithFreq):
+            if other.freq == self.freq:
+                z_new = self._z * other._z
+            else:
+                raise KeyboardInterrupt('频率不同不能运算')
+        else:
+            z_new = self._z * other
+        obj = ImpedanceWithFreq(self.freq)
+        obj.z = z_new
+        return obj
+
+    def __rmul__(self, other):
+        obj = self.__mul__(other)
+        return obj
+
+    def __truediv__(self, other):
+        if isinstance(other, ImpedanceWithFreq):
+            if other.freq == self.freq:
+                z_new = self._z / other._z
+            else:
+                raise KeyboardInterrupt('频率不同不能运算')
+        else:
+            z_new = self._z / other
+        obj = ImpedanceWithFreq(self.freq)
+        obj.z = z_new
+        return obj
+
+    def __rtruediv__(self, other):
+        z_new = other / self._z
+        obj = ImpedanceWithFreq(self.freq)
+        obj.z = z_new
+        return obj
+
+    def __floordiv__(self, other):
+        if isinstance(other, ImpedanceWithFreq):
+            if other.freq == self.freq:
+                z_new = self._z / (self._z + other._z) * other._z
+            else:
+                raise KeyboardInterrupt('频率不同不能运算')
+        else:
+            raise KeyboardInterrupt('并联错误')
+        obj = ImpedanceWithFreq(self.freq)
+        obj.z = z_new
+        return obj
 
     def __repr__(self):
         return str(self._z)
@@ -161,22 +239,16 @@ class ImpedanceMultiFreq:
     def __init__(self):
         self.freq_dict = {}
 
-    # def get_value(self, freq):
-    #     para = self.freq_dict[freq]
-    #     z = para.z_complex
-    #     return z
-
-    def config_impedance(self, value):
-        if isinstance(value, ImpedanceWithFreq):
-            self.freq_dict[value.freq] = value
-        else:
-            raise KeyboardInterrupt('类型异常: 参数需要为阻抗类型')
-
     z = ParaDescribe('z_complex')
     z_complex = ParaDescribe('z_complex')
     z_polar = ParaDescribe('z_polar')
     rlc_s = ParaDescribe('rlc_s')
     rlc_p = ParaDescribe('rlc_p')
+
+    @property
+    def freq(self):
+        f = set(self.freq_dict.keys())
+        return f
 
     def value(self, freq):
         return self[freq].z_complex
@@ -190,6 +262,9 @@ class ImpedanceMultiFreq:
     def items(self):
         return self.freq_dict.items()
 
+    def copy(self):
+        return self.select_freqs(self.keys())
+
     def __repr__(self):
         return str(self.z)
 
@@ -198,6 +273,12 @@ class ImpedanceMultiFreq:
 
     def __getitem__(self, key):
         return self.freq_dict[key]
+
+    def config_impedance(self, value):
+        if isinstance(value, ImpedanceWithFreq):
+            self.freq_dict[value.freq] = value.copy()
+        else:
+            raise KeyboardInterrupt('类型异常: 参数需要为阻抗类型')
 
     def get_property(self, key):
         value = None
@@ -208,25 +289,89 @@ class ImpedanceMultiFreq:
         return value
 
     def set_property(self, key, value_t):
-        command = 'self[key].z_complex = ' + value_t
-        try:
-            exec(command)
-        except Exception as reason:
-            print(reason)
-            return False
-        return True
+        obj = ImpedanceWithFreq(key, value_t)
+        self.config_impedance(obj)
 
-    
+    def pop_property(self, key):
+        self.freq_dict.pop(key)
+
+    def select_freqs(self, freqs):
+        obj = ImpedanceMultiFreq()
+        for freq in freqs:
+            obj.config_impedance(self[freq])
+        return obj
+
+    def convert_to_multi_freq(self, value):
+        obj_m = ImpedanceMultiFreq()
+        if isinstance(value, ImpedanceMultiFreq):
+            obj_m = value.select_freqs(self.keys())
+        else:
+            for freq in self.keys():
+                obj = ImpedanceWithFreq(freq, value)
+                obj_m.config_impedance(obj)
+        return obj_m
+
+    def __add__(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = ImpedanceMultiFreq()
+        for key in self.keys():
+            obj.config_impedance(self[key] + other[key])
+        return obj
+
+    def __radd__(self, other):
+        obj = self.__add__(other)
+        return obj
+
+    def __sub__(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = self.__add__(-other)
+        return obj
+
+    def __rsub__(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = other.__add__(-self)
+        return obj
+
+    def __neg__(self):
+        obj = ImpedanceMultiFreq()
+        for key in self.keys():
+            obj.config_impedance(-self[key])
+        return obj
+
+    def __mul__(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = ImpedanceMultiFreq()
+        for key in self.keys():
+            obj.config_impedance(self[key] * other[key])
+        return obj
+
+    def __rmul__(self, other):
+        obj = self.__mul__(other)
+        return obj
+
+    def __truediv__(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = ImpedanceMultiFreq()
+        for key in self.keys():
+            obj.config_impedance(self[key] / other[key])
+        return obj
+
+    def __rtruediv__(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = ImpedanceMultiFreq()
+        for key in self.keys():
+            obj.config_impedance(other[key] / self[key])
+        return obj
+
+    def __floordiv__(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = ImpedanceMultiFreq()
+        for key in self.keys():
+            obj.config_impedance(other[key] // self[key])
+        return obj
+
+
 if __name__ == '__main__':
-    # a = ParaMultiF(1700,2000,2300,2600)
-    # bb = {
-    #     1700 : [1.38,   1.36e-3,    None],
-    #     2000 : [1.53,   1.35e-3,    None],
-    #     2300 : [1.68,   1.35e-3,    None],
-    #     2600 : [1.79,   1.34e-3,    None]}
-    # a = ParaMultiF(data = bb, datatype = 'rlc_s')
-    # b = ParaMultiF(1700,2000,2300,2600)
-
     a = ImpedanceMultiFreq()
     a.rlc_s = {
         # 1700: [1.539, 502e-6, None],
@@ -243,5 +388,8 @@ if __name__ == '__main__':
         2300: [277, 38.3e-3, None],
         2600: [298, 36.1e-3, None]}
     c = ImpedanceWithFreq(1700)
+    c.z = 20
 
+    d = c.copy()
+    d.freq = 1700
     xxx = 10
