@@ -25,7 +25,7 @@ class MainModel(ElePack):
         self.equ = self.equs.equ_dict['线路组_线路3_地面_区段1_左调谐单元_1发送器_1电压源_方程']
         num = self.equs.equs.index(self.equ)
         self.cons[num] = self.pwr_U
-        print(len(self.cons))
+        # print(len(self.cons))
 
         for value in self.cons:
             # print(value)
