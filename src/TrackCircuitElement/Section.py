@@ -61,9 +61,8 @@ class Section_ZPW2000A(Section):
         n_t = c_num * 2 + 1
         # 按ZPW-2000A原则设置电容
         half_posi = list(np.linspace(offset, (m_length + offset), n_t))
-        print(half_posi)
         c_posi = [half_posi[num*2+1] for num in range(c_num)]
-        print(type(half_posi[3]))
+
         # lc = (m_length / c_num) if c_num > 0 else 0
         # c_posi = [(num * lc + lc / 2 + offset) for num in range(c_num)]
         self.config_c(c_posi)
