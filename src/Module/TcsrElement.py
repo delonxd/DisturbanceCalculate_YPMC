@@ -3,7 +3,6 @@ from src.Module.CircuitBasic import *
 
 ########################################################################################################################
 
-
 # 发送器模型
 class TcsrPower(ElePack):
     new_table = {
@@ -42,7 +41,7 @@ class TcsrPower(ElePack):
         self.parent_ins.send_level = value
 
 
-# 发送器模型
+# 移频脉冲发送器
 class TcsrPowerYPMC(TcsrPower):
     def __init__(self, parent_ins, name_base, z, z_iso):
         super().__init__(parent_ins, name_base, z)
@@ -84,7 +83,7 @@ class TcsrReceiver(OPortZ):
         super().__init__(parent_ins, name_base, z)
 
 
-# 变压器模板
+# 移频脉冲接收器
 class TcsrReceiverYPMC(ElePack):
     def __init__(self, parent_ins, name_base, z_iso2, z_iso, z_rcv):
         super().__init__(parent_ins, name_base)
@@ -105,8 +104,8 @@ class TcsrTransformer(ElePack):
         self.add_child('2变压器', TPortCircuitN(self, '2变压器', n))
 
 
-# 移频脉冲变压器模板
-class TcsrTransformerYPMC(ElePack):
+# 开短路模型变压器模板
+class TcsrTransformerOpenShort(ElePack):
     def __init__(self, parent_ins, name_base, z1, z2, n):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
@@ -116,16 +115,35 @@ class TcsrTransformerYPMC(ElePack):
         self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))
 
 
+########################################################################################################################
+
 # 移频脉冲防雷变压器
-class TcsrFLYPMC(TcsrTransformerYPMC):
+class TcsrFLYPMC(TcsrTransformerOpenShort):
     def __init__(self, parent_ins, name_base, z1, z2, n):
         super().__init__(parent_ins, name_base, z1, z2, n)
 
 
 # 移频脉冲防雷变压器
-class TcsrELYPMC(TcsrTransformerYPMC):
+class TcsrELYPMC(TcsrTransformerOpenShort):
     def __init__(self, parent_ins, name_base, z1, z2, n):
         super().__init__(parent_ins, name_base, z1, z2, n)
+
+
+########################################################################################################################
+
+# 白俄TAD变压器
+class TcsrTADBelarus(TcsrTransformerOpenShort):
+    def __init__(self, parent_ins, name_base, z1, z2, n):
+        super().__init__(parent_ins, name_base, z1, z2, n)
+
+
+# 白俄隔离盒
+class TcsrIsolationBelarus(ElePack):
+    def __init__(self, parent_ins, name_base, z1, z2):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1串联电阻', TPortZSeries(self, '1串联电阻', z1))
+        self.add_child('2并联电阻', TPortZParallel(self, '2并联电阻', z2))
 
 
 ########################################################################################################################
