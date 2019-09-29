@@ -11,7 +11,7 @@ class SubRailPi(TwoPortNetwork):
         '右端位置': 'r_posi',
         '长度': 'track_length',
         '钢轨阻抗': 'z_trk',
-        '道床电组': 'rd'
+        '道床电阻': 'rd'
     }
     prop_table = TwoPortNetwork.prop_table.copy()
     prop_table.update(new_table)
