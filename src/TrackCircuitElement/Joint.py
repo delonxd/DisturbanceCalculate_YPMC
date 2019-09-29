@@ -131,3 +131,23 @@ class Joint_2000A_Electric(Joint):
                                      posi_flag=flag, cable_length=tcsr.cable_length,
                                      mode=self.change_sr_mode(tcsr.mode), level=1)
             self.add_child(name, ele)
+
+
+# 2000A电气绝缘节
+class Joint_2000A_Electric_Belarus(Joint):
+    def add_joint_tcsr(self):
+        name = '相邻调谐单元'
+        if not self.l_section:
+            tcsr = self.r_section['左调谐单元']
+            flag = '右'
+        elif not self.r_section:
+            tcsr = self.l_section['右调谐单元']
+            flag = '左'
+        else:
+            return
+
+        if isinstance(tcsr, ZPW2000A_QJ_Belarus):
+            ele = ZPW2000A_QJ_Belarus(parent_ins=self, name_base=name,
+                                      posi_flag=flag, cable_length=tcsr.cable_length,
+                                      mode=self.change_sr_mode(tcsr.mode), level=1)
+            self.add_child(name, ele)
