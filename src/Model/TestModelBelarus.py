@@ -112,19 +112,21 @@ if __name__ == '__main__':
 
             #####################################################################################
             # 调整最不利状态
-            md.parameter['Cable_R'] = 47
-            md.parameter['Rd'] = rd
+            md = TestModel(freq=freq, length=length, c_num=c_num,
+                           level=level, rd=rd, r_cable=47,
+                           cab_len=cab_len, turnout_list=turnout_list)
             m1 = MainModel(md.lg, md=md)
             data['调整轨入最小值'] \
                 = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
 
             #####################################################################################
             # 分路最不利状态
+            md = TestModel(freq=freq, length=length, c_num=c_num,
+                           level=level, rd=10000, r_cable=43,
+                           cab_len=cab_len, turnout_list=turnout_list)
             md.add_train()
-            posi_list = range(11, (length-11), 1)
-            md.parameter['Cable_R'] = 43
-            md.parameter['Rd'] = 10000
             md.parameter['Rsht_z'] = r_sht
+            posi_list = range(11, (length - 11), 1)
             v_rcv_list = []
             for posi_tr in posi_list:
                 md.train.posi_rlt = posi_tr
@@ -137,10 +139,10 @@ if __name__ == '__main__':
 
             #####################################################################################
             # 机车信号最不利状态
+            md = TestModel(freq=freq, length=length, c_num=c_num,
+                           level=level, rd=rd, r_cable=47,
+                           cab_len=cab_len, turnout_list=turnout_list)
             md.add_train()
-            posi_list = range(11, (length-11), 1)
-            md.parameter['Cable_R'] = 47
-            md.parameter['Rd'] = rd
             md.parameter['Rsht_z'] = r_sht
             i_trk_list = []
             for posi_tr in posi_list:
