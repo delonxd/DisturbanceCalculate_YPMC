@@ -10,6 +10,8 @@ class ModelParameter:
         with open('../parameter_pkl/BasicParameter.pkl', 'rb') as pk_f:
             parameter = pickle.load(pk_f)
 
+########################################################################################################################
+        # 移频脉冲发送器
         parameter['z_pwr_yp'] = dict()
         parameter['z_pwr_yp'][1] = ImpedanceMultiFreq()
         parameter['z_pwr_yp'][1].rlc_s = {
@@ -122,6 +124,46 @@ class ModelParameter:
             2300: (136.09533295271993 - 23.70236776631829j),
             2600: (133.519251755064408 - 22.51025702855196j)}
 
+########################################################################################################################
+        # 白俄TAD
+        parameter['TAD_z1_Belarus'] = ImpedanceMultiFreq()
+        parameter['TAD_z1_Belarus'].rlc_s = {
+            1700: (20.0739, 9.74608e-3, None),
+            2000: (22.4710, 9.68749e-3, None),
+            2300: (25.0969, 9.62455e-3, None),
+            2600: (27.9120, 9.55859e-3, None)}
+
+        parameter['TAD_z2_Belarus'] = ImpedanceMultiFreq()
+        parameter['TAD_z2_Belarus'].rlc_s = {
+            1700: (3.56163e3, 2.02889e-3, None),
+            2000: (4.98841e3, 2.05249e-3, None),
+            2300: (6.74819e3, 2.08324e-3, None),
+            2600: (8.94749e3, 2.12174e-3, None)}
+
+        n_bel = 630 / 62
+        parameter['TAD_n_Belarus'] = {
+            1700: n_bel,
+            2000: n_bel,
+            2300: n_bel,
+            2600: n_bel}
+
+        # 白俄隔离盒Z1
+        parameter['Z_iso1_Belarus'] = ImpedanceMultiFreq()
+        parameter['Z_iso1_Belarus'].rlc_s = {
+            1700: [6.9, 2.63e-3, 2e-6],
+            2000: [6.9, 2.63e-3, 2e-6],
+            2300: [6.9, 2.63e-3, 2e-6],
+            2600: [6.9, 2.63e-3, 2e-6]}
+
+        # 白俄隔离盒Z2
+        parameter['Z_iso2_Belarus'] = ImpedanceMultiFreq()
+        parameter['Z_iso2_Belarus'].rlc_s = {
+            1700: [10, 200e-3, 2e-6],
+            2000: [10, 200e-3, 2e-6],
+            2300: [10, 200e-3, 2e-6],
+            2600: [10, 200e-3, 2e-6]}
+
+########################################################################################################################
         # 电容
         parameter['Ccmp_z'] = ImpedanceMultiFreq()
         parameter['Ccmp_z'].rlc_s = {
