@@ -62,6 +62,11 @@ class ModelParameter:
             2300: [3511, 972e-3, None],
             2600: [4643, 1003e-3, None]}
 
+        para1 = parameter['z1_FL_ypmc']
+        para2 = parameter['z2_FL_ypmc']
+        para3 = para1 * para2 / (para2 - para1)
+        parameter['z1_FL_ypmc'] = para3
+
         n_t = 1/1.095
         parameter['n_FL_ypmc'] = {
             1700: n_t,
@@ -84,6 +89,11 @@ class ModelParameter:
             2000: [253, 40.9e-3, None],
             2300: [277, 38.3e-3, None],
             2600: [298, 36.1e-3, None]}
+
+        para1 = parameter['z1_EL_ypmc']
+        para2 = parameter['z2_EL_ypmc']
+        para3 = para1 * para2 / (para2 - para1)
+        parameter['z1_EL_ypmc'] = para3
 
         parameter['n_EL_ypmc'] = {
             1700: 5,
