@@ -51,8 +51,14 @@ class WindowMain(QWidget):
     def modeling(self):
         self.model = MainModel(self.line_group, self.md)
         self.model_window = WindowModel(self.model)
-
-        print(len(self.model.equs))
+        # m1 = self.model
+        # posi_tr = self.md.train.posi_abs
+        # if m1['线路3'].node_dict[posi_tr].l_track is not None:
+        #     i_trk = m1['线路3'].node_dict[posi_tr].l_track['I2'].value_c
+        # else:
+        #     i_trk = None
+        # print(len(self.model.equs))
+        # print(i_trk)
         self.model_window.exec()
 
 
@@ -88,10 +94,11 @@ if __name__ == '__main__':
                    length=length,
                    c_num=c_num,
                    level=level,
-                   rd=10000,
+                   rd=2,
                    r_cable=43,
                    cab_len=cab_len,
                    turnout_list=turnout_list)
+    # md.add_train()
 
     main = WindowMain(md.lg, md)
     main.show()

@@ -44,7 +44,15 @@ class TestModel:
                            c_num=[c_num],
                            parameter=parameter)
 
-        # train1 = Train(name_base='列车1', posi_abs=0, parameter=parameter)
+        # sg3 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=freq,
+        #                    m_length=[length],
+        #                    j_length=[22, 22],
+        #                    m_type=['2000A_Belarus'],
+        #                    c_num=[c_num],
+        #                    parameter=parameter)
+
+        self.train = Train(name_base='列车1', posi=0, parameter=parameter)
+        self.train.posi_rlt = 58
 
         # 生成线路
         # l1 = Line(name_base='线路1', sec_group=sg1, train=train1,
@@ -74,10 +82,16 @@ class TestModel:
         # self.section_group2 = sg2
         self.section_group3 = sg3
 
-        # self.train1 = train1
-        # self.line1 = l1
-        # self.line2 = l2
-        # self.line3 = l3
+        self.l3 = l3
+
+    def add_train(self):
+        l3 = Line(name_base='线路3', sec_group=self.section_group3,
+                  parameter=self.parameter, train=self.train)
+        self.l3 = l3
+
+        self.lg = LineGroup(l3, name_base='线路组')
+        self.lg.refresh()
+
 
 
 def get_output(lg):
@@ -99,13 +113,13 @@ def get_output(lg):
 
 
 if __name__ == '__main__':
-    df = pd.read_excel('../Input/实验室验证输入参数.xlsx', header=None)
+    df = pd.read_excel('../Input/襄阳动车所输入参数_有道岔版.xlsx', header=None)
 
     localtime = time.localtime()
     timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
     print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
 
-    sec_num = 3
+    sec_num = 1
     excel_list = []
     excel_list1 = []
 

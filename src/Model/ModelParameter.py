@@ -164,14 +164,23 @@ class ModelParameter:
             2600: [10, 200e-3, 2e-6]}
 
 ########################################################################################################################
+        # # 电容
+        # parameter['Ccmp_z'] = ImpedanceMultiFreq()
+        # parameter['Ccmp_z'].rlc_s = {
+        #     1700: [10e-3, None, 25e-6],
+        #     2000: [10e-3, None, 25e-6],
+        #     2300: [10e-3, None, 25e-6],
+        #     2600: [10e-3, None, 25e-6]}
+
         # 电容
         parameter['Ccmp_z'] = ImpedanceMultiFreq()
         parameter['Ccmp_z'].rlc_s = {
-            1700: [10e-3, None, 25e-6],
-            2000: [10e-3, None, 25e-6],
-            2300: [10e-3, None, 25e-6],
-            2600: [10e-3, None, 25e-6]}
+            1700: [10e-3, None, 40e-6],
+            2000: [10e-3, None, 40e-6],
+            2300: [10e-3, None, 40e-6],
+            2600: [10e-3, None, 40e-6]}
 
+########################################################################################################################
         # 钢轨阻抗
         parameter['Trk_z'] = ImpedanceMultiFreq()
         parameter['Trk_z'].rlc_s = {
@@ -186,7 +195,7 @@ class ModelParameter:
         parameter['Cable_C'] = 28e-9
 
         parameter['Rd'] = 10000
-        parameter['Rsht_z'] = 10e3
+        parameter['Rsht_z'] = 0.15
 
         # 钢轨阻抗21
         parameter['Trk_z'] = ImpedanceMultiFreq()

@@ -8,7 +8,9 @@ from src.TrackCircuitElement.JumperWires import *
 class MainModel(ElePack):
     def __init__(self, line_group, md):
         super().__init__(None, line_group.name_base)
-        self.pwr_U = [45, 37.5, 30, 22.5][int(md.parameter['level'])-1]
+        # u_list = [45, 37.5, 30, 22.5]
+        u_list = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
+        self.pwr_U = u_list[int(md.parameter['level'])-1]
         self.freq = md.parameter['freq']
 
         self.line_group = line_group
@@ -23,6 +25,7 @@ class MainModel(ElePack):
         self.equ = self.equs.equ_dict['线路组_线路3_地面_区段1_左调谐单元_1发送器_1电压源_方程']
         num = self.equs.equs.index(self.equ)
         self.cons[num] = self.pwr_U
+        print(len(self.cons))
 
         for value in self.cons:
             # print(value)
