@@ -3,6 +3,7 @@ import numpy.matlib
 from src.Model.SingleLineModel import *
 from src.TrackCircuitElement.Line import Line, Turnout
 from src.TrackCircuitElement.JumperWires import *
+import time
 
 
 class MainModel(ElePack):
@@ -31,8 +32,36 @@ class MainModel(ElePack):
             # print(value)
             pass
 
+
+        # localtime = time.localtime()
+        # print('#######################')
+        # print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
         # 结果
+
+        # a = []
+        # for i in range(1500):
+        #     self.matrx, self.cons = self.config_matrix()
+        #     self.matrx = self.matrx
+            # a.append(np.linalg.solve(self.matrx, self.cons))
+
+        # self.value_c = a
         self.value_c = np.linalg.solve(self.matrx, self.cons)
+
+
+
+        # localtime = time.localtime()
+        # print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
+
+        # length = len(self.equs)
+        # D1 = 50*np.random.rand(length) + 50*np.random.rand(length)*1j - (25 + 25j)*np.ones(length)
+        # d_mtx = np.mat(D1)
+        # d_mtx = np.transpose(d_mtx)
+
+        # a_mtx = self.matrx
+        # for i in range(1):
+        #     d_mtx = a_mtx * d_mtx
+
+        # self.value_c = d_mtx
         # print(self.value_c)
 
         # for posi in self.element['线路1'].node_dict.keys():
@@ -146,3 +175,9 @@ class MainModel(ElePack):
                 equ.add_items(EquItem(vb, -1))
             equs.add_equation(equ)
         return equs
+
+
+if __name__ == '__main__':
+    c1 = np.random
+
+    pass
