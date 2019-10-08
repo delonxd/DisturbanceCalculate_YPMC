@@ -42,6 +42,14 @@ class EquationGroup:
         name_list.sort()
         return name_list
 
+    def config_equ_num(self):
+        name_list = self.equ_names
+        num = 0
+        for name in name_list:
+            equ = self.equ_dict[name]
+            equ.num = num
+            num += 1
+
     # 方程按名称排序
     def sort_by_name(self):
         name_list = self.equ_names
@@ -50,6 +58,14 @@ class EquationGroup:
             equ = self.equ_dict[name]
             equ_list.append(equ)
         self.equs = equ_list
+
+    def set_type(self, equ_type):
+        for equ in self.equs:
+            equ.equ_type = equ_type
+
+    def set_src_ele(self, ele):
+        for equ in self.equs:
+            equ.src_ele = ele
 
     def __len__(self):
         return len(self.equs)
@@ -81,11 +97,20 @@ class EquItem:
 
 # 方程
 class Equation:
-    def __init__(self, *items, name='', constant=0):
+    def __init__(self, *items, name='', constant=0, equ_type=None):
         self.name = name
         self.items = set()
         self.constant = constant
         self.set_items(items)
+        self.equ_type = equ_type
+        self.src_ele = None
+        self.num = None
+
+    def set_type(self, equ_type):
+        self.equ_type = equ_type
+
+    def set_src_ele(self, ele):
+        self.src_ele = ele
 
     def set_items(self, items):
         self.items = set()

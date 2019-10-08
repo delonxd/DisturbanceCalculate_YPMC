@@ -171,6 +171,10 @@ if __name__ == '__main__':
                     para['Rd'] = 10000
                     md = TestModel(turnout_list=turnout_list, parameter=para)
                     m1 = MainModel(md.lg, md=md)
+
+                    m1.change_coefficient(m1.module_set)
+
+
                     print(len(m1.cons))
                     data['调整轨入最大值'] \
                         = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
@@ -191,7 +195,7 @@ if __name__ == '__main__':
                     md = TestModel(turnout_list=turnout_list, parameter=para)
                     md.add_train()
                     md.parameter['Rsht_z'] = r_sht
-                    posi_list = range(11, (length - 11), 1)
+                    posi_list = range(11, (length - 11), 100)
                     v_rcv_list = []
 
                     # v_rcv_max = 0

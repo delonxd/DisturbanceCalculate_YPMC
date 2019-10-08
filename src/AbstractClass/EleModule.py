@@ -1,4 +1,5 @@
 from src.AbstractClass.ElePack import *
+from src.AbstractClass.Equation import *
 
 
 # 电气模块
@@ -20,7 +21,8 @@ class EleModule(ElePack):
         super().__init__(parent_ins, name_base)
         self.varb_name = list()
         self.varb_dict = dict()
-        self.equs = list()
+        # self.equs = list()
+        self.equs = EquationGroup()
         self.md_list = [self]
 
     def __len__(self):
@@ -66,3 +68,13 @@ class EleModule(ElePack):
             varb = self.varb_dict[key]
             varb_value[key] = varb.value_c
         return varb_value
+
+    def get_equs(self, freq):
+        pass
+
+    def refresh_equs(self, freq):
+        equs_old = self.equs
+        self.get_equs(freq)
+        for equ_new, equ_old in zip(self.equs.equs, equs_old.equs):
+            equ_old.items = equ_new.items
+        self.equs = equs_old
