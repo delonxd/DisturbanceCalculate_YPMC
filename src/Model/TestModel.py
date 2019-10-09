@@ -119,16 +119,27 @@ if __name__ == '__main__':
     timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
     print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
 
-    sec_num = 1
+    sec_num = 79*2
     excel_list = []
     excel_list1 = []
 
+    head_list = ['区段名称', '区段长度', '区段频率', '发送电平级',
+                 '电缆长度', '电容值', '电容数', '道岔数量',
+                 '钢轨电阻', '钢轨电感', '道床电阻',
+                 '理想电压', '功出电压', '功出电流',
+                 '真轨入最大值', '真轨入最小值',
+                 '轨入最大值', '轨入最小值',
+                 '发送轨面最大值', '发送轨面最小值',
+                 '接收轨面最大值', '接收轨面最小值']
     for num in range(sec_num):
+        data = dict()
+
         output = 8 * [0]
-        row = 2 * num + 2
-        freq = df.loc[row, 3]
-        length = df.loc[row, 4]
-        turnout_num = df.loc[row, 5]
+        row = num + 2
+        data['区段名称'] = df.loc[row, 2]
+        data['区段频率'] = freq = df.loc[row, 3]
+        data['区段长度'] = length = df.loc[row, 4]
+        data['道岔数量'] = turnout_num = df.loc[row, 5]
         turnout_list = []
         if turnout_num > 0:
             p1 = length - df.loc[row, 6]
@@ -139,9 +150,10 @@ if __name__ == '__main__':
             p2 = length - df.loc[row, 10]
             turnout_list.append((p1, p2))
 
-        c_num = df.loc[row, 19]
-        level = df.loc[row, 20]
+        data['电容数'] = c_num = df.loc[row, 19]
+        data['发送电平级'] = level = df.loc[row, 20]
         cab_len = df.loc[row, 14]
+        data['电缆长度'] = round(cab_len, 10)
 
         md = TestModel(freq=freq,
                        length=length,
@@ -157,20 +169,29 @@ if __name__ == '__main__':
         v_fs_guimian = md.lg['线路3']['地面']['区段1']['左调谐单元']['6CA']['U2'].value_c
         v_js_guimian = md.lg['线路3']['地面']['区段1']['右调谐单元']['6CA']['U2'].value_c
 
-        output[1] = v_rcv_true
-        output[3] = v_rcv
-        output[5] = v_fs_guimian
-        output[7] = v_js_guimian
+        data['理想电压'] =  md.lg['线路3']['地面']['区段1']['左调谐单元']['1发送器']['1电压源']['U'].value_c
+        data['功出电压'] =  md.lg['线路3']['地面']['区段1']['左调谐单元']['1发送器']['2内阻']['U2'].value_c
+        data['功出电流'] =  md.lg['线路3']['地面']['区段1']['左调谐单元']['1发送器']['2内阻']['I2'].value_c
+
+        para = md.parameter
+        data['钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
+        data['钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
+        data['电容值'] = round(para['Ccmp_z'].rlc_s[freq][2], 10)
+
+        data['真轨入最大值'] = output[1] = v_rcv_true
+        data['轨入最大值'] = output[3] = v_rcv
+        data['发送轨面最大值'] = output[5] = v_fs_guimian
+        data['接收轨面最大值'] = output[7] = v_js_guimian
 
         excel_list1.append(get_output(md.lg))
 
-        row = 2 * num + 3
+        # row = 2 * num + 2
         freq = df.loc[row, 3]
         length = df.loc[row, 4]
         c_num = df.loc[row, 19]
         level = df.loc[row, 20]
         cab_len = df.loc[row, 14]
-        r_d = df.loc[row, 16]
+        data['道床电阻'] = r_d = df.loc[row, 16]
 
         md = TestModel(freq=freq,
                        length=length,
@@ -186,27 +207,27 @@ if __name__ == '__main__':
         v_fs_guimian = md.lg['线路3']['地面']['区段1']['左调谐单元']['6CA']['U2'].value_c
         v_js_guimian = md.lg['线路3']['地面']['区段1']['右调谐单元']['6CA']['U2'].value_c
 
-        output[0] = v_rcv_true
-        output[2] = v_rcv
-        output[4] = v_fs_guimian
-        output[6] = v_js_guimian
+        data['真轨入最小值'] = output[0] = v_rcv_true
+        data['轨入最小值'] = output[2] = v_rcv
+        data['发送轨面最小值'] = output[4] = v_fs_guimian
+        data['接收轨面最小值'] = output[6] = v_js_guimian
 
-        excel_list.append(output)
-        excel_list1.append(get_output(md.lg))
-        print('xxx', output)
+        row_list = [data[key] for key in head_list]
+        excel_list.append(row_list)
+        # excel_list.append(output)
+        # excel_list1.append(get_output(md.lg))
 
-    # df = pd.DataFrame(excel_list, columns=['真轨入最小值(V)', '真轨入最大值(V)',
-    #                                        '轨入最小值(V)', '轨入最大值(V)',
-    #                                        '发送轨面电压最小值', '发送轨面电压最大值',
-    #                                        '接收轨面电压最小值', '接收轨面电压最大值'])
+        print('xxx', row_list)
 
-    df = pd.DataFrame(excel_list1, columns=['电源', '功出电压', '功出电流',
-                                            '发送设备侧', '发送防雷侧', '发送电缆侧', '发送钢轨侧',
-                                            '接收钢轨侧', '接收电缆侧', '接收防雷侧', '接收设备侧',
-                                            '隔离盒', '真轨入'])
+    df = pd.DataFrame(excel_list, columns=head_list)
+
+    # df = pd.DataFrame(excel_list1, columns=['电源', '功出电压', '功出电流',
+    #                                         '发送设备侧', '发送防雷侧', '发送电缆侧', '发送钢轨侧',
+    #                                         '接收钢轨侧', '接收电缆侧', '接收防雷侧', '接收设备侧',
+    #                                         '隔离盒', '真轨入'])
 
     # 保存到本地excel
-    filename = '../Output/实验室验证_调整表_有岔计算_' + timestamp + '.xlsx'
+    filename = '../Output/襄阳动车所_调整表_有岔计算_' + timestamp + '.xlsx'
     with pd.ExcelWriter(filename) as writer:
         df.to_excel(writer, sheet_name="调整表", index=False)
         pass
