@@ -50,16 +50,16 @@ class ModelParameter:
 
         parameter['z1_FL_ypmc'] = ImpedanceMultiFreq()
         parameter['z1_FL_ypmc'].rlc_s = {
-            # 1700: [15.55, 6.90e-3, None],
-            1700: [13.401, 6.683e-3, None],
+            1700: [15.55, 6.90e-3, None],
+            # 1700: [13.401, 6.683e-3, None],
             2000: [16.24, 6.86e-3, None],
             2300: [16.93, 6.84e-3, None],
             2600: [17.63, 6.81e-3, None]}
 
         parameter['z2_FL_ypmc'] = ImpedanceMultiFreq()
         parameter['z2_FL_ypmc'].rlc_s = {
-            # 1700: [1883, 929e-3, None],
-            1700: [1060, 663.437e-3, None],
+            1700: [1883, 929e-3, None],
+            # 1700: [1060, 663.437e-3, None],
             2000: [2611, 948e-3, None],
             2300: [3511, 972e-3, None],
             2600: [4643, 1003e-3, None]}
@@ -164,21 +164,21 @@ class ModelParameter:
             2600: [10, 200e-3, 2e-6]}
 
 ########################################################################################################################
-        # # 电容
-        # parameter['Ccmp_z'] = ImpedanceMultiFreq()
-        # parameter['Ccmp_z'].rlc_s = {
-        #     1700: [10e-3, None, 25e-6],
-        #     2000: [10e-3, None, 25e-6],
-        #     2300: [10e-3, None, 25e-6],
-        #     2600: [10e-3, None, 25e-6]}
-
         # 电容
         parameter['Ccmp_z'] = ImpedanceMultiFreq()
         parameter['Ccmp_z'].rlc_s = {
-            1700: [10e-3, None, 40e-6],
-            2000: [10e-3, None, 40e-6],
-            2300: [10e-3, None, 40e-6],
-            2600: [10e-3, None, 40e-6]}
+            1700: [10e-3, None, 25e-6],
+            2000: [10e-3, None, 25e-6],
+            2300: [10e-3, None, 25e-6],
+            2600: [10e-3, None, 25e-6]}
+
+        # # 电容
+        # parameter['Ccmp_z'] = ImpedanceMultiFreq()
+        # parameter['Ccmp_z'].rlc_s = {
+        #     1700: [10e-3, None, 40e-6],
+        #     2000: [10e-3, None, 40e-6],
+        #     2300: [10e-3, None, 40e-6],
+        #     2600: [10e-3, None, 40e-6]}
 
 ########################################################################################################################
         # 钢轨阻抗
@@ -197,14 +197,14 @@ class ModelParameter:
         parameter['Rd'] = 10000
         parameter['Rsht_z'] = 0.15
 
-        # 钢轨阻抗21
-        parameter['Trk_z'] = ImpedanceMultiFreq()
-        parameter['Trk_z'].rlc_s = {
-            # 1700: [1.177, 1.314e-3, None],
-            1700: [1.349, 1.316e-3, None],
-            2000: [1.306, 1.304e-3, None],
-            2300: [1.435, 1.297e-3, None],
-            2600: [1.558, 1.291e-3, None]}
+        # # 钢轨阻抗21
+        # parameter['Trk_z'] = ImpedanceMultiFreq()
+        # parameter['Trk_z'].rlc_s = {
+        #     # 1700: [1.177, 1.314e-3, None],
+        #     1700: [1.349, 1.316e-3, None],
+        #     2000: [1.306, 1.304e-3, None],
+        #     2300: [1.435, 1.297e-3, None],
+        #     2600: [1.558, 1.291e-3, None]}
 
         self.parameter = parameter
 

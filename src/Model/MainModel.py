@@ -85,14 +85,14 @@ class MainModel(ElePack):
 
     def change_coefficient(self, module_set):
         for module in module_set:
-            if isinstance(module, CapC):
-                module.refresh_equs(self.freq)
-                for equ in module.equs.equs:
-                    row = equ.num
-                    for item in equ.items:
-                        column = item.varb.num
-                        value = item.coefficient
-                        self.matrx[row, column] = value
+            # if isinstance(module, CapC):
+            module.refresh_equs(self.freq)
+            for equ in module.equs.equs:
+                row = equ.num
+                for item in equ.items:
+                    column = item.varb.num
+                    value = item.coefficient
+                    self.matrx[row, column] = value
 
 
     # 配置方程组
