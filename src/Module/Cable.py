@@ -29,10 +29,10 @@ class TPortCable(TPortCircuitPi):
         self.length = length
 
     def get_equs(self, freq):
-        length = self.length
+        length = float(self.length)
         w = 2 * np.pi * freq
-        z0 = self.R + 1j * w * self.L
-        y0 = 1j * w * self.C
+        z0 = float(self.R) + 1j * w * float(self.L)
+        y0 = 1j * w * float(self.C)
         zc = np.sqrt(z0 / y0)
         gama = np.sqrt(z0 * y0)
         zii = zc * np.sinh(gama * length)
