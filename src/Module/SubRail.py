@@ -33,7 +33,7 @@ class SubRailPi(TwoPortNetwork):
 
     def get_equs(self, freq):
         z_trk = self.z_trk
-        rd = self.rd
+        rd = float(self.rd)
         length = self.track_length / 1000
         z0 = z_trk[freq].z
         y0 = 1 / rd

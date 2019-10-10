@@ -1,5 +1,6 @@
 import pickle
 from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 
 
 # 模型参数
@@ -190,12 +191,12 @@ class ModelParameter:
             2300: [1.435, 1.297e-3, None],
             2600: [1.558, 1.291e-3, None]}
 
-        parameter['Cable_R'] = 43
-        parameter['Cable_L'] = 825e-6
-        parameter['Cable_C'] = 28e-9
+        parameter['Cable_R'] = Constant(43)
+        parameter['Cable_L'] = Constant(825e-6)
+        parameter['Cable_C'] = Constant(28e-9)
 
-        parameter['Rd'] = 10000
-        parameter['Rsht_z'] = 0.15
+        parameter['Rd'] = Constant(10000)
+        parameter['Rsht_z'] = Constant(0.15)
 
         # # 钢轨阻抗21
         # parameter['Trk_z'] = ImpedanceMultiFreq()
