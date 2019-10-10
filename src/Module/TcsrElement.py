@@ -21,7 +21,7 @@ class TcsrPower(ElePack):
     @property
     def voltage(self):
         voltage_list = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
-        voltage = voltage_list[self.level + 1]
+        voltage = voltage_list[self.level - 1]
         return voltage
 
     @property
@@ -175,7 +175,7 @@ class TcsrBA(TPortZParallel):
         super().__init__(parent_ins, name_base, z)
 
     def get_equs(self, freq):
-        z = self.z[self.m_freq][freq].z
+        z = self.z[self.m_freq.value][freq].z
         equs = self.value2equs(z)
         return equs
 

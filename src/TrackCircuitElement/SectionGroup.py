@@ -31,7 +31,8 @@ class SectionGroup(ElePack):
         freq_list = list()
         for num in range(m_num):
             freq_list.append(freq)
-            freq = self.change_freq(freq)
+            freq = freq.copy()
+            freq.change_freq()
         m_type = m_type[:m_num]
         m_length = m_length[:m_num]
         j_length = j_length[:(m_num + 1)]
@@ -100,7 +101,7 @@ class SectionGroup(ElePack):
             elif joint1.j_type == '电气':
                 if not sec1.m_type == sec2.m_type:
                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨类型不符无法相连')
-                elif not sec1.m_freq == self.change_freq(sec2.m_freq):
+                elif not sec1.m_freq.value == sec2.m_freq.copy().change_freq():
                     raise KeyboardInterrupt(repr(sec1) + '和' + repr(sec2) + '主轨频率不符无法相连')
                 else:
                     joint1.r_section = sec2

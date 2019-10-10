@@ -197,18 +197,18 @@ class ElePack:
         return new_list
 
     # 变换频率
-    @staticmethod
-    def change_freq(freq):
-        new = None
-        if freq == 1700:
-            new = 2300
-        elif freq == 2000:
-            new = 2600
-        elif freq == 2300:
-            new = 1700
-        elif freq == 2600:
-            new = 2000
-        return new
+    # @staticmethod
+    # def change_freq(freq):
+    #     new = None
+    #     if freq == 1700:
+    #         new = 2300
+    #     elif freq == 2000:
+    #         new = 2600
+    #     elif freq == 2300:
+    #         new = 1700
+    #     elif freq == 2600:
+    #         new = 2000
+    #     return new
 
     def get_property(self, key):
         value = None

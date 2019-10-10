@@ -68,7 +68,9 @@ class TCSR(ElePack):
             m_freq = self.parent_ins.m_freq
         elif isinstance(self.parent_ins, jt.Joint):
             section = self.parent_ins.parent_ins
-            m_freq = section.change_freq(section.m_freq)
+            m_freq = section.m_freq.copy()
+            m_freq.change_freq()
+            # m_freq = section.change_freq(section.m_freq)
         return m_freq
 
     @property

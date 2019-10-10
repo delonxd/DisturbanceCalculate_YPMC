@@ -86,7 +86,7 @@ class MainModel(ElePack):
     def change_coefficient(self, module_set):
         for module in module_set:
             # if isinstance(module, CapC):
-            module.refresh_equs(self.freq)
+            module.refresh_equs(self.freq.value)
             for equ in module.equs.equs:
                 row = equ.num
                 for item in equ.items:
@@ -169,7 +169,7 @@ class MainModel(ElePack):
     def get_equs_kirchhoff(self):
         equs = EquationGroup()
         for line_model in self.element.values():
-            equs.add_equations(self.get_equ_unit(line_model, self.freq))
+            equs.add_equations(self.get_equ_unit(line_model, self.freq.value))
             # print(len(equs))
             equs.add_equations(self.get_equ_kcl(line_model))
             # print(len(equs))
