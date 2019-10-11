@@ -3,7 +3,7 @@ class Varb:
     def __init__(self, parent_module, name_base):
         self.parent_module = parent_module
         self.name_base = name_base
-        self.num = None
+        self.num = dict()
         self.name = ''
         self.value = None
         self.value_c = None
@@ -24,12 +24,14 @@ class VarbGroup:
         for varb in varbs:
             self.add_varb(varb)
 
+    # 添加变量
     def add_varb(self, varb):
         if isinstance(varb, Varb):
             self.varb_set.add(varb)
         else:
             raise KeyboardInterrupt('类型异常: 需添加Varb类型')
 
+    # 添加变量组
     def add_varbs(self, varbs):
         if isinstance(varbs, VarbGroup):
             for varb in varbs.varb_set:
@@ -65,11 +67,11 @@ class VarbGroup:
             varb_list.append(varb_dict[name])
         return varb_list
 
-    def config_varb_num(self):
+    def config_varb_num(self, equs):
         varb_list = self.varb_list
         num = 0
         for varb in varb_list:
-            varb.num = num
+            varb.num[equs] = num
             num += 1
 
     def __len__(self):

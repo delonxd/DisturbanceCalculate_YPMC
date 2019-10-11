@@ -69,12 +69,11 @@ class EleModule(ElePack):
             varb_value[key] = varb.value_c
         return varb_value
 
-    def get_equs(self, freq):
+    def init_equs(self, freq):
         pass
 
-    def refresh_equs(self, freq):
-        equs_old = self.equs
-        self.get_equs(freq)
-        for equ_new, equ_old in zip(self.equs.equs, equs_old.equs):
-            equ_old.items = equ_new.items
-        self.equs = equs_old
+    def get_coeffs(self, freq):
+        pass
+
+    def refresh_coeffs(self, freq):
+        self.get_coeffs(freq)

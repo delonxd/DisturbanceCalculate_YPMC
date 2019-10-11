@@ -44,10 +44,10 @@ class ROutside(ZOutside):
     def __init__(self, parent_ins, name_base, posi, z):
         super().__init__(parent_ins, name_base, posi, z)
 
-    def get_equs(self, freq):
+    def get_coeffs(self, freq):
         z = self.z
-        equs = self.value2equs(z)
-        return equs
+        self.value2coeffs(z)
+        return self.equs
 
 
 class JumperWireOutside(OPortJumperWire):

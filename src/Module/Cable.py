@@ -1,4 +1,3 @@
-import numpy as np
 from src.Module.CircuitBasic import *
 from src.Module.ParameterType import Constant
 
@@ -28,7 +27,7 @@ class TPortCable(TPortCircuitPi):
         self.C = cab_c
         self.length = length
 
-    def get_equs(self, freq):
+    def get_coeffs(self, freq):
         length = float(self.length)
         w = 2 * np.pi * freq
         z0 = float(self.R) + 1j * w * float(self.L)
@@ -40,5 +39,5 @@ class TPortCable(TPortCircuitPi):
         y1 = yii
         y2 = 1 / zii
         y3 = yii
-        equs = self.value2equs(y1, y2, y3)
-        return equs
+        self.value2coeffs(y1, y2, y3)
+        return self.equs

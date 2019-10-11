@@ -69,10 +69,10 @@ class TcsrPowerZ(TPortZSeries):
     def level(self, value):
         self.parent_ins.level = value
 
-    def get_equs(self, freq):
+    def get_coeffs(self, freq):
         z = self.z[self.level][freq].z
-        equs = self.value2equs(z)
-        return equs
+        self.value2coeffs(z)
+        return self.equs
 
 
 ########################################################################################################################
@@ -174,10 +174,10 @@ class TcsrBA(TPortZParallel):
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base, z)
 
-    def get_equs(self, freq):
+    def get_coeffs(self, freq):
         z = self.z[self.m_freq.value][freq].z
-        equs = self.value2equs(z)
-        return equs
+        self.value2coeffs(z)
+        return self.equs
 
     @property
     def m_freq(self):
@@ -196,7 +196,7 @@ class TcsrCableComp(TPortZSeries):
     def __init__(self, parent_ins, name_base, z=45*9):
         super().__init__(parent_ins, name_base, z)
 
-    def get_equs(self, freq):
+    def get_coeffs(self, freq):
         z = self.z
-        equs = self.value2equs(z)
-        return equs
+        self.value2coeffs(z)
+        return self.equs

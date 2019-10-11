@@ -1,6 +1,7 @@
 from src.Module.PortNetwork import *
 from src.AbstractClass.Equation import *
 from src.Module.ParameterType import *
+import numpy as np
 
 
 # 并联阻抗
@@ -19,17 +20,18 @@ class OPortZ(OnePortNetwork):
         super().__init__(parent_ins, name_base)
         self.z = z
 
-    def get_equs(self, freq):
-        z = self.z[freq].z
-        equs = self.value2equs(z)
-        return equs
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程'
+        self.equ1.varb_list = [self['U'], self['I']]
+        self.get_coeffs(freq)
 
-    def value2equs(self, z):
-        equ1 = Equation(name=self.name + '_方程')
-        equ1.add_items(EquItem(self['U'], -1),
-                       EquItem(self['I'], z))
-        self.equs = EquationGroup(equ1)
+    def get_coeffs(self, freq):
+        z = self.z[freq].z
+        self.value2coeffs(z)
         return self.equs
+
+    def value2coeffs(self, z):
+        self.equ1.coeff_list = np.array([-1, z])
 
 
 class OPortJumperWire(OnePortNetwork):
@@ -39,7 +41,7 @@ class OPortJumperWire(OnePortNetwork):
     def __init__(self, parent_ins, name_base):
         super().__init__(parent_ins, name_base)
 
-    def get_equs(self, freq):
+    def init_equs(self, freq):
         return None
 
 
@@ -61,17 +63,18 @@ class OPortPowerU(OnePortNetwork):
         super().__init__(parent_ins, name_base)
         self.voltage = voltage
 
-    def get_equs(self, freq):
-        _ = freq
-        equs = self.value2equs(self.voltage)
-        return equs
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程'
+        self.equ1.varb_list = [self['U']]
+        self.get_coeffs(freq)
 
-    def value2equs(self, voltage):
-        equ1 = Equation(name=self.name + '_方程',
-                        constant=voltage)
-        equ1.add_items(EquItem(self['U'], 1))
-        self.equs = EquationGroup(equ1)
+    def get_coeffs(self, freq):
+        self.value2coeffs(self.voltage)
         return self.equs
+
+    def value2coeffs(self, voltage):
+        self.equ1.coeff_list = np.array([1])
+        self.equ1.constant = voltage
 
 
 # 并联电流源
@@ -90,17 +93,18 @@ class OPortPowerI(OnePortNetwork):
         super().__init__(parent_ins, name_base)
         self.current = current
 
-    def get_equs(self, freq):
-        _ = freq
-        equs = self.value2equs(self.current)
-        return equs
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程'
+        self.equ1.varb_list = [self['I']]
+        self.get_coeffs(freq)
 
-    def value2equs(self, current):
-        equ1 = Equation(name=self.name + '_方程',
-                        constant=current)
-        equ1.add_items(EquItem(self['I'], 1))
-        self.equs = EquationGroup(equ1)
+    def get_coeffs(self, freq):
+        self.value2coeffs(self.current)
         return self.equs
+
+    def value2coeffs(self, current):
+        self.equ1.coeff_list = np.array([1])
+        self.equ1.constant = current
 
 
 ########################################################################################################################
@@ -127,24 +131,23 @@ class TPortCircuitPi(TwoPortNetwork):
         self.y2 = y2
         self.y3 = y3
 
-    def get_equs(self, freq):
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程1'
+        self.equ2.name = self.name + '_方程2'
+        self.equ1.varb_list = [self['I1'], self['U1'], self['U2']]
+        self.equ2.varb_list = [self['I2'], self['U1'], self['U2']]
+        self.get_coeffs(freq)
+
+    def get_coeffs(self, freq):
         y1 = self.y1[freq].z
         y2 = self.y2[freq].z
         y3 = self.y3[freq].z
-        equs = self.value2equs(y1, y2, y3)
-        return equs
-
-    def value2equs(self, y1, y2, y3):
-        equ1 = Equation(name=self.name+'_方程1')
-        equ2 = Equation(name=self.name+'_方程2')
-        equ1.add_items(EquItem(self['I1'], -1),
-                       EquItem(self['U1'], -(y1 + y2)),
-                       EquItem(self['U2'], +y2))
-        equ2.add_items(EquItem(self['I2'], -1),
-                       EquItem(self['U1'], -y2),
-                       EquItem(self['U2'], (y2 + y3)))
-        self.equs = EquationGroup(equ1, equ2)
+        self.value2coeffs(y1, y2, y3)
         return self.equs
+
+    def value2coeffs(self, y1, y2, y3):
+        self.equ1.coeff_list = np.array([-1, -(y1 + y2), +y2])
+        self.equ2.coeff_list = np.array([-1, -y2, +(y2 + y3)])
 
 
 # T型二端口网络
@@ -169,24 +172,23 @@ class TPortCircuitT(TwoPortNetwork):
         self.z2 = z2
         self.z3 = z3
 
-    def get_equs(self, freq):
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程1'
+        self.equ2.name = self.name + '_方程2'
+        self.equ1.varb_list = [self['U1'], self['I1'], self['I2']]
+        self.equ2.varb_list = [self['U2'], self['I1'], self['I2']]
+        self.get_coeffs(freq)
+
+    def get_coeffs(self, freq):
         z1 = self.z1[freq].z
         z2 = self.z2[freq].z
         z3 = self.z3[freq].z
-        equs = self.value2equs(z1, z2, z3)
-        return equs
-
-    def value2equs(self, z1, z2, z3):
-        equ1 = Equation(name=self.name+'_方程1')
-        equ2 = Equation(name=self.name+'_方程2')
-        equ1.add_items(EquItem(self['U1'], -1),
-                       EquItem(self['I1'], -(z1 + z2)),
-                       EquItem(self['I2'], z2))
-        equ2.add_items(EquItem(self['U2'], -1),
-                       EquItem(self['I1'], -z2),
-                       EquItem(self['I2'], (z2 + z3)))
-        self.equs = EquationGroup(equ1, equ2)
+        self.value2coeffs(z1, z2, z3)
         return self.equs
+
+    def value2coeffs(self, z1, z2, z3):
+        self.equ1.coeff_list = np.array([-1, -(z1 + z2), +z2])
+        self.equ2.coeff_list = np.array([-1, -z2, +(z2 + z3)])
 
 
 ########################################################################################################################
@@ -207,20 +209,21 @@ class TPortCircuitN(TwoPortNetwork):
         super().__init__(parent_ins, name_base)
         self.n = n
 
-    def get_equs(self, freq):
-        n = self.n[freq]
-        equs = self.value2equs(n)
-        return equs
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程1'
+        self.equ2.name = self.name + '_方程2'
+        self.equ1.varb_list = [self['U1'], self['U2']]
+        self.equ2.varb_list = [self['I1'], self['I2']]
+        self.get_coeffs(freq)
 
-    def value2equs(self, n):
-        equ1 = Equation(name=self.name+'_方程1')
-        equ2 = Equation(name=self.name+'_方程2')
-        equ1.add_items(EquItem(self['U1'], -1),
-                       EquItem(self['U2'], n))
-        equ2.add_items(EquItem(self['I1'], n),
-                       EquItem(self['I2'], -1))
-        self.equs = EquationGroup(equ1, equ2)
+    def get_coeffs(self, freq):
+        n = self.n[freq]
+        self.value2coeffs(n)
         return self.equs
+
+    def value2coeffs(self, n):
+        self.equ1.coeff_list = np.array([-1, n])
+        self.equ2.coeff_list = np.array([n, -1])
 
 
 # 串联二端口网络
@@ -239,21 +242,21 @@ class TPortZSeries(TwoPortNetwork):
         super().__init__(parent_ins, name_base)
         self.z = z
 
-    def get_equs(self, freq):
-        z = self.z[freq].z
-        equs = self.value2equs(z)
-        return equs
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程1'
+        self.equ2.name = self.name + '_方程2'
+        self.equ1.varb_list = [self['U1'], self['U2'], self['I2']]
+        self.equ2.varb_list = [self['I1'], self['I2']]
+        self.get_coeffs(freq)
 
-    def value2equs(self, z):
-        equ1 = Equation(name=self.name+'_方程1')
-        equ2 = Equation(name=self.name+'_方程2')
-        equ1.add_items(EquItem(self['U1'], 1),
-                       EquItem(self['U2'], -1),
-                       EquItem(self['I2'], z))
-        equ2.add_items(EquItem(self['I1'], -1),
-                       EquItem(self['I2'], 1))
-        self.equs = EquationGroup(equ1, equ2)
+    def get_coeffs(self, freq):
+        z = self.z[freq].z
+        self.value2coeffs(z)
         return self.equs
+
+    def value2coeffs(self, z):
+        self.equ1.coeff_list = np.array([1, -1, z])
+        self.equ2.coeff_list = np.array([-1, 1])
 
 
 # 并联二端口网络
@@ -272,19 +275,19 @@ class TPortZParallel(TwoPortNetwork):
         super().__init__(parent_ins, name_base)
         self.z = z
 
-    def get_equs(self, freq):
-        z = self.z[freq].z
-        equs = self.value2equs(z)
-        return equs
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程1'
+        self.equ2.name = self.name + '_方程2'
+        self.equ1.varb_list = [self['U1'], self['I1'], self['I2']]
+        self.equ2.varb_list = [self['U2'], self['I1'], self['I2']]
+        self.get_coeffs(freq)
 
-    def value2equs(self, z):
-        equ1 = Equation(name=self.name+'_方程1')
-        equ2 = Equation(name=self.name+'_方程2')
-        equ1.add_items(EquItem(self['U1'], -1),
-                       EquItem(self['I1'], -z),
-                       EquItem(self['I2'], z))
-        equ2.add_items(EquItem(self['U2'], -1),
-                       EquItem(self['I1'], -z),
-                       EquItem(self['I2'], z))
-        self.equs = EquationGroup(equ1, equ2)
+    def get_coeffs(self, freq):
+        z = self.z[freq].z
+        self.value2coeffs(z)
         return self.equs
+
+    def value2coeffs(self, z):
+        self.equ1.coeff_list = np.array([-1, -z, z])
+        self.equ2.coeff_list = np.array([-1, -z, z])
+

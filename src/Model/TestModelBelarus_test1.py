@@ -19,7 +19,7 @@ class TestModel:
         self.train = Train(name_base='列车1', posi=0, parameter=parameter)
 
         # 轨道电路初始化
-        print(type(parameter['freq']))
+        # print(type(parameter['freq']))
         sg3 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=parameter['freq'],
                            m_length=[parameter['length']],
                            j_length=[22, 22],
@@ -150,7 +150,7 @@ if __name__ == '__main__':
         # 调整状态计算
         flag = True
         for trk_Belarus, freq, c_value in para_iter:
-            para['Trk_z'] = trk_Belarus
+            para['Trk_z'].rlc_s = trk_Belarus.rlc_s
             para['freq'].value = freq
             para['Ccmp_z'].rlc_s = {
                 1700: [10e-3, None, c_value],
@@ -180,8 +180,8 @@ if __name__ == '__main__':
                     md = TestModel(turnout_list=turnout_list, parameter=para)
                     m1 = MainModel(md.lg, md=md)
                 else:
-                    m1.change_coefficient(m1.module_set)
-                    m1.solve_matrix()
+                    m1.reload_coefficient(m1.module_set)
+                    m1.equs.solve_matrix()
 
                 data1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
                 if para['Rd'].value == rd:
@@ -229,9 +229,10 @@ if __name__ == '__main__':
                         md.train.set_posi_abs(0)
                         m1 = MainModel(md.lg, md=md)
                         print(md.train.posi_abs)
+                        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
                     else:
-                        m1.change_coefficient(m1.module_set)
-                        m1.solve_matrix()
+                        m1.reload_coefficient(m1.module_set)
+                        m1.equs.solve_matrix()
 
                     if para['Rd'].value == rd:
                         if m1['线路3'].node_dict[posi_tr].l_track is not None:

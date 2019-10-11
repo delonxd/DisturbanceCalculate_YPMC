@@ -4,6 +4,8 @@ from src.Model.SingleLineModel import *
 from src.TrackCircuitElement.Line import Line, Turnout
 from src.TrackCircuitElement.JumperWires import *
 from src.Module.OutsideElement import *
+
+from numba import jit
 import time
 
 
@@ -24,125 +26,35 @@ class MainModel(ElePack):
         self.jumper_dict = dict()
 
         self.init_model()
-        self.config_equs()
-        self.config_varbs()
 
-        # self.ele_set = set()
-        # self.equs = self.get_equs_kirchhoff()
-        # self.equs.config_equ_num()
-        #
-        # self.varbs = self.equs.get_varbs()
-        # self.varbs.config_varb_num()
-
-        self.matrx, self.cons = self.config_matrix()
-
-        self.equ = self.equs.equ_dict['线路组_线路3_地面_区段1_左调谐单元_1发送器_1电压源_方程']
-        self.cons[self.equ.num] = self.pwr_U
-
-        # self.change_coefficient(self.module_set)
-        self.solve_matrix()
-
-        # num = self.equs.equs.index(self.equ)
-        # self.cons[num] = self.pwr_U
-
-        # 结果
-
-        # a = []
-        # for i in range(1500):
-        #     self.matrx, self.cons = self.config_matrix()
-        #     self.matrx = self.matrx
-            # a.append(np.linalg.solve(self.matrx, self.cons))
-
-        # self.value_c = a
-        # self.value_c = np.linalg.solve(self.matrx, self.cons)
-
-        # localtime = time.localtime()
-        # print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
-
-        # length = len(self.equs)
-        # D1 = 50*np.random.rand(length) + 50*np.random.rand(length)*1j - (25 + 25j)*np.ones(length)
-        # d_mtx = np.mat(D1)
-        # d_mtx = np.transpose(d_mtx)
-
-        # a_mtx = self.matrx
-        # for i in range(1):
-        #     d_mtx = a_mtx * d_mtx
-
-        # self.value_c = d_mtx
-        # print(self.value_c)
-
-        # for posi in self.element['线路1'].node_dict.keys():
-        #     if posi >= 0:
-        #         num = self.element['线路1'].node_dict[posi].l_track['U2'].num
-        #         value = abs(self.value_c[num])
-        #         # print(value)
-
-        # self.set_varbs_value()
-
-    def solve_matrix(self):
-        self.value_c = np.linalg.solve(self.matrx, self.cons)
-        self.set_varbs_value()
-
-    def change_coefficient(self, module_set):
-        for module in module_set:
-            # if isinstance(module, CapC):
-            module.refresh_equs(self.freq.value)
-            for equ in module.equs.equs:
-                row = equ.num
-                for item in equ.items:
-                    column = item.varb.num
-                    value = item.coefficient
-                    self.matrx[row, column] = value
-
-
-    # 配置方程组
-    def config_equs(self):
         self.equs = self.get_equs_kirchhoff()
         self.equs.config_equ_num()
+        self.equs.config_varb_num()
+        self.equs.creat_matrix()
 
-    # 配置变量组
-    def config_varbs(self):
-        self.varbs = self.equs.get_varbs()
-        self.varbs.config_varb_num()
+        self.equ = self.equs.equ_dict['线路组_线路3_地面_区段1_左调谐单元_1发送器_1电压源_方程']
+        self.equs.constant[self.equ.num[self.equs]] = self.pwr_U
 
-    # 变量赋值
-    def set_varbs_value(self):
-        for varb in self.varbs.varb_set:
-            varb.value = self.value_c[varb.num]
-            varb.value_c = abs(self.value_c[varb.num])
+        self.equs.solve_matrix()
 
-    # 配置方程组矩阵
-    def config_matrix(self):
-        length = len(self.equs)
-        matrix_main = np.matlib.zeros((length, length), dtype=complex)
-        constant = np.zeros(length, dtype=complex)
-
-        for equ in self.equs.equs:
-            row = equ.num
-            # if isinstance(equ.src_ele, CapC):
-            #     print(equ.name)
-            for item in equ.items:
-                column = item.varb.num
-                value = item.coefficient
-                matrix_main[row, column] = value
-            constant[row] = equ.constant
-        return matrix_main, constant
-
-    # def config_matrix(self):
-    #     length = len(self.equs)
-    #     matrix_main = np.matlib.zeros((length, length), dtype=complex)
-    #     constant = np.zeros(length, dtype=complex)
-    #
-    #     self.equs.sort_by_name()
-    #     equ_list = self.equs.equs
-    #     for row in range(length):
-    #         equ = equ_list[row]
-    #         for item in equ.items:
-    #             column = item.varb.num
-    #             value = item.coefficient
-    #             matrix_main[row, column] = value
-    #         constant[row] = equ.constant
-    #     return matrix_main, constant
+    # @jit
+    def reload_coefficient(self, module_set):
+        # print(len(module_set))
+        count = 0
+        for module in module_set:
+            # if isinstance(module, CapC):
+            module.refresh_coeffs(self.freq.value)
+            for equ in module.equs.equs:
+                # row = equ.num[self.equs]
+                # columns = equ.varbs_num_list[self.equs]
+                # self.equs.m_matrix[row, columns] = equ.coeff_list
+                # for item in equ.items.items():
+                #     column = item[0].num[self.equs]
+                #     value = item[1]
+                #     self.equs.m_matrix[row, column] = value
+                #     count += 1
+                pass
+        # print(count)
 
     def init_model(self):
         for ele in self.line_group.values():
@@ -187,8 +99,20 @@ class MainModel(ElePack):
         for ele in ele_set:
             for module in ele.md_list:
                 self.module_set.add(module)
-                equs.add_equations(module.get_equs(freq))
+                module.init_equs(freq)
+                equs.add_equations(module.equs)
         return equs
+
+    # # 元器件方程
+    # # @staticmethod
+    # def get_equ_unit(self, line_model, freq):
+    #     equs = EquationGroup()
+    #     ele_set = line_model.get_ele_set(ele_set=set())
+    #     for ele in ele_set:
+    #         for module in ele.md_list:
+    #             self.module_set.add(module)
+    #             equs.add_equations(module.get_equs(freq))
+    #     return equs
 
     # KCL方程
     @staticmethod
@@ -200,13 +124,19 @@ class MainModel(ElePack):
             equ = Equation(name=name)
             for ele in node.element.values():
                 vb = ele.md_list[-1].get_varb(-1)
-                equ.add_items(EquItem(vb, 1))
+                equ.varb_list.append(vb)
+                equ.coeff_list.append(1)
+                # equ.update_items({vb: 1})
             if node.l_track is not None:
                 vb = node.l_track.get_varb(-1)
-                equ.add_items(EquItem(vb, 1))
+                equ.varb_list.append(vb)
+                equ.coeff_list.append(1)
+                # equ.update_items({vb: 1})
             if node.r_track is not None:
                 vb = node.r_track.get_varb(1)
-                equ.add_items(EquItem(vb, 1))
+                equ.varb_list.append(vb)
+                equ.coeff_list.append(1)
+                # equ.update_items({vb: 1})
             equs.add_equation(equ)
         return equs
 
@@ -221,12 +151,55 @@ class MainModel(ElePack):
             equ = Equation(name=name)
             if node.l_track is not None:
                 vb = node.l_track.get_varb(-2)
-                equ.add_items(EquItem(vb, 1))
+                equ.varb_list.append(vb)
+                equ.coeff_list.append(1)
+                # equ.update_items({vb: 1})
             if node.r_track is not None:
                 vb = node.r_track.get_varb(0)
-                equ.add_items(EquItem(vb, -1))
+                equ.varb_list.append(vb)
+                equ.coeff_list.append(-1)
+                # equ.update_items({vb: -1})
             equs.add_equation(equ)
         return equs
+
+
+    # # KCL方程
+    # @staticmethod
+    # def get_equ_kcl(line):
+    #     equs = EquationGroup()
+    #     for num in range(len(line.posi_line)):
+    #         node = line.node_dict[line.posi_line[num]]
+    #         name = line.name + '_节点KCL方程' + str(num+1)
+    #         equ = Equation(name=name)
+    #         for ele in node.element.values():
+    #             vb = ele.md_list[-1].get_varb(-1)
+    #             equ.add_items(EquItem(vb, 1))
+    #         if node.l_track is not None:
+    #             vb = node.l_track.get_varb(-1)
+    #             equ.add_items(EquItem(vb, 1))
+    #         if node.r_track is not None:
+    #             vb = node.r_track.get_varb(1)
+    #             equ.add_items(EquItem(vb, 1))
+    #         equs.add_equation(equ)
+    #     return equs
+    #
+    # # KVL方程
+    # @staticmethod
+    # def get_equ_kvl(line):
+    #     equs = EquationGroup()
+    #     posi_line = line.posi_line[1:-1]
+    #     for num in range(len(posi_line)):
+    #         node = line.node_dict[posi_line[num]]
+    #         name = line.name + '_节点KVL方程' + str(num+1)
+    #         equ = Equation(name=name)
+    #         if node.l_track is not None:
+    #             vb = node.l_track.get_varb(-2)
+    #             equ.add_items(EquItem(vb, 1))
+    #         if node.r_track is not None:
+    #             vb = node.r_track.get_varb(0)
+    #             equ.add_items(EquItem(vb, -1))
+    #         equs.add_equation(equ)
+    #     return equs
 
 
 if __name__ == '__main__':
