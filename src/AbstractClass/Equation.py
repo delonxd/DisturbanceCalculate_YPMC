@@ -1,6 +1,9 @@
 from src.AbstractClass.Varb import *
+from src.AbstractClass.ElePack import *
 import numpy as np
 import numpy.matlib
+import sympy as sp
+from numba import jit
 
 
 # 方程组
@@ -9,6 +12,8 @@ class EquationGroup:
         self.equs = list()
         # self.equ_dict = dict()
         self.varbs = VarbGroup()
+        self.len_row = None
+        self.len_column = None
         self.m_matrix = None
         self.constant = None
         self.solution = None
@@ -30,7 +35,7 @@ class EquationGroup:
             #     raise KeyboardInterrupt('名称异常: 方程名称重复')
             # else:
             self.equs.append(equ)
-            self.equ_dict[equ.name] = equ
+            # self.equ_dict[equ.name] = equ
         elif equ is None:
             pass
         else:
@@ -88,8 +93,8 @@ class EquationGroup:
 
     # 创建矩阵
     def creat_matrix(self):
-        len_row = len(self)
-        len_column = len(self.varbs)
+        self.len_row = len_row = len(self)
+        self.len_column = len_column = len(self.varbs)
         m_matrix = np.matlib.zeros((len_row, len_column), dtype=complex)
         constant = np.zeros(len_row, dtype=complex)
 
@@ -103,7 +108,10 @@ class EquationGroup:
         return m_matrix, constant
 
     def solve_matrix(self):
+        # mtrx = sp.Matrix(self.m_matrix)
+        # a = mtrx.rref()
         self.solution = np.linalg.solve(self.m_matrix, self.constant)
+        # self.solution = self.constant
         self.set_varbs_solution()
 
     def set_varbs_solution(self):
@@ -128,15 +136,73 @@ class EquationGroup:
         for equ in self.equs:
             equ.src_ele = ele
 
+    # @jit
+    def simplify_equs(self, varbs1, varbs2, name):
+        self.config_equ_num()
+        self.config_varb_num()
+        self.creat_matrix()
+        nums1 = list()
+        nums2 = list()
+        for varb in varbs1:
+            nums1.append(varb.num[self])
+        for varb in varbs2:
+            nums2.append(varb.num[self])
+        len_smp = len(nums1)
+        rng_smp = np.array(range(len_smp))
+        mtrx_smp = np.matlib.zeros((len_smp, len_smp+1), dtype=complex)
+        mtrx_smp[:, 0] = 1
+        mtrx_t = np.matlib.zeros((len_smp, self.len_column), dtype=complex)
+        cstt_t = np.zeros(len_smp, dtype=complex)
+        for row in rng_smp:
+            mtrx_t[row, nums1[row]] = 1
+        mtrx_t = np.insert(self.m_matrix, 0, values=mtrx_t, axis=0)
+        cstt_t = np.insert(self.constant, 0, values=cstt_t, axis=0)
+
+        cstt_smp = np.linalg.solve(mtrx_t, cstt_t)
+        cstt_smp = cstt_smp[nums2]
+
+        for row in rng_smp:
+            cstt_t[rng_smp] = np.zeros(len_smp)
+            cstt_t[row] = 1
+            solution = np.linalg.solve(mtrx_t, cstt_t)
+            solution = solution[nums2]
+            mtrx_smp[:, row+1] = (cstt_smp - solution).reshape(len_smp, 1)
+
+        equs = EquationGroup()
+        for row in rng_smp:
+            equ = Equation(name=name + '_化简方程_' + str(row+1))
+            equ.varb_list = [varbs2[row]]
+            equ.varb_list.extend(varbs1)
+            equ.coeff_list = np.array(mtrx_smp[row])
+            equ.constant = cstt_smp[row]
+            equs.add_equation(equ)
+
+        self.del_num()
+        # print(mtrx_smp, cstt_smp)
+        return equs
+
+    def del_num(self):
+        for equ in self.equs:
+            equ.num.pop(self)
+        for varb in self.varbs.varb_set:
+            varb.num.pop(self)
+
+    def reload_coefficient(self, equs):
+        if len(self.equs) == len(equs.equs):
+            for num in range(len(self.equs)):
+                self.equs[num].reload_coefficient(equs.equs[num])
+        else:
+            raise KeyboardInterrupt('异常: 方程组数量不同')
+
     def __len__(self):
         return len(self.equs)
 
 
-# 方程项
-class EquItem:
-    def __init__(self, varb=None, coefficient=None):
-        self.varb = varb
-        self.coefficient = coefficient
+# # 方程项
+# class EquItem:
+#     def __init__(self, varb=None, coefficient=None):
+#         self.varb = varb
+#         self.coefficient = coefficient
 
 
 # 方程
@@ -166,6 +232,10 @@ class Equation:
     def set_src_ele(self, ele):
         self.src_ele = ele
 
+    def reload_coefficient(self, equ):
+        self.coeff_list = equ.coeff_list
+        self.constant = equ.constant
+
     @property
     def varbs(self):
         varbs = VarbGroup()
@@ -175,6 +245,30 @@ class Equation:
 
 
 if __name__ == '__main__':
-    key1, key2 = 'aa', 'bb'
-    e1 = Equation()
-    a = 1
+    ep = ElePack(None, 'test')
+    ep.name = 'test'
+
+    x1 = Varb(ep, 'x1')
+    x2 = Varb(ep, 'x2')
+    x3 = Varb(ep, 'x3')
+    x4 = Varb(ep, 'x4')
+
+    e1 = Equation(name='eq1')
+    e2 = Equation(name='eq2')
+    e3 = Equation(name='eq3')
+
+    e1.varb_list = [x1, x2, x4]
+    e1.coeff_list = [1, 2, 5]
+    e1.constant = 1
+    e2.varb_list = [x2, x3]
+    e2.coeff_list = [2, 4]
+    e2.constant = 3
+
+    e3.varb_list = [x4, x3]
+    e3.coeff_list = [1, 6]
+    e3.constant = 2
+
+    equs1 = EquationGroup(e1, e2, e3)
+    equs2 = equs1.simplify_equs([x1], [x4])
+
+    pass
