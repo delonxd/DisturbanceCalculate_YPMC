@@ -1,4 +1,5 @@
 from src.Module.CircuitBasic import *
+from src.ConstantType import Constant
 
 
 ########################################################################################################################
@@ -15,14 +16,9 @@ class TcsrPower(ElePack):
     def __init__(self, parent_ins, name_base, z):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
-        self.add_child('1电压源', OPortPowerU(self, '1电压源', voltage=0))
+        self.add_child('1电压源', OPortPowerU(self, '1电压源', voltage=parent_ins.pwr_voltage))
         self.add_child('2内阻', TcsrPowerZ(self, '2内阻', z))
 
-    @property
-    def voltage(self):
-        voltage_list = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
-        voltage = voltage_list[self.level - 1]
-        return voltage
 
     @property
     def z(self):

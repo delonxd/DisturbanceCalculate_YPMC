@@ -1,6 +1,6 @@
 from src.Module.Cable import *
 from src.Module.TcsrElement import *
-
+from numba import jit
 import src.TrackCircuitElement.Section as sc
 import src.TrackCircuitElement.Joint as jt
 
@@ -24,7 +24,12 @@ class TCSR(ElePack):
         self.flag_ele_unit = True
         self.mode = None
         self.md_list = list()
-        self.send_level = 1
+        self.send_level = 0
+        self.equs = EquationGroup()
+        self.equs_cmplx = EquationGroup()
+
+        self.pwr_voltage = Constant()
+        self.u_list = list()
 
     @property
     def posi_rlt(self):
@@ -87,6 +92,9 @@ class TCSR(ElePack):
             if isinstance(ele, TPortCable):
                 ele.length = value
 
+    def set_power_voltage(self):
+        self.pwr_voltage.value = self.u_list[self.send_level-1]
+
     # @property
     # def send_level(self):
     #     level = None
@@ -106,3 +114,33 @@ class TCSR(ElePack):
         for num in range(len(self.md_list) - 1):
             self.equal_varb([self.md_list[num], -2], [self.md_list[num + 1], 0])
             self.equal_varb([self.md_list[num], -1], [self.md_list[num + 1], 1])
+
+    # @jit
+    def init_equs(self, freq):
+        self.equs_cmplx = equs = EquationGroup()
+        for module in self.md_list[1:]:
+            module.init_equs(freq)
+            equs.add_equations(module.equs)
+        varb_U2 = self.md_list[-1].get_varb(-2)
+        varb_I2 = self.md_list[-1].get_varb(-1)
+        varb_U1 = self.md_list[0].get_varb(0)
+        varb_I1 = self.md_list[0].get_varb(1)
+        name = self.name
+        self.equs = equs.simplify_equs([varb_U1, varb_I1], [varb_U2, varb_I2], name=name)
+        self.md_list[0].init_equs(freq)
+        self.equs.add_equations(self.md_list[0].equs)
+        return self.equs
+
+    # @jit
+    def refresh_coeffs(self, freq):
+        for module in self.md_list:
+            module.refresh_coeffs(freq)
+        varb_U2 = self.md_list[-1].get_varb(-2)
+        varb_I2 = self.md_list[-1].get_varb(-1)
+        varb_U1 = self.md_list[0].get_varb(0)
+        varb_I1 = self.md_list[0].get_varb(1)
+        name = self.name
+        equs = self.equs_cmplx.simplify_equs([varb_U1, varb_I1], [varb_U2, varb_I2], name=name)
+        equs.add_equations(self.md_list[0].equs)
+        self.equs.reload_coefficient(equs)
+        return self.equs

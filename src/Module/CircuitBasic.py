@@ -69,7 +69,8 @@ class OPortPowerU(OnePortNetwork):
         self.get_coeffs(freq)
 
     def get_coeffs(self, freq):
-        self.value2coeffs(self.voltage)
+        voltage = float(self.voltage)
+        self.value2coeffs(voltage)
         return self.equs
 
     def value2coeffs(self, voltage):
@@ -99,7 +100,8 @@ class OPortPowerI(OnePortNetwork):
         self.get_coeffs(freq)
 
     def get_coeffs(self, freq):
-        self.value2coeffs(self.current)
+        current = float(self.current)
+        self.value2coeffs(current)
         return self.equs
 
     def value2coeffs(self, current):

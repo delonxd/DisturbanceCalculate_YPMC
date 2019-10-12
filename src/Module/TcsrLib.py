@@ -13,6 +13,7 @@ class ZPW2000A_QJ_Normal(TCSR):
         self.flag_ele_unit = True
         self.mode = mode
         self.send_level = level
+        self.u_list = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
 
         if self.mode == '发送':
             self.add_child('1发送器', TcsrPower(self, '1发送器', para['z_pwr']))
@@ -51,6 +52,7 @@ class ZPW2000A_ZN_PTSVA1(TCSR):
         self.flag_ele_unit = True
         self.mode = mode
         self.send_level = level
+        self.u_list = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
 
         if self.mode == '发送':
             self.add_child('1发送器', TcsrPower(self, '1发送器', para['z_pwr']))
@@ -92,6 +94,7 @@ class ZPW2000A_QJ_Belarus(TCSR):
         self.flag_ele_unit = True
         self.mode = mode
         self.send_level = level
+        self.u_list = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
 
         if self.mode == '发送':
             self.add_child('1发送器', TcsrPower(self, '1发送器', para['z_pwr']))
@@ -131,6 +134,7 @@ class ZPW2000A_YPMC_Normal(TCSR):
         self.flag_ele_unit = True
         self.mode = mode
         self.send_level = level
+        self.u_list = [45, 37.5, 30, 22.5]
 
         if self.mode == '发送':
             self.add_child('1发送器', TcsrPowerYPMC(self, '1发送器',
