@@ -56,13 +56,14 @@ class SubRailPi(TwoPortNetwork):
         y_tk = 1 / zii
         y_rd = yii
         self.value2coeffs(y_rd, y_tk)
-        # if hasattr(self, 'mutual_trk'):
-        #     m_circuit = self.mutual_trk
-        #
-        # equ1.add_items(EquItem(self['Im'], (m * (y_rd + y_tk))))
-        # equ2.add_items(EquItem(self['Im'], (m * y_tk)))
         return self.equs
 
     def value2coeffs(self, y_rd, y_tk):
         self.equ1.coeff_list = np.array([-1, (y_rd + y_tk), -y_tk])
         self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd)])
+        if hasattr(self, 'mutual_trk'):
+            m = self.track_length / 1000 * 0.30
+            self.equ1.coeff_list = np.array([-1, (y_rd + y_tk), -y_tk,
+                                             (m * y_tk)])
+            self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd),
+                                             -(m * (y_rd + y_tk))])
