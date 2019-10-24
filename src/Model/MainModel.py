@@ -14,6 +14,8 @@ class MainModel(ElePack):
         super().__init__(None, line_group.name_base)
         self.freq = md.parameter['freq']
         md.l3['地面']['区段1']['左调谐单元'].set_power_voltage()
+        # md.l3['地面']['区段2']['左调谐单元'].set_power_voltage()
+        # md.l3['地面']['区段3']['左调谐单元'].set_power_voltage()
 
         self.line_group = line_group
         self.equs = None

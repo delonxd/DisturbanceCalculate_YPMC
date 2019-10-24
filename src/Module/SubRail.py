@@ -36,6 +36,11 @@ class SubRailPi(TwoPortNetwork):
         self.equ2.name = self.name + '_方程2'
         self.equ1.varb_list = [self['I1'], self['U1'], self['U2']]
         self.equ2.varb_list = [self['I2'], self['U1'], self['U2']]
+        if hasattr(self, 'mutual_trk'):
+            m_circuit = self.mutual_trk
+            self.varb_dict['Im'] = m_circuit.varb_dict['I1']
+            self.equ1.varb_list.append(self['Im'])
+            self.equ2.varb_list.append(self['Im'])
         self.get_coeffs(freq)
 
     def get_coeffs(self, freq):
@@ -51,6 +56,11 @@ class SubRailPi(TwoPortNetwork):
         y_tk = 1 / zii
         y_rd = yii
         self.value2coeffs(y_rd, y_tk)
+        # if hasattr(self, 'mutual_trk'):
+        #     m_circuit = self.mutual_trk
+        #
+        # equ1.add_items(EquItem(self['Im'], (m * (y_rd + y_tk))))
+        # equ2.add_items(EquItem(self['Im'], (m * y_tk)))
         return self.equs
 
     def value2coeffs(self, y_rd, y_tk):
