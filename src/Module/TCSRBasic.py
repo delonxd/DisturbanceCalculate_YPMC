@@ -1,6 +1,5 @@
 from src.Module.Cable import *
 from src.Module.TcsrElement import *
-from numba import jit
 import src.TrackCircuitElement.Section as sc
 import src.TrackCircuitElement.Joint as jt
 
@@ -31,6 +30,7 @@ class TCSR(ElePack):
         self.pwr_voltage = Constant()
         self.u_list = list()
 
+    # 相对位置
     @property
     def posi_rlt(self):
         posi = None
@@ -47,6 +47,7 @@ class TCSR(ElePack):
                 posi = - parent.j_length / 2
         return posi
 
+    # 隶属的绝缘节
     @property
     def parent_joint(self):
         joint = None
@@ -57,6 +58,7 @@ class TCSR(ElePack):
             joint = self.parent_ins
         return joint
 
+    # 区段类型
     @property
     def m_type(self):
         m_type = None
@@ -66,6 +68,7 @@ class TCSR(ElePack):
             m_type = self.parent_ins.parent_ins.m_type
         return m_type
 
+    # 区段频率
     @property
     def m_freq(self):
         m_freq = None
@@ -78,6 +81,7 @@ class TCSR(ElePack):
             # m_freq = section.change_freq(section.m_freq)
         return m_freq
 
+    # 电缆长度
     @property
     def cable_length(self):
         length = None
@@ -92,22 +96,9 @@ class TCSR(ElePack):
             if isinstance(ele, TPortCable):
                 ele.length = value
 
+    # 设置电压源输出
     def set_power_voltage(self):
         self.pwr_voltage.value = self.u_list[self.send_level-1]
-
-    # @property
-    # def send_level(self):
-    #     level = None
-    #     for ele in self.element.values():
-    #         if isinstance(ele, TcsrPower):
-    #             level = ele.level
-    #     return level
-    #
-    # @send_level.setter
-    # def send_level(self, value):
-    #     for ele in self.element.values():
-    #         if isinstance(ele, TcsrPower):
-    #             ele.level = value
 
     # 变量赋值
     def config_varb(self):
@@ -115,7 +106,6 @@ class TCSR(ElePack):
             self.equal_varb([self.md_list[num], -2], [self.md_list[num + 1], 0])
             self.equal_varb([self.md_list[num], -1], [self.md_list[num + 1], 1])
 
-    # @jit
     def init_equs(self, freq):
         self.equs_cmplx = equs = EquationGroup()
         for module in self.md_list[1:]:
@@ -131,7 +121,6 @@ class TCSR(ElePack):
         self.equs.add_equations(self.md_list[0].equs)
         return self.equs
 
-    # @jit
     def refresh_coeffs(self, freq):
         for module in self.md_list:
             module.refresh_coeffs(freq)
