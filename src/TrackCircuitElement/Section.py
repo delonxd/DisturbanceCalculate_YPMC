@@ -14,22 +14,23 @@ class Section(ElePack):
     prop_table.update(new_table)
 
     def __init__(self, parent_ins, name_base,
-                 m_freq, s_length, j_length, c_num, j_type, sr_mode):
+                 m_frq, s_len, j_len, c_num,
+                 j_typ, sr_mod, send_lv):
         super().__init__(parent_ins, name_base)
         self.parameter = parent_ins.parameter
         self.init_position(0)
         self.m_type = ''
-        self.m_freq = m_freq
-        self.s_length = s_length
+        self.m_freq = m_frq
+        self.s_length = s_len
 
         # 临时变量
-        sr_mode_t = sr_mode
-        if sr_mode_t == '左发':
-            sr_mode = ['发送', '接收']
-        elif sr_mode_t == '右发':
-            sr_mode = ['接收', '发送']
-        m_length = s_length - (j_length[0] + j_length[1]) / 2
-        init_list = (j_length, c_num, sr_mode, j_type, m_length)
+        sr_mod_t = sr_mod
+        if sr_mod_t == '左发':
+            sr_mod = ['发送', '接收']
+        elif sr_mod_t == '右发':
+            sr_mod = ['接收', '发送']
+        m_len = s_len - (j_len[0] + j_len[1]) / 2
+        init_list = m_len, j_len, c_num, j_typ, sr_mod, send_lv
         self.set_element(init_list)
 
     @property
@@ -40,147 +41,126 @@ class Section(ElePack):
     def set_element(self, init_list):
         pass
 
-    def get_joint_info(self, num):
-        flag = ['左', '右'][num]
-        l_section = None if num == 0 else self
-        r_section = self if num == 0 else None
-        return flag, l_section, r_section
-
 
 # 2000A配置
 class Section_ZPW2000A(Section):
     def __init__(self, parent_ins, name_base,
-                 m_freq, s_length, j_length, c_num, j_type, sr_mode):
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
         super().__init__(parent_ins, name_base,
-                         m_freq, s_length, j_length, c_num, j_type, sr_mode)
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
         self.m_type = '2000A'
 
     def set_element(self, init_list):
-        j_length, c_num, sr_mode, j_type, m_length = init_list
-        offset = j_length[0] / 2
+        m_len, j_lens, c_num, j_typs, sr_mods, send_lv = init_list
+        offset = j_lens[0] / 2
         n_t = c_num * 2 + 1
         # 按ZPW-2000A原则设置电容
-        half_posi = list(np.linspace(offset, (m_length + offset), n_t))
-        c_posi = [half_posi[num*2+1] for num in range(c_num)]
+        hlf_pst = list(np.linspace(offset, (m_len + offset), n_t))
+        c_pst = [hlf_pst[num*2+1] for num in range(c_num)]
 
-        # lc = (m_length / c_num) if c_num > 0 else 0
-        # c_posi = [(num * lc + lc / 2 + offset) for num in range(c_num)]
-        self.config_c(c_posi)
-        self.config_joint(j_type, j_length)
-        self.config_tcsr(j_type, sr_mode)
+        self.config_c(c_pst)
+        j_clss, tcsr_clss = self.config_class(j_typs=j_typs)
+
+        self.config_joint_tcsr(j_clss=j_clss,
+                               tcsr_clss=tcsr_clss,
+                               j_lens=j_lens,
+                               j_typs=j_typs,
+                               sr_mods=sr_mods,
+                               send_lv=send_lv)
 
     # 配置电容
-    def config_c(self, c_posi):
-        for num in range(len(c_posi)):
-            name = 'C' + str(num + 1)
-            ele = CapC(parent_ins=self, name_base=name,
-                       posi=c_posi[num], z=self.parameter['Ccmp_z'])
-            self.add_child(name, ele)
+    def config_c(self, c_pst):
+        for num in range(len(c_pst)):
+            c_name = 'C' + str(num + 1)
+            ele = CapC(parent_ins=self,
+                       name_base=c_name,
+                       posi=c_pst[num],
+                       z=self.parameter['Ccmp_z'])
+            self.add_child(c_name, ele)
 
-    # 配置绝缘节
-    def config_joint(self, j_type, j_length):
-        # 设置绝缘节
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
         for num in range(2):
-            flag, l_section, r_section = self.get_joint_info(num)
-            name = flag + '绝缘节'
-            if j_type[num] == '电气':
-                joint = Joint_2000A_Electric(parent_ins=self, name_base=name, posi_flag=flag,
-                                             l_section=l_section, r_section=r_section,
-                                             j_length=j_length[num], j_type=j_type[num])
-                self.add_child(name, joint)
-            elif j_type[num] == '机械':
-                joint = Joint_Mechanical(parent_ins=self, name_base=name, posi_flag=flag,
-                                         l_section=l_section, r_section=r_section,
-                                         j_length=j_length[num], j_type=j_type[num])
-                self.add_child(name, joint)
+            if j_typs[num] == '电气':
+                j_clss[num] = Joint_2000A_Electric
+                tcsr_clss[num] = ZPW2000A_QJ_Normal
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_ZN_PTSVA1
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
 
-    # 配置调谐匹配单元
-    def config_tcsr(self, j_type, sr_mode):
+    def config_joint_tcsr(self, j_clss, tcsr_clss, j_lens,
+                          j_typs, sr_mods, send_lv):
+        level = send_lv
+        cab_len = self.parameter['cab_len']
         for num in range(2):
-            flag, _, _ = self.get_joint_info(num)
-            name = flag + '调谐单元'
-            level = self.parameter['level']
-            cab_len = self.parameter['cab_len']
-            if j_type[num] == '电气':
-                ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-                                         posi_flag=flag, cable_length=cab_len,
-                                         mode=sr_mode[num], level=level)
-                self.add_child(name, ele)
-            elif j_type[num] == '机械':
-                ele = ZPW2000A_ZN_PTSVA1(parent_ins=self, name_base=name,
-                                         posi_flag=flag, cable_length=cab_len,
-                                         mode=sr_mode[num], level=level)
-                self.add_child(name, ele)
+            flag = ['左', '右'][num]
+            l_section = None if num == 0 else self
+            r_section = self if num == 0 else None
 
+            cls = j_clss[num]
+            joint_name = flag + '绝缘节'
+            ele = cls(parent_ins=self,
+                      name_base=joint_name,
+                      posi_flag=flag,
+                      l_section=l_section,
+                      r_section=r_section,
+                      j_length=j_lens[num],
+                      j_type=j_typs[num])
+            self.add_child(joint_name, ele)
+
+            cls = tcsr_clss[num]
+            tcsr_name = flag + '调谐单元'
+            ele = cls(parent_ins=self,
+                      name_base=tcsr_name,
+                      posi_flag=flag,
+                      cable_length=cab_len,
+                      mode=sr_mods[num],
+                      level=level)
+            self.add_child(tcsr_name, ele)
 
 # 2000A移频脉冲配置
 class Section_ZPW2000A_YPMC(Section_ZPW2000A):
     def __init__(self, parent_ins, name_base,
-                 m_freq, s_length, j_length, c_num, j_type, sr_mode):
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
         super().__init__(parent_ins, name_base,
-                         m_freq, s_length, j_length, c_num, j_type, sr_mode)
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
         self.m_type = '2000A_YPMC'
 
-    # 配置绝缘节
-    def config_joint(self, j_type, j_length):
+    @staticmethod
+    def config_class(j_type):
+        j_cls, tcsr_cls = [None, None], [None, None]
         for num in range(2):
-            flag, l_section, r_section = self.get_joint_info(num)
-            name = flag + '绝缘节'
             if j_type[num] == '电气':
                 raise KeyboardInterrupt('2000A移频脉冲不支持电气绝缘节')
             elif j_type[num] == '机械':
-                joint = Joint_Mechanical(parent_ins=self, name_base=name, posi_flag=flag,
-                                         l_section=l_section, r_section=r_section,
-                                         j_length=j_length[num], j_type=j_type[num])
-                self.add_child(name, joint)
-
-    def config_tcsr(self, j_type, sr_mode):
-        for num in range(2):
-            flag, _, _ = self.get_joint_info(num)
-            name = flag + '调谐单元'
-            if j_type[num] == '电气':
-                raise KeyboardInterrupt('2000A移频脉冲不支持电气绝缘节')
-            elif j_type[num] == '机械':
-                level = self.parameter['level']
-                cab_len = self.parameter['cab_len']
-                ele = ZPW2000A_YPMC_Normal(parent_ins=self, name_base=name,
-                                           posi_flag=flag, cable_length=cab_len,
-                                           mode=sr_mode[num], level=level)
-                self.add_child(name, ele)
+                j_cls[num] = Joint_Mechanical
+                tcsr_cls[num] = ZPW2000A_YPMC_Normal
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_cls, tcsr_cls
 
 
 # 2000A白俄配置
 class Section_ZPW2000A_Belarus(Section_ZPW2000A):
     def __init__(self, parent_ins, name_base,
-                 m_freq, s_length, j_length, c_num, j_type, sr_mode):
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
         super().__init__(parent_ins, name_base,
-                         m_freq, s_length, j_length, c_num, j_type, sr_mode)
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
         self.m_type = '2000A_Belarus'
 
-    # 配置绝缘节
-    def config_joint(self, j_type, j_length):
+    @staticmethod
+    def config_class(j_type):
+        j_cls, tcsr_cls = [None, None], [None, None]
         for num in range(2):
-            flag, l_section, r_section = self.get_joint_info(num)
-            name = flag + '绝缘节'
             if j_type[num] == '电气':
-                joint = Joint_2000A_Electric_Belarus(parent_ins=self, name_base=name, posi_flag=flag,
-                                                     l_section=l_section, r_section=r_section,
-                                                     j_length=j_length[num], j_type=j_type[num])
-                self.add_child(name, joint)
+                j_cls[num] = Joint_2000A_Electric_Belarus
+                tcsr_cls[num] = ZPW2000A_QJ_Belarus
             elif j_type[num] == '机械':
                 raise KeyboardInterrupt('2000A白俄暂不支持机械绝缘节')
-
-    def config_tcsr(self, j_type, sr_mode):
-        for num in range(2):
-            flag, _, _ = self.get_joint_info(num)
-            name = flag + '调谐单元'
-            if j_type[num] == '电气':
-                level = self.parameter['level']
-                cab_len = self.parameter['cab_len']
-                ele = ZPW2000A_QJ_Belarus(parent_ins=self, name_base=name,
-                                          posi_flag=flag, cable_length=cab_len,
-                                          mode=sr_mode[num], level=level)
-                self.add_child(name, ele)
-            elif j_type[num] == '机械':
-                raise KeyboardInterrupt('2000A白俄暂不支持机械绝缘节')
-
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_cls, tcsr_cls
