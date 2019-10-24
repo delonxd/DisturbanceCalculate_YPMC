@@ -5,6 +5,7 @@ from src.TrackCircuitElement.LineGroup import *
 from src.Model.MainModel import *
 from src.Model.ModelParameter import *
 from src.FrequencyType import Freq
+from src.Method import *
 
 import pandas as pd
 import time
@@ -12,50 +13,62 @@ import itertools
 
 
 class TestModel:
-    # def __init__(self, freq, length, c_num, level, rd, r_cable, cab_len, turnout_list):
     def __init__(self, turnout_list, parameter):
-
         self.parameter = parameter
         self.train = Train(name_base='列车1', posi=0, parameter=parameter)
 
         # 轨道电路初始化
-        # print(type(parameter['freq']))
-
-        sg3 = SectionGroup(name_base='地面', posi=0, m_num=3, freq1=parameter['freq'],
-                           m_length=[700, 700, 700],
-                           j_length=[29, 29, 29, 29],
-                           m_type=['2000A', '2000A', '2000A'],
-                           c_num=[8, 11, 8],
+        m_lens = [700, 700, 700]
+        m_frqs = generate_frqs(Freq(2600), 3)
+        c_nums = get_c_nums(m_frqs, m_lens)
+        sg3 = SectionGroup(name_base='地面', posi=0, m_num=1,
+                           m_frqs=m_frqs,
+                           m_lens=m_lens,
+                           j_lens=[29]*4,
+                           m_typs=['2000A']*3,
+                           c_nums=c_nums,
+                           sr_mods=['左发']*3,
+                           send_lvs=[1, 1, 1],
                            parameter=parameter)
 
-        # sg2 = SectionGroup(name_base='地面', posi=0, m_num=2, freq1=1700,
-        #                    m_length=[480, 200, 320],
-        #                    j_length=[29, 29, 29, 29],
-        #                    m_type=['2000A', '2000A', '2000A'],
-        #                    c_num=[8, 6, 5],
-        #                    parameter=parameter)
+        m_lens = [700, 700, 700]
+        m_frqs = generate_frqs(Freq(2300), 3)
+        c_nums = get_c_nums(m_frqs, m_lens)
+        sg4 = SectionGroup(name_base='地面', posi=0, m_num=2,
+                           m_frqs=m_frqs,
+                           m_lens=m_lens,
+                           j_lens=[29]*4,
+                           m_typs=['2000A']*3,
+                           c_nums=c_nums,
+                           sr_mods=['左发']*3,
+                           send_lvs=[1, 1, 1],
+                           parameter=parameter)
 
-        # sg3 = SectionGroup(name_base='地面', posi=0, m_num=1, freq1=parameter['freq'],
-        #                    m_length=[parameter['length']],
-        #                    j_length=[29, 29],
-        #                    m_type=['2000A'],
-        #                    c_num=[parameter['c_num']],
-        #                    parameter=parameter)
         self.section_group3 = sg3
+        self.section_group4 = sg4
 
-        l3 = Line(name_base='线路3', sec_group=sg3,
-                  parameter=parameter)
-        self.l3 = l3
+        self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
+                            parameter=parameter)
+        self.l4 = l4 = Line(name_base='线路4', sec_group=sg4,
+                            parameter=parameter)
 
-        self.lg = LineGroup(l3, name_base='线路组')
+        self.lg = LineGroup(l3, l4, name_base='线路组')
         self.lg.refresh()
 
-    def add_train(self):
-        l3 = Line(name_base='线路3', sec_group=self.section_group3,
-                  parameter=self.parameter, train=self.train)
-        self.l3 = l3
+    # def add_train(self):
+    #     l3 = Line(name_base='线路3', sec_group=self.section_group3,
+    #               parameter=self.parameter, train=self.train)
+    #     self.l3 = l3
+    #
+    #     self.lg = LineGroup(l3, name_base='线路组')
+    #     self.lg.refresh()
 
-        self.lg = LineGroup(l3, name_base='线路组')
+    def add_train(self):
+        l4 = Line(name_base='线路4', sec_group=self.section_group4,
+                  parameter=self.parameter, train=self.train)
+        self.l4 = l4
+
+        self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
         self.lg.refresh()
 
 
@@ -111,10 +124,10 @@ if __name__ == '__main__':
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
 
-    # trk_Belarus_list = [trk_Belarus_25, trk_Belarus_800]
 
-    para['cab_len'] = cab_len = 10
     para['level'] = level = 3
+    freq = 2600
+    para['freq'] = Freq(freq)
 
     # head_list = ['区段长度', '电容间隔', '电容值', '电容数', '钢轨电阻', '钢轨电感',
     #              '区段频率', '分路电阻', '道床电阻',
@@ -122,7 +135,7 @@ if __name__ == '__main__':
     #              '分路残压最大值', '最大分路残压位置',
     #              '机车信号最小值', '最小机车信号位置']
 
-    head_list = ['区段长度', '电容间隔', '钢轨电阻', '钢轨电感',
+    head_list = ['区段长度', '钢轨电阻', '钢轨电感',
                  '主串频率', '分路电阻', '道床电阻',
                  '调整轨入最大值', '最小机车信号位置']
 
@@ -134,36 +147,19 @@ if __name__ == '__main__':
     for key in head_list:
         data[key] = None
 
-    data['最小机车信号位置'] = '-'
-
-    # 固定参数
-    para['length'] = length = 1200
-    rd = 2
-    para['Rsht_z'] = r_sht = 0.01
-    freq = 1700
-    para['freq'] = Freq(freq)
-
-    # 循环参数
-    cab_rd_list = [(43, 10000), (47, rd)]
-
-    # 调整状态计算
     para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
-    para['freq'].value = freq
-    rd = 2
-    # r_sht = 0.15
-
-    data['区段长度'] = para['length']
-    data['电容间隔'] = c_interval
+    data['区段长度'] = para['length'] = length = 1400
     data['钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
     data['钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
-    data['主串频率'] = freq
-    data['分路电阻'] = r_sht
-    data['道床电阻'] = rd
+    data['电缆长度'] = para['cab_len'] = cab_len = 10
+    data['主串频率'] = freq = 2600
+    data['分路电阻'] = para['Rsht_z'] = r_sht = 0.01
+    data['道床电阻'] = rd = 2
+    data['最小机车信号位置'] = '-'
 
-    cab_rd = (43, 10000)
-
-    para['Cable_R'].value = cab_rd[0]
-    para['Rd'].value = cab_rd[1]
+    para['freq'] = Freq(freq)
+    para['Cable_R'].value = 43
+    para['Rd'].value = 10000
 
     md = TestModel(turnout_list=turnout_list, parameter=para)
     m1 = MainModel(md.lg, md=md)
@@ -177,7 +173,8 @@ if __name__ == '__main__':
     i_sht_list = list()
 
     # 分路计算
-    posi_list = range(11, (length - 11), 1)
+    # posi_list = range(-11, (length - 11), 10)
+    posi_list = np.arange(-14.5, (length + 14.5), 10)
     for posi_tr in posi_list:
         md = TestModel(turnout_list=turnout_list, parameter=para)
         md.add_train()
@@ -185,10 +182,10 @@ if __name__ == '__main__':
         md.train.set_posi_abs(0)
         m1 = MainModel(md.lg, md=md)
         print(md.train.posi_abs)
-        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        i_sht = md.lg['线路3']['列车1']['分路电阻1']['I'].value_c
-        if m1['线路3'].node_dict[posi_tr].l_track is not None:
-            i_trk = m1['线路3'].node_dict[posi_tr].l_track['I2'].value_c
+        # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        i_sht = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
+        if m1['线路4'].node_dict[posi_tr].l_track is not None:
+            i_trk = m1['线路4'].node_dict[posi_tr].l_track['I2'].value_c
         else:
             i_trk = 0.0
         i_trk_list.append(i_trk)

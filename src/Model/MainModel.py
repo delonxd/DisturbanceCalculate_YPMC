@@ -16,6 +16,7 @@ class MainModel(ElePack):
         md.l3['地面']['区段1']['左调谐单元'].set_power_voltage()
         # md.l3['地面']['区段2']['左调谐单元'].set_power_voltage()
         # md.l3['地面']['区段3']['左调谐单元'].set_power_voltage()
+        # md.l4['地面']['区段1']['左调谐单元'].set_power_voltage()
 
         self.line_group = line_group
         self.equs = None
@@ -49,7 +50,7 @@ class MainModel(ElePack):
             if isinstance(ele, Turnout):
                 for jumper in ele.jumper_list:
                     self.jumper_dict[jumper.name_base] = jumper
-        # self.config_mutual()
+        self.config_mutual()
         self.get_ele_set(ele_set=set())
 
     def config_mutual(self):
