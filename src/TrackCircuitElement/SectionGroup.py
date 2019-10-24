@@ -12,12 +12,14 @@ class SectionGroup(ElePack):
     prop_table = ElePack.prop_table.copy()
     prop_table.update(new_table)
 
-    def __init__(self, name_base, posi, m_num, freq1, m_length, j_length, m_type, c_num,
+    def __init__(self, name_base, posi, m_num,
+                 m_frqs, m_lens, j_lens, m_typs, c_nums, sr_mods, send_lvs,
                  parameter):
         super().__init__(None, name_base)
         self.init_position(posi)
         self.parameter = parameter
-        init_list = (m_num, freq1, m_type, m_length, j_length, c_num)
+        init_list = m_num, m_frqs, m_lens, j_lens, \
+                    m_typs, c_nums, sr_mods, send_lvs
         self.m_num = m_num
         self.section_list = list()
         self.ele_posi = list()
@@ -27,42 +29,35 @@ class SectionGroup(ElePack):
         self.refresh()
 
     def init_element(self, init_list):
-        m_num, freq, m_type, m_length, j_length, c_num = init_list
-        freq_list = list()
-        for num in range(m_num):
-            freq_list.append(freq)
-            freq = freq.copy()
-            freq.change_freq()
-        m_type = m_type[:m_num]
-        m_length = m_length[:m_num]
-        j_length = j_length[:(m_num + 1)]
-        c_num = c_num[:m_num]
+        m_num, m_frqs, m_lens, j_lens, \
+        m_typs, c_nums, sr_mods, send_lvs = init_list
+        m_frqs = m_frqs[:m_num]
+        m_lens = m_lens[:m_num]
+        j_lens = j_lens[:(m_num + 1)]
+        m_typs = m_typs[:m_num]
+        c_nums = c_nums[:m_num]
+        sr_mods = sr_mods[:m_num]
+        send_lvs = send_lvs[:m_num]
 
-        j_type = ['电气' if num > 0 else '机械' for num in j_length]
-        j_length = [[j_length[num], j_length[num+1]] for num in range(m_num)]
-        j_type = [[j_type[num], j_type[num+1]] for num in range(m_num)]
-        # sr_type = ['PT', 'PT']
+        j_typs = ['电气' if num > 0 else '机械' for num in j_lens]
+        j_lens = [[j_lens[num], j_lens[num+1]] for num in range(m_num)]
+        j_typs = [[j_typs[num], j_typs[num+1]] for num in range(m_num)]
 
         for num in range(m_num):
-            name = '区段' + str(num+1)
-            sec_t = None
-            if m_type[num] == '2000A':
-                sec_t = Section_ZPW2000A(parent_ins=self, name_base=name,
-                                         m_freq=freq_list[num], s_length=m_length[num],
-                                         j_length=j_length[num], c_num=c_num[num],
-                                         j_type=j_type[num], sr_mode='左发')
-            elif m_type[num] == '2000A_YPMC':
-                sec_t = Section_ZPW2000A_YPMC(parent_ins=self, name_base=name,
-                                              m_freq=freq_list[num], s_length=m_length[num],
-                                              j_length=j_length[num], c_num=c_num[num],
-                                              j_type=j_type[num], sr_mode='左发')
-            elif m_type[num] == '2000A_Belarus':
-                sec_t = Section_ZPW2000A_Belarus(parent_ins=self, name_base=name,
-                                                 m_freq=freq_list[num], s_length=m_length[num],
-                                                 j_length=j_length[num], c_num=c_num[num],
-                                                 j_type=j_type[num], sr_mode='左发')
-            self.add_child(name, sec_t)
-            # self.element[name] = sec_t
+            sec_class = Section_ZPW2000A
+            cmd = 'sec_class = Section_ZPW' + m_typs[num]
+            exec(cmd)
+            sec_name = '区段' + str(num + 1)
+            sec_t = sec_class(parent_ins=self,
+                              name_base=sec_name,
+                              m_frq=m_frqs[num],
+                              s_len=m_lens[num],
+                              j_len=j_lens[num],
+                              c_num=c_nums[num],
+                              j_typ=j_typs[num],
+                              sr_mod=sr_mods[num],
+                              send_lv=send_lvs[num])
+            self.add_child(sec_name, sec_t)
             self.section_list.append(sec_t)
 
     @property
