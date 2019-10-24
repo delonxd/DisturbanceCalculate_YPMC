@@ -25,6 +25,7 @@ class Joint(ElePack):
         self.r_section = r_section
         self.j_length = j_length
         self.set_element()
+        self.tcsr_cls = ZPW2000A_ZN_PTSVA1
 
     @property
     def posi_rlt(self):
@@ -50,41 +51,25 @@ class Joint(ElePack):
         pass
 
     def add_joint_tcsr(self):
-        pass
+        tcsr_name = '相邻调谐单元'
+        if not self.l_section:
+            tcsr = self.r_section['左调谐单元']
+            flag = '右'
+        elif not self.r_section:
+            tcsr = self.l_section['右调谐单元']
+            flag = '左'
+        else:
+            return
 
-    # def set_element(self):
-    #     if self.j_type == '电气':
-    #         if self.sec_type == '2000A':
-    #             # self.element['SVA'] = SVA(parent_ins=self,
-    #             #                           name_base='SVA',
-    #             #                           posi=0,
-    #             #                           z=self.parameter['SVA_z'])
-    #             ele = SVA(parent_ins=self,
-    #                       name_base='SVA',
-    #                       posi=0,
-    #                       z=self.parameter['SVA_z'])
-    #             self.add_child('SVA', ele)
-    #
-    # def add_joint_tcsr(self):
-    #     if self.j_type == '电气':
-    #         name = '相邻调谐单元'
-    #         if not self.l_section:
-    #             tcsr = self.r_section['左调谐单元']
-    #             flag = '右'
-    #         elif not self.r_section:
-    #             tcsr = self.l_section['右调谐单元']
-    #             flag = '左'
-    #         else:
-    #             return
-    #
-    #         if isinstance(tcsr, ZPW2000A_QJ_Normal):
-    #             # self[name] = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-    #             #                                 posi_flag=flag, cable_length=tcsr.cable_length,
-    #             #                                 mode=self.change_sr_mode(tcsr.mode), level=1)
-    #             ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-    #                                      posi_flag=flag, cable_length=tcsr.cable_length,
-    #                                      mode=self.change_sr_mode(tcsr.mode), level=1)
-    #             self.add_child(name, ele)
+        if isinstance(tcsr, self.tcsr_cls):
+            cls = self.tcsr_cls
+            ele = cls(parent_ins=self,
+                      name_base=tcsr_name,
+                      posi_flag=flag,
+                      cable_length=tcsr.cable_length,
+                      mode=self.change_sr_mode(tcsr.mode),
+                      level=0)
+            self.add_child(tcsr_name, ele)
 
     # 交换发送接收
     @staticmethod
@@ -114,40 +99,10 @@ class Joint_2000A_Electric(Joint):
                   posi=0,
                   z=self.parameter['SVA_z'])
         self.add_child('SVA', ele)
-
-    def add_joint_tcsr(self):
-        name = '相邻调谐单元'
-        if not self.l_section:
-            tcsr = self.r_section['左调谐单元']
-            flag = '右'
-        elif not self.r_section:
-            tcsr = self.l_section['右调谐单元']
-            flag = '左'
-        else:
-            return
-
-        if isinstance(tcsr, ZPW2000A_QJ_Normal):
-            ele = ZPW2000A_QJ_Normal(parent_ins=self, name_base=name,
-                                     posi_flag=flag, cable_length=tcsr.cable_length,
-                                     mode=self.change_sr_mode(tcsr.mode), level=1)
-            self.add_child(name, ele)
+        self.tcsr_cls = ZPW2000A_QJ_Normal
 
 
 # 2000A电气绝缘节
 class Joint_2000A_Electric_Belarus(Joint):
-    def add_joint_tcsr(self):
-        name = '相邻调谐单元'
-        if not self.l_section:
-            tcsr = self.r_section['左调谐单元']
-            flag = '右'
-        elif not self.r_section:
-            tcsr = self.l_section['右调谐单元']
-            flag = '左'
-        else:
-            return
-
-        if isinstance(tcsr, ZPW2000A_QJ_Belarus):
-            ele = ZPW2000A_QJ_Belarus(parent_ins=self, name_base=name,
-                                      posi_flag=flag, cable_length=tcsr.cable_length,
-                                      mode=self.change_sr_mode(tcsr.mode), level=1)
-            self.add_child(name, ele)
+    def set_element(self):
+        self.tcsr_cls = ZPW2000A_QJ_Belarus
