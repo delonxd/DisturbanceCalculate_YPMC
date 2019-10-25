@@ -18,8 +18,8 @@ class TestModel:
         self.train = Train(name_base='列车1', posi=0, parameter=parameter)
 
         # 轨道电路初始化
-        m_lens = [700, 700, 700]
-        m_frqs = generate_frqs(Freq(2600), 3)
+        m_lens = [para['length']]*3
+        m_frqs = generate_frqs(Freq(para['freq_主']), 3)
         c_nums = get_c_nums(m_frqs, m_lens)
         sg3 = SectionGroup(name_base='地面', posi=0, m_num=1,
                            m_frqs=m_frqs,
@@ -27,12 +27,13 @@ class TestModel:
                            j_lens=[29]*4,
                            m_typs=['2000A']*3,
                            c_nums=c_nums,
-                           sr_mods=['左发']*3,
+                           sr_mods=[para['sr_mod_主']]*3,
                            send_lvs=[1, 1, 1],
                            parameter=parameter)
+        sg3['区段1']['左调谐单元'].set_power_voltage()
 
-        m_lens = [700, 700, 700]
-        m_frqs = generate_frqs(Freq(2300), 3)
+        m_lens = [para['length']]*3
+        m_frqs = generate_frqs(Freq(para['freq_被']), 3)
         c_nums = get_c_nums(m_frqs, m_lens)
         sg4 = SectionGroup(name_base='地面', posi=0, m_num=2,
                            m_frqs=m_frqs,
@@ -40,7 +41,7 @@ class TestModel:
                            j_lens=[29]*4,
                            m_typs=['2000A']*3,
                            c_nums=c_nums,
-                           sr_mods=['左发']*3,
+                           sr_mods=[para['sr_mod_被']]*3,
                            send_lvs=[1, 1, 1],
                            parameter=parameter)
 
@@ -97,18 +98,9 @@ if __name__ == '__main__':
     timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
     print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
 
-    fq_list = [1700, 2000, 2300, 2600]
-    len_list = [num for num in range(100, 1600, 100)]
-    len_list.insert(3, 300)
-    c_interval = 50
-    c_num_list = [int(len_list[num] / c_interval) for num in range(len(len_list))]
-    c_num_list[0] = 0
-    c_num_list[1] = 0
-    c_num_list[2] = 0
-
     para = ModelParameter()
 
-    # 电容白俄
+    # 电容
     c_value = 25e-6
     para['Ccmp_z'].rlc_s = {
         1700: [10e-3, None, c_value],
@@ -116,17 +108,21 @@ if __name__ == '__main__':
         2300: [10e-3, None, c_value],
         2600: [10e-3, None, c_value]}
 
-    # 白俄钢轨阻抗800
+    # 钢轨阻抗
     trk_2000A_21 = ImpedanceMultiFreq()
     trk_2000A_21.rlc_s = {
         1700: [1.177, 1.314e-3, None],
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
+    para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
 
+    para['freq_主'] = 2600
+    para['freq_被'] = 2300
+    para['sr_mod_主'] = '左发'
+    para['sr_mod_被'] = '左发'
 
-    para['level'] = level = 3
-    freq = 2600
+    freq = para['freq_主']
     para['freq'] = Freq(freq)
 
     # head_list = ['区段长度', '电容间隔', '电容值', '电容数', '钢轨电阻', '钢轨电感',
@@ -136,66 +132,90 @@ if __name__ == '__main__':
     #              '机车信号最小值', '最小机车信号位置']
 
     head_list = ['区段长度', '钢轨电阻', '钢轨电感',
-                 '主串频率', '分路电阻', '道床电阻',
+                 '主串频率','被串频率', '分路电阻', '道床电阻',
                  '调整轨入最大值', '最小机车信号位置']
 
-    excel_list = []
+    # excel_list = []
     turnout_list = []
 
-    # 数据表
-    data = dict()
-    for key in head_list:
-        data[key] = None
+    excel_data = []
+    excel_i_trk = []
+    excel_i_sht = []
 
-    para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
-    data['区段长度'] = para['length'] = length = 1400
-    data['钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
-    data['钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
-    data['电缆长度'] = para['cab_len'] = cab_len = 10
-    data['主串频率'] = freq = 2600
-    data['分路电阻'] = para['Rsht_z'] = r_sht = 0.01
-    data['道床电阻'] = rd = 2
-    data['最小机车信号位置'] = '-'
+    freq_list = [1700, 2000, 2300, 2600]
+    for frq_zhu in [1700, 2000, 2300, 2600]:
+        for frq_chuan in [1700, 2000, 2300, 2600]:
+            for length in range(1400, 0, -50):
+                print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+                para['freq_主'] = frq_zhu
+                para['freq_被'] = frq_chuan
+                freq = para['freq_主']
+                para['freq'] = Freq(freq)
 
-    para['freq'] = Freq(freq)
-    para['Cable_R'].value = 43
-    para['Rd'].value = 10000
+                # 数据表0
+                data = dict()
+                for key in head_list:
+                    data[key] = None
 
-    md = TestModel(turnout_list=turnout_list, parameter=para)
-    m1 = MainModel(md.lg, md=md)
+                # length = 600
+                data['区段长度'] = para['length'] = length
+                data['钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
+                data['钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
+                data['电缆长度'] = para['cab_len'] = cab_len = 10
+                data['主串频率'] = freq
+                data['被串频率'] = para['freq_被']
+                data['分路电阻'] = para['Rsht_z'] = r_sht = 0.01
+                data['道床电阻'] = rd = 2
+                data['最小机车信号位置'] = '-'
 
-    data1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
-    data['调整轨入最大值'] = data1
+                para['Cable_R'].value = 43
+                para['Rd'].value = 10000
 
-    print(data)
+                # 调整计算
+                md = TestModel(turnout_list=turnout_list, parameter=para)
+                m1 = MainModel(md.lg, md=md)
 
-    i_trk_list = list()
-    i_sht_list = list()
+                data1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
+                data['调整轨入最大值'] = data1
 
-    # 分路计算
-    # posi_list = range(-11, (length - 11), 10)
-    posi_list = np.arange(-14.5, (length + 14.5), 10)
-    for posi_tr in posi_list:
-        md = TestModel(turnout_list=turnout_list, parameter=para)
-        md.add_train()
-        md.train.posi_rlt = posi_tr
-        md.train.set_posi_abs(0)
-        m1 = MainModel(md.lg, md=md)
-        print(md.train.posi_abs)
-        # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        i_sht = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
-        if m1['线路4'].node_dict[posi_tr].l_track is not None:
-            i_trk = m1['线路4'].node_dict[posi_tr].l_track['I2'].value_c
-        else:
-            i_trk = 0.0
-        i_trk_list.append(i_trk)
-        i_sht_list.append(i_sht)
-    print(i_trk_list)
+                # 分路计算
+                i_trk_list = list()
+                i_sht_list = list()
 
-    df = pd.DataFrame([i_trk_list, i_sht_list])
+                sht_length = length*2
+                posi_list = np.arange(-14.5, (sht_length + 14.5), 2)
+                for posi_tr in posi_list:
+                    md = TestModel(turnout_list=turnout_list, parameter=para)
+                    md.add_train()
+                    md.train.posi_rlt = posi_tr
+                    md.train.set_posi_abs(0)
+                    m1 = MainModel(md.lg, md=md)
+                    print(md.train.posi_abs)
+                    # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+                    i_sht = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
+                    if m1['线路4'].node_dict[posi_tr].l_track is not None:
+                        i_trk = m1['线路4'].node_dict[posi_tr].l_track['I2'].value_c
+                    else:
+                        print('###')
+                        i_trk = 0.0
+                    i_trk_list.append(i_trk)
+                    i_sht_list.append(i_sht)
+                print(i_sht_list)
+
+                data_row = [data[key] for key in head_list]
+                excel_data.append(data_row)
+                excel_i_trk.append(i_trk_list)
+                excel_i_sht.append(i_sht_list)
+
+    df_i_trk = pd.DataFrame(excel_i_trk)
+    df_i_sht = pd.DataFrame(excel_i_sht)
+
+    df_data = pd.DataFrame(excel_data, columns=head_list)
 
     # 保存到本地excel
     filename = '../Output/邻线干扰2000A' + timestamp + '.xlsx'
     with pd.ExcelWriter(filename) as writer:
-        df.to_excel(writer, sheet_name="调整表", index=False)
+        df_i_trk.to_excel(writer, sheet_name="钢轨电流", index=False)
+        df_i_sht.to_excel(writer, sheet_name="分路电流", index=False)
+        df_data.to_excel(writer, sheet_name="调整状态", index=False)
         pass
