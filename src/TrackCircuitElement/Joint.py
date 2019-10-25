@@ -24,8 +24,8 @@ class Joint(ElePack):
         self.l_section = l_section
         self.r_section = r_section
         self.j_length = j_length
-        self.set_element()
         self.tcsr_cls = ZPW2000A_ZN_PTSVA1
+        self.set_element()
 
     @property
     def posi_rlt(self):
@@ -68,7 +68,7 @@ class Joint(ElePack):
                       posi_flag=flag,
                       cable_length=tcsr.cable_length,
                       mode=self.change_sr_mode(tcsr.mode),
-                      level=0)
+                      level=tcsr.send_level)
             self.add_child(tcsr_name, ele)
 
     # 交换发送接收
