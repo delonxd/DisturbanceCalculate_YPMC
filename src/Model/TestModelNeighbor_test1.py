@@ -21,28 +21,28 @@ class TestModel:
         m_lens = [para['length']]*3
         m_frqs = generate_frqs(Freq(para['freq_主']), 3)
         c_nums = get_c_nums(m_frqs, m_lens)
-        sg3 = SectionGroup(name_base='地面', posi=0, m_num=1,
+        sg3 = SectionGroup(name_base='地面', posi=para['offset'], m_num=1,
                            m_frqs=m_frqs,
                            m_lens=m_lens,
                            j_lens=[29]*4,
                            m_typs=['2000A']*3,
                            c_nums=c_nums,
                            sr_mods=[para['sr_mod_主']]*3,
-                           send_lvs=[1, 1, 1],
+                           send_lvs=[3, 3, 3],
                            parameter=parameter)
         sg3['区段1']['左调谐单元'].set_power_voltage()
 
         m_lens = [para['length']]*3
         m_frqs = generate_frqs(Freq(para['freq_被']), 3)
         c_nums = get_c_nums(m_frqs, m_lens)
-        sg4 = SectionGroup(name_base='地面', posi=0, m_num=2,
+        sg4 = SectionGroup(name_base='地面', posi=0, m_num=3,
                            m_frqs=m_frqs,
                            m_lens=m_lens,
                            j_lens=[29]*4,
                            m_typs=['2000A']*3,
                            c_nums=c_nums,
                            sr_mods=[para['sr_mod_被']]*3,
-                           send_lvs=[1, 1, 1],
+                           send_lvs=[3, 3, 3],
                            parameter=parameter)
 
         self.section_group3 = sg3
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     para['freq_主'] = 2600
     para['freq_被'] = 2300
     para['sr_mod_主'] = '左发'
-    para['sr_mod_被'] = '左发'
+    para['sr_mod_被'] = '右发'
 
     freq = para['freq_主']
     para['freq'] = Freq(freq)
@@ -133,6 +133,7 @@ if __name__ == '__main__':
 
     head_list = ['区段长度', '钢轨电阻', '钢轨电感',
                  '主串频率','被串频率', '分路电阻', '道床电阻',
+                 '分路间隔','电缆长度', '主串电平级', '相对位置',
                  '调整轨入最大值', '最小机车信号位置']
 
     # excel_list = []
@@ -145,7 +146,11 @@ if __name__ == '__main__':
     freq_list = [1700, 2000, 2300, 2600]
     for frq_zhu in [1700, 2000, 2300, 2600]:
         for frq_chuan in [1700, 2000, 2300, 2600]:
-            for length in range(1400, 0, -50):
+            # for length in range(700, 700, -50):
+            length = 700
+            for offset in range(1400, 650, -50):
+
+                length = 700
                 print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
                 para['freq_主'] = frq_zhu
                 para['freq_被'] = frq_chuan
@@ -157,6 +162,7 @@ if __name__ == '__main__':
                 for key in head_list:
                     data[key] = None
 
+                data['相对位置'] = para['offset'] = offset
                 # length = 600
                 data['区段长度'] = para['length'] = length
                 data['钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
@@ -167,6 +173,7 @@ if __name__ == '__main__':
                 data['分路电阻'] = para['Rsht_z'] = r_sht = 0.01
                 data['道床电阻'] = rd = 2
                 data['最小机车信号位置'] = '-'
+                data['主串电平级'] = 3
 
                 para['Cable_R'].value = 43
                 para['Rd'].value = 10000
@@ -182,8 +189,11 @@ if __name__ == '__main__':
                 i_trk_list = list()
                 i_sht_list = list()
 
-                sht_length = length*2
-                posi_list = np.arange(-14.5, (sht_length + 14.5), 2)
+                data['分路间隔'] = interval = 2
+
+                sht_length = length
+                # posi_list = np.arange(-14.5, (sht_length + 14.5), interval)
+                posi_list = np.arange(-14.5, (sht_length - 14.5), interval)
                 for posi_tr in posi_list:
                     md = TestModel(turnout_list=turnout_list, parameter=para)
                     md.add_train()
@@ -193,8 +203,8 @@ if __name__ == '__main__':
                     print(md.train.posi_abs)
                     # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
                     i_sht = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
-                    if m1['线路4'].node_dict[posi_tr].l_track is not None:
-                        i_trk = m1['线路4'].node_dict[posi_tr].l_track['I2'].value_c
+                    if m1['线路4'].node_dict[posi_tr].r_track is not None:
+                        i_trk = m1['线路4'].node_dict[posi_tr].r_track['I1'].value_c
                     else:
                         print('###')
                         i_trk = 0.0
@@ -206,6 +216,8 @@ if __name__ == '__main__':
                 excel_data.append(data_row)
                 excel_i_trk.append(i_trk_list)
                 excel_i_sht.append(i_sht_list)
+
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
     df_i_trk = pd.DataFrame(excel_i_trk)
     df_i_sht = pd.DataFrame(excel_i_sht)
