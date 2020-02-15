@@ -44,9 +44,10 @@ class SectionGroup(ElePack):
         j_typs = [[j_typs[num], j_typs[num+1]] for num in range(m_num)]
 
         for num in range(m_num):
-            sec_class = Section_ZPW2000A
-            cmd = 'sec_class = Section_ZPW' + m_typs[num]
-            exec(cmd)
+            # sec_class = Section_ZPW2000A
+            # cmd = 'sec_class = Section_ZPW' + m_typs[num]
+            # exec(cmd)
+            sec_class = eval('Section_ZPW' + m_typs[num])
             sec_name = '区段' + str(num + 1)
             sec_t = sec_class(parent_ins=self,
                               name_base=sec_name,
