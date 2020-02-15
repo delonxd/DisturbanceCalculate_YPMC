@@ -164,3 +164,25 @@ class Section_ZPW2000A_Belarus(Section_ZPW2000A):
             else:
                 raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
         return j_cls, tcsr_cls
+
+
+# 2000A_BPLN配置
+class Section_ZPW2000A_BPLN(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_BPLN'
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                raise KeyboardInterrupt('2000A_BPLN不支持电气绝缘节')
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_ZN_BPLN
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
