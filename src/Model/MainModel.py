@@ -76,13 +76,13 @@ class MainModel(ElePack):
         equs = EquationGroup()
         ele_set = line_model.get_ele_set(ele_set=set())
         for ele in ele_set:
-            ele.init_equs(freq)
-            equs.add_equations(ele.equs)
-            self.module_set.add(ele)
-            # for module in ele.md_list:
-            #     self.module_set.add(module)
-                # module.init_equs(freq)
-                # equs.add_equations(module.equs)
+            # ele.init_equs(freq)
+            # equs.add_equations(ele.equs)
+            # self.module_set.add(ele)
+            for module in ele.md_list:
+                self.module_set.add(module)
+                module.init_equs(freq)
+                equs.add_equations(module.equs)
         return equs
 
     # KCL方程
