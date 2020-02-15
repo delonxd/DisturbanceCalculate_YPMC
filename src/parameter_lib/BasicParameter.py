@@ -176,7 +176,7 @@ Parameter['TAD_c_发送端_站内'].rlc_s = {
     2300: (None, None, 2.35e-3),
     2600: (None, None, 2.35e-3)}
 
-Parameter['TAD_n_发送端_区间'] = {
+Parameter['TAD_n_发送端_站内'] = {
     1700: 13.5,
     2000: 13.5,
     2300: 12,
@@ -212,7 +212,7 @@ Parameter['TAD_c_接收端'].rlc_s = {
     2300: (None, None, 2.35e-3),
     2600: (None, None, 2.35e-3)}
 
-Parameter['TAD_n_发送端_区间'] = {
+Parameter['TAD_n_接收端_区间'] = {
     1700: 8.7351,
     2000: 8.7384,
     2300: 8.6904,
