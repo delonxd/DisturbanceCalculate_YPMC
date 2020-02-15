@@ -28,7 +28,8 @@ class TCSR(ElePack):
         self.equs_cmplx = EquationGroup()
 
         self.pwr_voltage = Constant()
-        self.u_list = list()
+        self.u_list_max = list()
+        self.u_list_min = list()
 
     # 相对位置
     @property
@@ -97,8 +98,11 @@ class TCSR(ElePack):
                 ele.length = value
 
     # 设置电压源输出
-    def set_power_voltage(self):
-        self.pwr_voltage.value = self.u_list[self.send_level-1]
+    def set_power_voltage(self, flag):
+        if flag == '最大':
+            self.pwr_voltage.value = self.u_list_max[self.send_level - 1]
+        elif flag == '最小':
+            self.pwr_voltage.value = self.u_list_min[self.send_level - 1]
 
     # 变量赋值
     def config_varb(self):
