@@ -31,11 +31,16 @@ class TPortCable(TPortCircuitPi):
         length = float(self.length)
         w = 2 * np.pi * freq
         z0 = float(self.R) + 1j * w * float(self.L)
-        y0 = 1j * w * float(self.C)
+        y0 = 10e-10 + 1j * w * float(self.C)
+        # y0 = 1j * w * float(self.C)
         zc = np.sqrt(z0 / y0)
         gama = np.sqrt(z0 * y0)
         zii = zc * np.sinh(gama * length)
         yii = (np.cosh(gama * length) - 1) / zc / np.sinh(gama * length)
+        # yii = np.imag(yii) * 1j
+        # rii = 1/yii
+        # rii = np.imag(rii) * 1j
+        # yii = 1/rii
         y1 = yii
         y2 = 1 / zii
         y3 = yii
