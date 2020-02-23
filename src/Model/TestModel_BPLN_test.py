@@ -41,12 +41,16 @@ class TestModel:
             sg3['区段1']['右调谐单元'].set_power_voltage(flg)
         # sg3['区段1']['左调谐单元'].set_power_voltage()
 
+        sg3.special_point = list(np.linspace(0, m_lens[0], (c_nums[0] * 4 + 1)))
+
         self.section_group3 = sg3
 
         self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
                             parameter=parameter)
 
         self.lg = LineGroup(l3, name_base='线路组')
+        # self.lg.special_point = sg3.special_point
+        self.lg.special_point = []
         self.lg.refresh()
 
     # def add_train(self):
@@ -63,6 +67,8 @@ class TestModel:
         self.l3 = l3
 
         self.lg = LineGroup(self.l3, name_base='线路组')
+        self.lg.special_point = self.section_group3.special_point
+
         self.lg.refresh()
 
 
@@ -97,17 +103,23 @@ if __name__ == '__main__':
 
     # 电容
     c_value = 25e-6
+    # para['Ccmp_z'].rlc_s = {
+    #     1700: [10e-3, None, c_value],
+    #     2000: [10e-3, None, c_value],
+    #     2300: [10e-3, None, c_value],
+    #     2600: [10e-3, None, c_value]}
+    #
     para['Ccmp_z'].rlc_s = {
-        1700: [10e-3, None, c_value],
-        2000: [10e-3, None, c_value],
-        2300: [10e-3, None, c_value],
-        2600: [10e-3, None, c_value]}
+        1700: [None, None, c_value],
+        2000: [None, None, c_value],
+        2300: [None, None, c_value],
+        2600: [None, None, c_value]}
+
 
     # 钢轨阻抗
     trk_2000A_21 = ImpedanceMultiFreq()
     trk_2000A_21.rlc_s = {
         1700: [1.177, 1.314e-3, None],
-        # 1700: [1.3, 1.314e-3, None],
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
@@ -115,6 +127,28 @@ if __name__ == '__main__':
 
     para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
 
+
+    # 钢轨阻抗
+    para['z_be1'] = ImpedanceMultiFreq()
+    para['z_be1'].rlc_s = {
+        1700: [5.01, 0.506, 20e-6],
+        2000: [5.01, 0.506, 20e-6],
+        2300: [5.01, 0.506, 20e-6],
+        2600: [5.01, 0.506, 20e-6]}
+
+    para['z_be2'] = ImpedanceMultiFreq()
+    para['z_be2'].rlc_s = {
+        1700: [None, None, 2e-8],
+        2000: [None, None, 2e-8],
+        2300: [None, None, 1.2e-8],
+        2600: [None, None, 1.2e-8]}
+
+
+    para['z_be'] = (para['z_be1'] // para['z_be2'])/24/24
+
+    # pass
+    #
+    # bb = 0
     # # 钢轨阻抗
     # trk_2000A_21 = ImpedanceMultiFreq()
     # trk_2000A_21.rlc_s = {
@@ -124,6 +158,25 @@ if __name__ == '__main__':
     #     2600: [1.79, 1.34e-3, None]}
     #
     # para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
+
+    # 接收端内阻
+    para['Z_rcv'] = ImpedanceMultiFreq()
+    para['Z_rcv'].rlc_s = {
+        1700: (1.21, 3.39e-3, None),
+        2000: (1.21, 3.39e-3, None),
+        2300: (1.21, 3.39e-3, None),
+        2600: (1.21, 3.39e-3, None)}
+
+    # # 接收端内阻
+    # para['Z_rcv'] = ImpedanceMultiFreq()
+    # para['Z_rcv'].z = {
+    #     1700: (0 + 36j),
+    #     2000: (0 + 42.3j),
+    #     2300: (0 + 48.6j),
+    #     2600: (0 + 55j)}
+
+    para['TAD_z3_发送端_站内'] = 2*para['TAD_z3_发送端_站内']
+    para['TAD_z3_发送端_区间'] = 2*para['TAD_z3_发送端_区间']
 
     para['TAD_n_发送端_站内'] = {
         1700: 13.5,
@@ -204,9 +257,10 @@ if __name__ == '__main__':
 
     # freq_list = [1700, 2000, 2300, 2600]
     # for length_t in [1000]:
-    for frq_zhu in [1700]:
+    for frq_zhu in [1700, 2000, 2300, 2600]:
         # for direct in ['左发']:
-        for cab_len in [3]:
+        for cab_len in [3,4,5,6,7,8,9,10]:
+        # for cab_len in [10]:
             # frq_zhu = 2600
             direct = '右发'
             frq_chuan = None
@@ -226,8 +280,8 @@ if __name__ == '__main__':
                 # length = length_t = 500
                 # for offset in range(1400, 650, -50):
                 # for offset in range((2*length), -50, -50):
-                # for transfomer_mode in ["PT+SVA'", 'BPLN']:
-                for transfomer_mode in ['BPLN']:
+                for transfomer_mode in ["PT+SVA'"]:
+                # for transfomer_mode in ['BPLN']:
 
                     para['send_level'] = send_lvl
 
@@ -263,13 +317,19 @@ if __name__ == '__main__':
                     data['电缆长度(km)'] = para['cab_len'] = cab_len
                     data['区段频率(Hz)'] = freq
                     data['分路电阻(Ω)'] = para['Rsht_z'] = r_sht = 0.15
-                    data['道床电阻最大(Ω·km)'] = 10000
+                    data['道床电阻最大(Ω·km)'] = 1000
                     data['道床电阻最小(Ω·km)'] = 2
                     data['电缆电阻最大(Ω/km)'] = 45
                     data['电缆电阻最小(Ω/km)'] = 43
                     data['最小机车信号位置(m)'] = '-'
                     data['功出电平级'] = para['send_level']
                     data['发送器位置'] = para['sr_mod_主']
+
+                    data['电缆电容最大(F/km)'] = 28e-9
+                    data['电缆电容最小(F/km)'] = 28e-9
+                    #
+                    # data['电缆电容最大(F/km)'] = 30e-9
+                    # data['电缆电容最小(F/km)'] = 26e-9
 
                     # data['主串频率(Hz)'] = freq
                     # data['被串频率(Hz)'] = para['freq_被']
@@ -289,6 +349,7 @@ if __name__ == '__main__':
 
                     # 调整计算最大
                     para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
+                    para['Cable_C'].value = data['电缆电容最大(F/km)']
                     para['Rd'].value = data['道床电阻最大(Ω·km)']
                     para['Rsht_z'] = data['分路电阻(Ω)']
                     para['pwr_v_flg'] = '最大'
@@ -314,12 +375,18 @@ if __name__ == '__main__':
                     data1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['I2'].value_c
                     data['调整功出电流max(I)'] = round(data1, 3)
 
+                    data1 = md.lg['线路3']['地面']['区段1']['右调谐单元'].md_list[-1]['U2'].value_c
+                    data['调整发送轨面max(V)'] = round(data1, 3)
+
+                    data1 = md.lg['线路3']['地面']['区段1']['左调谐单元'].md_list[-1]['U2'].value_c
+                    data['调整接收轨面max(V)'] = round(data1, 3)
+
 
                     ############################################################################
 
                     # 调整计算最小
                     para['Cable_R'].value = data['电缆电阻最大(Ω/km)']
-                    # para['Cable_C'].value = 26e-9
+                    para['Cable_C'].value = data['电缆电容最小(F/km)']
                     para['Rd'].value = data['道床电阻最小(Ω·km)']
                     para['Rsht_z'] = data['分路电阻(Ω)']
                     para['pwr_v_flg'] = '最小'
@@ -344,6 +411,11 @@ if __name__ == '__main__':
                     data1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['I2'].value_c
                     data['调整功出电流min(I)'] = round(data1, 3)
 
+                    data1 = md.lg['线路3']['地面']['区段1']['右调谐单元'].md_list[-1]['U2'].value_c
+                    data['调整发送轨面min(V)'] = round(data1, 3)
+
+                    data1 = md.lg['线路3']['地面']['区段1']['左调谐单元'].md_list[-1]['U2'].value_c
+                    data['调整接收轨面min(V)'] = round(data1, 3)
 
                     ############################################################################
 
@@ -351,6 +423,7 @@ if __name__ == '__main__':
                     v_trk_list = list()
 
                     para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
+                    para['Cable_C'].value = data['电缆电容最大(F/km)']
                     para['Rd'].value = data['道床电阻最大(Ω·km)']
                     para['Rsht_z'] = 10000
                     para['pwr_v_flg'] = '最大'
@@ -368,8 +441,8 @@ if __name__ == '__main__':
                         v_trk = md.lg['线路3']['列车1']['分路电阻1']['U'].value_c
                         v_trk_list.append(v_trk)
 
-                    data['调整发送轨面max(V)'] = round(v_trk_list[-1], 3)
-                    data['调整接收轨面max(V)'] = round(v_trk_list[0], 3)
+                    # data['调整发送轨面max(V)'] = round(v_trk_list[-1], 3)
+                    # data['调整接收轨面max(V)'] = round(v_trk_list[0], 3)
 
                     data['调整区段轨面max(V)'] = round(max(v_trk_list), 3)
 
@@ -380,6 +453,7 @@ if __name__ == '__main__':
                     v_trk_list = list()
 
                     para['Cable_R'].value = data['电缆电阻最大(Ω/km)']
+                    para['Cable_C'].value = data['电缆电容最小(F/km)']
                     para['Rd'].value = data['道床电阻最小(Ω·km)']
                     para['Rsht_z'] = 10000
                     para['pwr_v_flg'] = '最小'
@@ -398,8 +472,8 @@ if __name__ == '__main__':
                         v_trk_list.append(v_trk)
 
 
-                    data['调整发送轨面min(V)'] = round(v_trk_list[-1], 3)
-                    data['调整接收轨面min(V)'] = round(v_trk_list[0], 3)
+                    # data['调整发送轨面min(V)'] = round(v_trk_list[-1], 3)
+                    # data['调整接收轨面min(V)'] = round(v_trk_list[0], 3)
                     data['调整区段轨面min(V)'] = round(min(v_trk_list), 3)
 
 
@@ -415,6 +489,7 @@ if __name__ == '__main__':
                     v_residual_list = list()
 
                     para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
+                    para['Cable_C'].value = data['电缆电容最大(F/km)']
                     para['Rd'].value = data['道床电阻最大(Ω·km)']
                     para['Rsht_z'] = data['分路电阻(Ω)']
                     para['pwr_v_flg'] = '最大'
@@ -446,6 +521,7 @@ if __name__ == '__main__':
                     v_train_list = list()
 
                     para['Cable_R'].value = data['电缆电阻最大(Ω/km)']
+                    para['Cable_C'].value = data['电缆电容最小(F/km)']
                     para['Rd'].value = data['道床电阻最小(Ω·km)']
                     para['Rsht_z'] = data['分路电阻(Ω)']
                     para['pwr_v_flg'] = '最小'
@@ -482,6 +558,7 @@ if __name__ == '__main__':
                     i_cab_list = list()
 
                     para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
+                    para['Cable_C'].value = data['电缆电容最大(F/km)']
                     para['Rd'].value = data['道床电阻最小(Ω·km)']
                     para['Rsht_z'] = 0.01
                     para['pwr_v_flg'] = '最大'
