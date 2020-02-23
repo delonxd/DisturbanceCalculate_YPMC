@@ -58,8 +58,43 @@ class Section_ZPW2000A(Section):
         hlf_pst = list(np.linspace(offset, (m_len + offset), n_t))
         c_pst = [hlf_pst[num*2+1] for num in range(c_num)]
 
+        c_pst = c_pst[1:-1]
+
+        # posi_mid2 = c_pst.pop(3)
+        # posi_mid1 = c_pst.pop(1)
+
         self.config_c(c_pst)
+
+        # frq = self.m_freq
+
+        # ele = TB(parent_ins=self,
+        #          name_base='TB1',
+        #          posi=m_len/2,
+        #          z=self.parameter['TB'][self.m_freq.value])
+        # self.add_child('TB1', ele)
+
+        # ele = TB(parent_ins=self,
+        #          name_base='TB2',
+        #          posi=(m_len-18),
+        #          z=self.parameter['TB'][self.m_freq.value])
+        # self.add_child('TB2', ele)
+
+        # ele = TB(parent_ins=self,
+        #          name_base='TB_mid1',
+        #          posi=posi_mid1,
+        #          z=self.parameter['TB'][self.m_freq.value])
+        # self.add_child('TB_mid1', ele)
+        #
+        # ele = TB(parent_ins=self,
+        #          name_base='TB_mid2',
+        #          posi=posi_mid2,
+        #          z=self.parameter['TB'][self.m_freq.value])
+        # self.add_child('TB_mid2', ele)
+
+
         j_clss, tcsr_clss = self.config_class(j_typs=j_typs)
+
+
 
         self.config_joint_tcsr(j_clss=j_clss,
                                tcsr_clss=tcsr_clss,
