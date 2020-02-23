@@ -53,6 +53,8 @@ class SubRailPi(TwoPortNetwork):
         gama = np.sqrt(z0 * y0)
         zii = zc * np.sinh(gama * length)
         yii = (np.cosh(gama * length) - 1) / zc / np.sinh(gama * length)
+        # rii = np.real(1 / yii)
+        # yii = 1 / rii
         y_tk = 1 / zii
         y_rd = yii
         self.value2coeffs(y_rd, y_tk)
@@ -61,8 +63,11 @@ class SubRailPi(TwoPortNetwork):
     def value2coeffs(self, y_rd, y_tk):
         self.equ1.coeff_list = np.array([-1, (y_rd + y_tk), -y_tk])
         self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd)])
+        # mmm = 2 * np.pi* 2600 * 22.820 * 1e-6
+        mmm = 2 * np.pi* 2600 * 9 * 1e-6
         if hasattr(self, 'mutual_trk'):
-            m = self.track_length / 1000 * 0.30
+            # m = self.track_length / 1000 * 0.30
+            m = self.track_length / 1000 * mmm
             self.equ1.coeff_list = np.array([-1, (y_rd + y_tk), -y_tk,
                                              (m * y_tk)])
             self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd),
