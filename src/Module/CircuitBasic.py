@@ -293,3 +293,92 @@ class TPortZParallel(TwoPortNetwork):
         self.equ1.coeff_list = np.array([-1, -z, z])
         self.equ2.coeff_list = np.array([-1, -z, z])
 
+
+# 传输矩阵二端口网络（ABCD）
+class TPortABCD_re(TwoPortNetwork):
+    new_table = {
+        '参数11': 'a',
+        '参数12': 'b',
+        '参数21': 'c',
+        '参数22': 'd'
+    }
+    prop_table = TwoPortNetwork.prop_table.copy()
+    prop_table.update(new_table)
+
+    # 变量类型
+    para_type = {
+        'a': VariableImpedance,
+        'b': VariableImpedance,
+        'c': VariableImpedance,
+        'd': VariableImpedance,}
+
+    def __init__(self, parent_ins, name_base, p1, p2, p3, p4):
+        super().__init__(parent_ins, name_base)
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
+        self.p4 = p4
+
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程1'
+        self.equ2.name = self.name + '_方程2'
+        self.equ1.varb_list = [self['U2'], self['U1'], self['I1']]
+        self.equ2.varb_list = [self['I2'], self['U1'], self['I1']]
+        self.get_coeffs(freq)
+
+    def get_coeffs(self, freq):
+        p1 = self.p1[freq].z
+        p2 = self.p2[freq].z
+        p3 = self.p3[freq].z
+        p4 = self.p4[freq].z
+        self.value2coeffs(p1, p2, p3, p4)
+        return self.equs
+
+    def value2coeffs(self, p1, p2, p3, p4):
+        self.equ1.coeff_list = np.array([-1, p1, p2])
+        self.equ2.coeff_list = np.array([-1, p3, p4])
+
+
+# 传输矩阵二端口网络（ABCD）
+class TPortABCD_tr(TwoPortNetwork):
+    new_table = {
+        '参数11': 'a',
+        '参数12': 'b',
+        '参数21': 'c',
+        '参数22': 'd'
+    }
+    prop_table = TwoPortNetwork.prop_table.copy()
+    prop_table.update(new_table)
+
+    # 变量类型
+    para_type = {
+        'a': VariableImpedance,
+        'b': VariableImpedance,
+        'c': VariableImpedance,
+        'd': VariableImpedance,}
+
+    def __init__(self, parent_ins, name_base, p1, p2, p3, p4):
+        super().__init__(parent_ins, name_base)
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
+        self.p4 = p4
+
+    def init_equs(self, freq):
+        self.equ1.name = self.name + '_方程1'
+        self.equ2.name = self.name + '_方程2'
+        self.equ1.varb_list = [self['U1'], self['U2'], self['I2']]
+        self.equ2.varb_list = [self['I1'], self['U2'], self['I2']]
+        self.get_coeffs(freq)
+
+    def get_coeffs(self, freq):
+        p1 = self.p1[freq].z
+        p2 = self.p2[freq].z
+        p3 = self.p3[freq].z
+        p4 = self.p4[freq].z
+        self.value2coeffs(p1, p2, p3, p4)
+        return self.equs
+
+    def value2coeffs(self, p1, p2, p3, p4):
+        self.equ1.coeff_list = np.array([-1, p4, -p2])
+        self.equ2.coeff_list = np.array([1, p3, -p1])
