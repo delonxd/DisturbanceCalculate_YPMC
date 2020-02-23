@@ -37,6 +37,9 @@ class SingleLineModel(ElePack):
     def posi_global(self):
         line_group = self.parent_ins.line_group
         posi_global = line_group.get_posi_fast(line_group.ele_set)
+        posi_special = self.parent_ins.line_group.special_point
+        posi_global.extend(posi_special)
+        posi_global = self.sort_posi_list(posi_global)
         return posi_global
 
     @property
