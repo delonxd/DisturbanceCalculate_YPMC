@@ -23,7 +23,7 @@ class TestModel:
         m_lens = [para['length']]*3
         m_frqs = generate_frqs(Freq(para['freq_主']), 3)
         # c_nums = get_c_nums(m_frqs, m_lens)
-        c_nums = [0]
+        c_nums = [7]
 
 
         sg3 = SectionGroup(name_base='地面', posi=para['offset'], m_num=1,
@@ -46,7 +46,7 @@ class TestModel:
         m_lens = [para['length']]*3
         m_frqs = generate_frqs(Freq(para['freq_被']), 3)
         # c_nums = get_c_nums(m_frqs, m_lens)
-        c_nums = [0]
+        c_nums = [7]
         sg4 = SectionGroup(name_base='地面', posi=0, m_num=1,
                            m_frqs=m_frqs,
                            m_lens=m_lens,
@@ -65,7 +65,8 @@ class TestModel:
             str_temp = 'C' + str(para['adj_flag_chuan'])
             sg4['区段1'].element.pop(str_temp)
 
-
+        # sg3['区段1'].element.pop('TB1')
+        # sg3['区段1'].element.pop('TB2')
 
 
         self.section_group3 = sg3
@@ -154,6 +155,19 @@ if __name__ == '__main__':
     #     2000: [1.72, 1.37e-3, None],
     #     2300: [1.85, 1.36e-3, None],
     #     2600: [1.98, 1.35e-3, None]}
+
+    # trk_2000A_21.rlc_s = {
+    #     1700: [1.44, 1.25e-3, None],
+    #     2000: [1.57, 1.24e-3, None],
+    #     2300: [1.72, 1.23e-3, None],
+    #     2600: [1.86, 1.22e-3, None]}
+
+    # trk_2000A_21.rlc_s = {
+    #     1700: [1.749, 1.255e-3, None],
+    #     2000: [1.990, 1.243e-3, None],
+    #     2300: [2.233, 1.232e-3, None],
+    #     2600: [2.483, 1.222e-3, None]}
+
     para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
 
     para['TAD_z3_发送端_区间'] = 2 * para['TAD_z3_发送端_区间']
@@ -163,7 +177,7 @@ if __name__ == '__main__':
     para['sr_mod_主'] = '右发'
     para['sr_mod_被'] = '右发'
 
-    para['send_level'] = 3
+    para['send_level'] = 5
 
     freq = para['freq_主']
     para['freq'] = Freq(freq)
@@ -226,7 +240,7 @@ if __name__ == '__main__':
             # for frq_chuan in [2300, 2600, 1700, 2300]:
             # for frq_chuan in [1700, 2300]:
                 # for length in range(700, 700, -50):
-                length = length_t = 300
+                length = length_t = 624
                 # for offset in range(1400, 650, -50):
                 # for offset in range((2*length), -50, -50):
                 for offset in [0]:
@@ -271,8 +285,11 @@ if __name__ == '__main__':
                     data['电缆电阻最大(Ω/km)'] = 45
                     data['电缆电阻最小(Ω/km)'] = 43
 
-                    data['电缆电容最大(F/km)'] = 30e-9
-                    data['电缆电容最小(F/km)'] = 26e-9
+                    # data['电缆电容最大(F/km)'] = 30e-9
+                    # data['电缆电容最小(F/km)'] = 26e-9
+
+                    data['电缆电容最大(F/km)'] = 28e-9
+                    data['电缆电容最小(F/km)'] = 28e-9
 
                     # data['主串分路位置'] = posi_zhu_fenlu
 
@@ -282,15 +299,17 @@ if __name__ == '__main__':
 
                     inductance_coff = v_coil_scale / i_trk_scale_t
 
-                    para['Cable_R'].value = 43
-                    para['Rd'].value = 10000
-                    # para['Rd'].value = 6.6
+                    # para['Cable_R'].value = 43
+                    # para['Rd'].value = 10000
+                    para['Rd'].value = 6.6
                     para['pwr_v_flg'] = '最大'
 
                     # 调整计算最大
-                    # para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
-                    # para['Cable_C'].value = data['电缆电容最大(F/km)']
+                    para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
+                    para['Cable_C'].value = data['电缆电容最大(F/km)']
+
                     # para['Rd'].value = data['道床电阻最大(Ω·km)']
+
                     # para['Rsht_z'] = data['分路电阻(Ω)']
                     # para['pwr_v_flg'] = '最大'
                     # para['length'] = data['区段长度min(m)']
