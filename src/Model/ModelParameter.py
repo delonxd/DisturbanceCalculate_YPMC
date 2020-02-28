@@ -207,6 +207,30 @@ class ModelParameter:
         #     2300: [1.435, 1.297e-3, None],
         #     2600: [1.558, 1.291e-3, None]}
 
+
+        c_value = 25e-6
+        parameter['Ccmp_z'].rlc_s = {
+            1700: [10e-3, None, c_value],
+            2000: [10e-3, None, c_value],
+            2300: [10e-3, None, c_value],
+            2600: [10e-3, None, c_value]}
+
+        parameter['标准开路阻抗'] = ImpedanceMultiFreq()
+        parameter['标准开路阻抗'].rlc_s = {
+            1700: [1e10, None, None],
+            2000: [1e10, None, None],
+            2300: [1e10, None, None],
+            2600: [1e10, None, None]}
+
+        parameter['标准短路阻抗'] = ImpedanceMultiFreq()
+        parameter['标准短路阻抗'].rlc_s = {
+            1700: [1e-10, None, None],
+            2000: [1e-10, None, None],
+            2300: [1e-10, None, None],
+            2600: [1e-10, None, None]}
+
+        parameter['TAD_z3_发送端_区间'] = 2 * parameter['TAD_z3_发送端_区间']
+
         self.parameter = parameter
 
     def __len__(self):
