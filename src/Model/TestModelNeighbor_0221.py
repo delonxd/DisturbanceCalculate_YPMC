@@ -185,14 +185,6 @@ if __name__ == '__main__':
 
     para = ModelParameter()
 
-    # 电容
-    c_value = 25e-6
-    para['Ccmp_z'].rlc_s = {
-        1700: [10e-3, None, c_value],
-        2000: [10e-3, None, c_value],
-        2300: [10e-3, None, c_value],
-        2600: [10e-3, None, c_value]}
-
     # 钢轨阻抗
     trk_2000A_21 = ImpedanceMultiFreq()
     trk_2000A_21.rlc_s = {
@@ -221,37 +213,6 @@ if __name__ == '__main__':
 
     para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
 
-    para['标准开路阻抗'] = ImpedanceMultiFreq()
-    para['标准开路阻抗'].rlc_s = {
-        1700: [1e10, None, None],
-        2000: [1e10, None, None],
-        2300: [1e10, None, None],
-        2600: [1e10, None, None]}
-
-    para['标准短路阻抗'] = ImpedanceMultiFreq()
-    para['标准短路阻抗'].rlc_s = {
-        1700: [1e-10, None, None],
-        2000: [1e-10, None, None],
-        2300: [1e-10, None, None],
-        2600: [1e-10, None, None]}
-
-    para['TAD_z3_发送端_区间'] = 2 * para['TAD_z3_发送端_区间']
-
-    para['freq_主'] = 2600
-    para['freq_被'] = 2000
-    para['sr_mod_主'] = '右发'
-    para['sr_mod_被'] = '右发'
-
-    para['send_level'] = 5
-
-    freq = para['freq_主']
-    para['freq'] = Freq(freq)
-
-    # head_list = ['区段长度', '电容间隔', '电容值', '电容数', '钢轨电阻', '钢轨电感',
-    #              '区段频率', '分路电阻', '道床电阻',
-    #              '调整轨入最大值', '调整轨入最小值',
-    #              '分路残压最大值', '最大分路残压位置',
-    #              '机车信号最小值', '最小机车信号位置']
 
     head_list = ['区段长度', '钢轨电阻', '钢轨电感',
                  '主串频率','被串频率',
@@ -287,49 +248,33 @@ if __name__ == '__main__':
 
     v_coil_scale = 115
 
-    # freq_list = [1700, 2000, 2300, 2600]
-    # for length_t in [1000]:
-    # for frq_zhu in [2600]:
+    # rd_list = list(range(30,0,-1))
+    # rd_list.insert(0, 10000)
 
-    rd_list = list(range(30,0,-1))
-    rd_list.insert(0, 10000)
-    # for rd_temp in rd_list:
-    # temp_list = ['正常']
-                 # '主串PT开路', '被串PT开路', '主被串PT开路',
-                 # '主串PT短路', '被串PT短路', '主被串PT短路']
-    # temp_list = ['正常',
-    #              '主串SVA1开路', '被串SVA1开路', '主被串SVA1开路',
-    #              '主串SVA1短路', '被串SVA1短路', '主被串SVA1短路']
     temp_list = ['正常',
+                 '主串PT开路', '被串PT开路', '主被串PT开路',
+                 '主串PT短路', '被串PT短路', '主被串PT短路',
+                 '主串SVA1开路', '被串SVA1开路', '主被串SVA1开路',
+                 '主串SVA1短路', '被串SVA1短路', '主被串SVA1短路',
                  '主串TB开路', '被串TB开路', '主被串TB开路',
                  '主串TB短路', '被串TB短路', '主被串TB短路']
 
-    for temp_temp in temp_list:
+    for temp_temp in [temp_list[0]]:
+
         para['故障情况'] = temp_temp
+        para['send_level'] = 5
+
         rd_temp = 10000
         frq_zhu = 2600
         frq_chuan = 2000
-        # for direct in ['左发']:
-        # for direct in ['右发']:
         direct = '右发'
-            # frq_zhu = 2600
 
         for adj_flag_zhu in [0]:
 
-        # for posi_zhu_fenlu in range(0, 626, 10):
-
             for adj_flag_chuan in [0]:
-            # for frq_chuan in [2000]:
-            # for frq_chuan in [2300]:
-            # for frq_chuan in [2300, 2600, 1700, 2300]:
-            # for frq_chuan in [1700, 2300]:
-                # for length in range(700, 700, -50):
                 length = length_t = 650
-                # for offset in range(1400, 650, -50):
-                # for offset in range((2*length), -50, -50):
-                for offset in [0]:
 
-                    # length = length_t = 1000
+                for offset in [0]:
                     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
                     para['freq_主'] = frq_zhu
                     para['freq_被'] = frq_chuan
@@ -337,7 +282,6 @@ if __name__ == '__main__':
                     para['freq'] = Freq(freq)
 
                     para['sr_mod_主'] = direct
-                    para['sr_mod_被'] = '左发'
                     para['sr_mod_被'] = '右发'
 
 
@@ -350,7 +294,6 @@ if __name__ == '__main__':
                     data['被串拆卸情况'] = para['adj_flag_chuan'] = adj_flag_chuan
 
                     data['相对位置'] = para['offset'] = offset
-                    # length = 600
                     data['区段长度'] = para['length'] = length
                     data['钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
                     data['钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
@@ -360,7 +303,7 @@ if __name__ == '__main__':
                     data['分路电阻'] = para['Rsht_z'] = r_sht = 0.0000001
                     # data['道床电阻'] = rd = 1000
                     data['道床电阻'] = rd = rd_temp
-                    # data['道床电阻'] = 10000
+
                     data['最小机车信号位置'] = '-'
                     data['主串电平级'] = para['send_level']
                     data['主串发送器位置'] = para['sr_mod_主']
@@ -387,21 +330,12 @@ if __name__ == '__main__':
 
                     inductance_coff = v_coil_scale / i_trk_scale_t
 
-                    # para['Cable_R'].value = 43
-                    # para['Rd'].value = 10000
                     para['Rd'].value = rd_temp
-                    # para['Rd'].value = 6.6
                     para['pwr_v_flg'] = '最大'
 
                     # 调整计算最大
                     para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
                     para['Cable_C'].value = data['电缆电容最大(F/km)']
-
-                    # para['Rd'].value = data['道床电阻最大(Ω·km)']
-
-                    # para['Rsht_z'] = data['分路电阻(Ω)']
-                    # para['pwr_v_flg'] = '最大'
-                    # para['length'] = data['区段长度min(m)']
 
                     md = TestModel(turnout_list=turnout_list, parameter=para)
                     m1 = MainModel(md.lg, md=md)
@@ -458,21 +392,13 @@ if __name__ == '__main__':
                     i_C5_list = list()
 
 
-                    # para['Cable_R'].value = data['电缆电阻最大(Ω/km)']
-                    # para['Cable_C'].value = data['电缆电容最小(F/km)']
-                    # para['Rd'].value = data['道床电阻最小(Ω·km)']
-                    # para['Rsht_z'] = data['分路电阻(Ω)']
-                    # para['pwr_v_flg'] = '最小'
-                    # para['length'] = data['区段长度max(m)']
-
-
                     data['分路间隔'] = interval = 1
 
                     sht_length = length
                     # posi_list = np.arange(-14.5, (sht_length + 14.5), interval)
 
-                    posi_list = np.arange(0, (sht_length), interval)
-                    # posi_list = [291]
+                    posi_list = np.arange(0, sht_length, interval)
+
                     counter = 1
                     for posi_tr in posi_list:
                         md = TestModel(turnout_list=turnout_list, parameter=para)
@@ -484,8 +410,7 @@ if __name__ == '__main__':
                         md.train2.posi_rlt = posi_zhu_fenlu
                         md.train2.set_posi_abs(0)
                         m1 = MainModel(md.lg, md=md)
-                        # print(md.train.posi_abs)
-                        # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
                         i_sht = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
                         if m1['线路4'].node_dict[posi_tr].r_track is not None:
@@ -527,14 +452,16 @@ if __name__ == '__main__':
                         i_sht_list.append(i_sht)
 
                         v_train_list.append(i_trk*inductance_coff)
+
+                    data['钢轨电流最大值'] = max(i_trk_list)
+
                     print(data.keys())
                     print(data.values())
                     print(i_sht_list)
 
-                    data['钢轨电流最大值'] = max(i_trk_list)
-
-
                     data_row = [data[key] for key in head_list]
+
+
                     excel_data.append(data_row)
                     excel_i_trk.append(i_trk_list)
                     excel_i_trk_zhu.append(i_trk_zhu_list)
@@ -567,11 +494,9 @@ if __name__ == '__main__':
     df_i_C4 = pd.DataFrame(excel_i_C4)
     df_i_C5 = pd.DataFrame(excel_i_C5)
 
-    # head_list.extend(['最大干扰位置'])
-    # excel_data.extend([])
-
 
     df_data = pd.DataFrame(excel_data, columns=head_list)
+
 
     # 保存到本地excel
     filename = '../Output/邻线干扰2000A' + timestamp + '.xlsx'
