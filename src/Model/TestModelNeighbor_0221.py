@@ -65,9 +65,60 @@ class TestModel:
             str_temp = 'C' + str(para['adj_flag_chuan'])
             sg4['区段1'].element.pop(str_temp)
 
-        # sg3['区段1'].element.pop('TB1')
-        # sg3['区段1'].element.pop('TB2')
+        if para['故障情况'] == '主串PT开路':
+            sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准开路阻抗']}
+        elif para['故障情况'] == '被串PT开路':
+            sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准开路阻抗']}
+        elif para['故障情况'] == '主被串PT开路':
+            sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准开路阻抗']}
+            sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准开路阻抗']}
+        elif para['故障情况'] == '主串PT短路':
+            sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准短路阻抗']}
+        elif para['故障情况'] == '被串PT短路':
+            sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准短路阻抗']}
+        elif para['故障情况'] == '主被串PT短路':
+            sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准短路阻抗']}
+            sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准短路阻抗']}
 
+        elif para['故障情况'] == '主串SVA1开路':
+            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
+        elif para['故障情况'] == '被串SVA1开路':
+            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
+        elif para['故障情况'] == '主被串SVA1开路':
+            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
+            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
+        elif para['故障情况'] == '主串SVA1短路':
+            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
+        elif para['故障情况'] == '被串SVA1短路':
+            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
+        elif para['故障情况'] == '主被串SVA1短路':
+            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
+            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
+
+        elif para['故障情况'] == '主串TB开路':
+            sg3['区段1']['TB2'].z = para['标准开路阻抗']
+        elif para['故障情况'] == '被串TB开路':
+            sg4['区段1']['TB2'].z = para['标准开路阻抗']
+        elif para['故障情况'] == '主被串TB开路':
+            sg3['区段1']['TB2'].z = para['标准开路阻抗']
+            sg4['区段1']['TB2'].z = para['标准开路阻抗']
+        elif para['故障情况'] == '主串TB短路':
+            sg3['区段1']['TB2'].z = para['标准短路阻抗']
+        elif para['故障情况'] == '被串TB短路':
+            sg4['区段1']['TB2'].z = para['标准短路阻抗']
+        elif para['故障情况'] == '主被串TB短路':
+            sg3['区段1']['TB2'].z = para['标准短路阻抗']
+            sg4['区段1']['TB2'].z = para['标准短路阻抗']
+
+        # sg3['区段1'].element.pop('TB2')
+        # sg4['区段1'].element.pop('TB2')
+
+        # sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
+        # sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准短路阻抗']}
+        # sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准短路阻抗']}
+
+        # sg3['区段1']['TB2'].z = para['标准开路阻抗']
+        # sg4['区段1']['TB2'].z = para['标准开路阻抗']
 
         self.section_group3 = sg3
         self.section_group4 = sg4
@@ -170,6 +221,20 @@ if __name__ == '__main__':
 
     para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
 
+    para['标准开路阻抗'] = ImpedanceMultiFreq()
+    para['标准开路阻抗'].rlc_s = {
+        1700: [1e10, None, None],
+        2000: [1e10, None, None],
+        2300: [1e10, None, None],
+        2600: [1e10, None, None]}
+
+    para['标准短路阻抗'] = ImpedanceMultiFreq()
+    para['标准短路阻抗'].rlc_s = {
+        1700: [1e-10, None, None],
+        2000: [1e-10, None, None],
+        2300: [1e-10, None, None],
+        2600: [1e-10, None, None]}
+
     para['TAD_z3_发送端_区间'] = 2 * para['TAD_z3_发送端_区间']
 
     para['freq_主'] = 2600
@@ -195,7 +260,8 @@ if __name__ == '__main__':
                  '分路间隔','电缆长度', '主串电平级', '相对位置',
                  '调整轨入最大值', '最小机车信号位置', '机车信号感应系数',
                  '主串分路位置',
-                 '主串拆卸情况','被串拆卸情况']
+                 '主串拆卸情况','被串拆卸情况', '钢轨电流最大值',
+                 '故障情况']
 
     # excel_list = []
     turnout_list = []
@@ -224,12 +290,30 @@ if __name__ == '__main__':
     # freq_list = [1700, 2000, 2300, 2600]
     # for length_t in [1000]:
     # for frq_zhu in [2600]:
-    for frq_zhu in [2600]:
+
+    rd_list = list(range(30,0,-1))
+    rd_list.insert(0, 10000)
+    # for rd_temp in rd_list:
+    # temp_list = ['正常']
+                 # '主串PT开路', '被串PT开路', '主被串PT开路',
+                 # '主串PT短路', '被串PT短路', '主被串PT短路']
+    # temp_list = ['正常',
+    #              '主串SVA1开路', '被串SVA1开路', '主被串SVA1开路',
+    #              '主串SVA1短路', '被串SVA1短路', '主被串SVA1短路']
+    temp_list = ['正常',
+                 '主串TB开路', '被串TB开路', '主被串TB开路',
+                 '主串TB短路', '被串TB短路', '主被串TB短路']
+
+    for temp_temp in temp_list:
+        para['故障情况'] = temp_temp
+        rd_temp = 10000
+        frq_zhu = 2600
         frq_chuan = 2000
         # for direct in ['左发']:
         # for direct in ['右发']:
         direct = '右发'
             # frq_zhu = 2600
+
         for adj_flag_zhu in [0]:
 
         # for posi_zhu_fenlu in range(0, 626, 10):
@@ -240,7 +324,7 @@ if __name__ == '__main__':
             # for frq_chuan in [2300, 2600, 1700, 2300]:
             # for frq_chuan in [1700, 2300]:
                 # for length in range(700, 700, -50):
-                length = length_t = 624
+                length = length_t = 650
                 # for offset in range(1400, 650, -50):
                 # for offset in range((2*length), -50, -50):
                 for offset in [0]:
@@ -254,6 +338,7 @@ if __name__ == '__main__':
 
                     para['sr_mod_主'] = direct
                     para['sr_mod_被'] = '左发'
+                    para['sr_mod_被'] = '右发'
 
 
                     # 数据表0
@@ -273,12 +358,15 @@ if __name__ == '__main__':
                     data['主串频率'] = freq
                     data['被串频率'] = para['freq_被']
                     data['分路电阻'] = para['Rsht_z'] = r_sht = 0.0000001
-                    data['道床电阻'] = rd = 1000
+                    # data['道床电阻'] = rd = 1000
+                    data['道床电阻'] = rd = rd_temp
                     # data['道床电阻'] = 10000
                     data['最小机车信号位置'] = '-'
                     data['主串电平级'] = para['send_level']
                     data['主串发送器位置'] = para['sr_mod_主']
                     data['被串发送器位置'] = para['sr_mod_被']
+
+                    data['故障情况'] = para['故障情况']
 
                     data['道床电阻最大(Ω·km)'] = 1000
                     data['道床电阻最小(Ω·km)'] = 2
@@ -301,7 +389,8 @@ if __name__ == '__main__':
 
                     # para['Cable_R'].value = 43
                     # para['Rd'].value = 10000
-                    para['Rd'].value = 6.6
+                    para['Rd'].value = rd_temp
+                    # para['Rd'].value = 6.6
                     para['pwr_v_flg'] = '最大'
 
                     # 调整计算最大
@@ -441,6 +530,9 @@ if __name__ == '__main__':
                     print(data.keys())
                     print(data.values())
                     print(i_sht_list)
+
+                    data['钢轨电流最大值'] = max(i_trk_list)
+
 
                     data_row = [data[key] for key in head_list]
                     excel_data.append(data_row)

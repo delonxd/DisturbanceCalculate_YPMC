@@ -67,17 +67,17 @@ class Section_ZPW2000A(Section):
 
         # frq = self.m_freq
 
-        # ele = TB(parent_ins=self,
-        #          name_base='TB1',
-        #          posi=m_len/2,
-        #          z=self.parameter['TB'][self.m_freq.value])
-        # self.add_child('TB1', ele)
+        ele = TB(parent_ins=self,
+                 name_base='TB1',
+                 posi=18,
+                 z=self.parameter['TB'][self.m_freq.value])
+        self.add_child('TB1', ele)
 
-        # ele = TB(parent_ins=self,
-        #          name_base='TB2',
-        #          posi=(m_len-18),
-        #          z=self.parameter['TB'][self.m_freq.value])
-        # self.add_child('TB2', ele)
+        ele = TB(parent_ins=self,
+                 name_base='TB2',
+                 posi=(m_len-18),
+                 z=self.parameter['TB'][self.m_freq.value])
+        self.add_child('TB2', ele)
 
         # ele = TB(parent_ins=self,
         #          name_base='TB_mid1',
