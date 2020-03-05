@@ -5,10 +5,16 @@ from src.ConstantType import Constant
 
 # 模型参数
 class ModelParameter:
-    def __init__(self, name='原始参数'):
+    def __init__(self,
+                 workpath,
+                 name='原始参数'):
         self.name = name
+        self.workpath = workpath
+        path = workpath + '/src/parameter_pkl/BasicParameter.pkl'
         self.parameter = dict()
-        with open('../parameter_pkl/BasicParameter.pkl', 'rb') as pk_f:
+
+        # with open('src/parameter_pkl/BasicParameter.pkl', 'rb') as pk_f:
+        with open(path, 'rb') as pk_f:
             parameter = pickle.load(pk_f)
 
 ########################################################################################################################
@@ -230,6 +236,24 @@ class ModelParameter:
             2600: [1e-10, None, None]}
 
         parameter['TAD_z3_发送端_区间'] = 2 * parameter['TAD_z3_发送端_区间']
+
+
+        # 钢轨阻抗
+        parameter['z_be1'] = ImpedanceMultiFreq()
+        parameter['z_be1'].rlc_s = {
+            1700: [5.01, 0.506, 20e-6],
+            2000: [5.01, 0.506, 20e-6],
+            2300: [5.01, 0.506, 20e-6],
+            2600: [5.01, 0.506, 20e-6]}
+
+        parameter['z_be2'] = ImpedanceMultiFreq()
+        parameter['z_be2'].rlc_s = {
+            1700: [None, None, 2e-8],
+            2000: [None, None, 2e-8],
+            2300: [None, None, 1.2e-8],
+            2600: [None, None, 1.2e-8]}
+
+        parameter['z_be'] = (parameter['z_be1'] // parameter['z_be2']) / 24 / 24
 
         self.parameter = parameter
 
