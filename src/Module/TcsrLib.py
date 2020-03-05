@@ -77,6 +77,7 @@ class ZPW2000A_ZN_PTSVA1(TCSR):
                                        para['TAD_n_发送端_区间'],
                                        para['TAD_c_发送端_站内']))
         self.add_child('5BA', TcsrBA(self, '5BA', para['PT']))
+        self.add_child('5PT_CA', TPortZSeries(self, '5PT_CA', para['标准短路阻抗']))
         self.add_child('6SVA1', TPortZParallel(self, '6SVA1', para['SVA1_z']))
         self.add_child('7CA', TcsrCA(self, '7CA', para['CA_z_区间']))
 
