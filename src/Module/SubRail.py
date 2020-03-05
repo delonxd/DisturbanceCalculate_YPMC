@@ -64,7 +64,16 @@ class SubRailPi(TwoPortNetwork):
         self.equ1.coeff_list = np.array([-1, (y_rd + y_tk), -y_tk])
         self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd)])
         # mmm = 2 * np.pi* 2600 * 22.820 * 1e-6
-        mmm = 2 * np.pi* 2600 * 13 * 1e-6
+
+
+        freq_zhu = self.parent_ins.parameter.parameter['freq_主']
+        km = self.parent_ins.parameter.parameter['耦合系数']
+
+        mmm = 2 * np.pi* freq_zhu * km * 1e-6
+        # mmm = 2 * np.pi* 2600 * 13 * 1e-6
+        # sp11 = self.parent_ins.parameter.parameter['special_point']
+
+
         if hasattr(self, 'mutual_trk'):
             # m = self.track_length / 1000 * 0.30
             m = self.track_length / 1000 * mmm
@@ -72,3 +81,11 @@ class SubRailPi(TwoPortNetwork):
                                              (m * y_tk)])
             self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd),
                                              -(m * (y_rd + y_tk))])
+
+        # if hasattr(self, 'mutual_trk'):
+        #     # m = self.track_length / 1000 * 0.30
+        #     m = self.track_length / 1000 * mmm
+        #     self.equ1.coeff_list = np.array([-1, (y_rd + y_tk), -y_tk,
+        #                                      (m * (y_rd + y_tk))])
+        #     self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd),
+        #                                      -(m * y_tk)])
