@@ -63,6 +63,22 @@ def get_c_num(freq, length):
 
     return c_num
 
+
+def get_i_trk(line, posi, direct='右'):
+    i_trk = None
+    if direct == '右':
+        if line.node_dict[posi].r_track is not None:
+            i_trk = line.node_dict[posi].r_track['I1'].value_c
+        else:
+            i_trk = 0.0
+    elif direct == '左':
+        if line.node_dict[posi].l_track is not None:
+            i_trk = line.node_dict[posi].l_track['I2'].value_c
+        else:
+            i_trk = 0.0
+
+    return i_trk
+
 if __name__ == '__main__':
     m_lens = [700, 700, 700]
     m_frqs = generate_frqs(Freq(2600), 3)
