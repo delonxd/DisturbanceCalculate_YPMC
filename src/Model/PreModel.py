@@ -180,5 +180,5 @@ class PreModel:
         self.l3 = l3
 
         self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
-        self.lg.special_point = para['special_point']
+        self.lg.special_point = self.parameter['special_point']
         self.lg.refresh()
