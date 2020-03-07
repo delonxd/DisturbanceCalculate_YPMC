@@ -2,6 +2,7 @@ from src.AbstractClass.ElePack import *
 import numpy as np
 from src.FrequencyType import Freq
 
+# 显示元素
 def show_ele(vessel, para=''):
     if isinstance(vessel, (list, set)):
         list_t = list()
@@ -21,6 +22,7 @@ def show_ele(vessel, para=''):
             else:
                 print(vessel[key].__dict__[para])
 
+# 获取频率
 def generate_frqs(freq1, m_num):
     frqs = list()
     for _ in range(m_num):
@@ -29,6 +31,7 @@ def generate_frqs(freq1, m_num):
         freq1.change_freq()
     return frqs
 
+# 获取电容数
 def get_c_nums(m_frqs, m_lens):
     c_nums = list()
     for num in range(len(m_frqs)):
@@ -38,6 +41,7 @@ def get_c_nums(m_frqs, m_lens):
         c_nums.append(c_num)
     return c_nums
 
+# 获取电容数
 def get_c_num(freq, length):
     if 0 < length < 300:
         index = 0
@@ -63,7 +67,7 @@ def get_c_num(freq, length):
 
     return c_num
 
-
+# 获取钢轨电流
 def get_i_trk(line, posi, direct='右'):
     i_trk = None
     if direct == '右':
@@ -79,9 +83,22 @@ def get_i_trk(line, posi, direct='右'):
 
     return i_trk
 
+
+# 获取耦合系数
+def get_mutual(distance):
+    l1 = 6
+    d = 1.435
+    k1 = 13
+
+    k_mutual = k1 / np.log((l1 * l1 - d * d) / l1 / l1)
+    l2 = distance
+    k2 = k_mutual * np.log((l2 * l2 - d * d) / l2 / l2)
+    return k2
+
+
 if __name__ == '__main__':
-    m_lens = [700, 700, 700]
-    m_frqs = generate_frqs(Freq(2600), 3)
-    c_nums = get_c_nums(m_frqs, m_lens)
+    # m_lens = [700, 700, 700]
+    # m_frqs = generate_frqs(Freq(2600), 3)
+    # c_nums = get_c_nums(m_frqs, m_lens)
 
     pass
