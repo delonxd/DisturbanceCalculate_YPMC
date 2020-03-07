@@ -11,7 +11,7 @@ import itertools
 import os
 
 if __name__ == '__main__':
-    df_input = pd.read_excel('src/Input/邻线干扰参数输入.xlsx')
+    df_input = pd.read_excel('邻线干扰参数输入.xlsx')
 
     localtime = time.localtime()
     timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
@@ -35,15 +35,18 @@ if __name__ == '__main__':
     para['Ccmp_z_change_zhu'] = ImpedanceMultiFreq()
     para['Ccmp_z_change_chuan'] = ImpedanceMultiFreq()
 
-
     head_list = ['序号', '区段长度', '耦合系数',
+                 '主串道床电阻', '被串道床电阻',
+                 '主串钢轨电阻', '主串钢轨电感',
+                 '被串钢轨电阻', '被串钢轨电感',
                  '钢轨电阻', '钢轨电感',
                  '主串频率', '被串频率',
                  '主串发送器位置', '被串发送器位置',
                  '主串电容数', '被串电容数',
                  '主串电容值', '被串电容值',
                  '分路电阻', '道床电阻',
-                 '分路间隔', '电缆长度', '主串电平级',
+                 '分路间隔', '电缆长度',
+                 '主串电平级', '调整功出电压',
                  '调整轨入最大值',
                  '钢轨电流最大值', '最大值位置']
 
@@ -60,26 +63,31 @@ if __name__ == '__main__':
                  # '主串TB开路', '被串TB开路', '主被串TB开路',
                  # '主串TB短路', '被串TB短路', '主被串TB短路']
 
-    # columns_max = 0
-    # for temp_temp in range(num_len):
-
     # rd_list = list(range(20, 0, -1))
     # rd_list.insert(0, 10000)
 
-    # if length > columns_max:
-    #     columns_max = length
-
-    clist1 = [25e-6, 40e-6]
-    clist2 = [25e-6, 50e-6]
+    # clist1 = [25e-6, 40e-6]
+    # clist2 = [25e-6, 50e-6]
+    # clist1 = [25e-6, 46e-6]
+    # clist2 = [25e-6, 55e-6]
+    # clist1 = [25e-6]
+    # clist2 = [25e-6]
     # clist3 = [3,4,5,6,7]
     # clist4 = [3,4,5,6,7]
-    clist3 = [5]
-    clist4 = [5]
+    # clist3 = [5]
+    # clist4 = [5]
+
+    clist1 = [4, 10000]
+    clist2 = [4, 10000]
+    clist3 = [1.558, 3.558]
+    clist4 = [1.291e-3, 2.291e-3]
 
     clist = list(itertools.product(clist1, clist2, clist3, clist4))
 
+    columns_max = 0
     counter = 1
-    for cv1, cv2, cv3, cv4 in clist:
+    for temp_temp in range(num_len):
+    # for cv1, cv2, cv3, cv4 in clist:
 
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         # 数据表0
@@ -87,45 +95,87 @@ if __name__ == '__main__':
         for key in head_list:
             data[key] = None
 
-        # data['序号'] = para['序号'] = df_input['序号'][temp_temp]
-        # data['区段长度'] = para['length'] = length = df_input['区段长度(m)'][temp_temp]
-        # data['耦合系数'] = para['耦合系数'] = df_input['耦合系数'][temp_temp]
-        # data['主串电平级'] =para['send_level'] = df_input['主串电平级'][temp_temp]
-        # data['主串频率'] = para['freq_主'] = freq = df_input['主串频率(Hz)'][temp_temp]
-        # data['被串频率'] = para['freq_被'] = df_input['被串频率(Hz)'][temp_temp]
-        # data['主串电容数'] = para['主串电容数'] = df_input['主串电容数'][temp_temp]
-        # data['被串电容数'] = para['被串电容数'] = df_input['被串电容数'][temp_temp]
-        # data['道床电阻'] = rd_temp = df_input['道床电阻(Ω·km)'][temp_temp]
+        # 添加数据行
+        data2excel.add_row()
+
+        #################################################################################
 
         data['故障情况'] = para['故障情况'] = '正常'
-        data['主串电平级'] = para['send_level'] = 5
+        # data['主串电平级'] = para['send_level'] = 4
+        data['主串电平级'] =para['send_level'] = df_input['主串电平级'][temp_temp]
 
-        data['序号'] = para['序号'] = counter
-        data['区段长度'] = para['length'] = length = 650
-        data['耦合系数'] = para['耦合系数'] = 13
+        # data['序号'] = para['序号'] = counter
+        data['序号'] = para['序号'] = df_input['序号'][temp_temp]
 
-        data['主串频率'] = para['freq_主'] = freq = 2600
-        data['被串频率'] = para['freq_被'] = 2000
+        # data['区段长度'] = para['length'] = length = 582
+        data['区段长度'] = para['length'] = length = df_input['区段长度(m)'][temp_temp]
+
+        # data['耦合系数'] = para['耦合系数'] = 13
+        data['耦合系数'] = para['耦合系数'] = df_input['耦合系数'][temp_temp]
+
+        # data['主串频率'] = para['freq_主'] = freq = 1700
+        data['主串频率'] = para['freq_主'] = freq = df_input['主串频率(Hz)'][temp_temp]
+
+        # data['被串频率'] = para['freq_被'] = 2300
+        data['被串频率'] = para['freq_被'] = df_input['被串频率(Hz)'][temp_temp]
+
         data['freq'] = para['freq'] = Freq(freq)
 
-        data['主串电容数'] = para['主串电容数'] = cv3
-        data['被串电容数'] = para['被串电容数'] = cv4
+        # data['主串电容数'] = para['主串电容数'] = 5
+        data['主串电容数'] = para['主串电容数'] = df_input['主串电容数'][temp_temp]
 
-        data['主串电容值'] = cv1
-        data['被串电容值'] = cv2
+        # data['被串电容数'] = para['被串电容数'] = 5
+        data['被串电容数'] = para['被串电容数'] = df_input['被串电容数'][temp_temp]
 
+        # data['主串电容值'] = c_value = 25e-6
+        data['主串电容值'] = c_value = df_input['主串电容值'][temp_temp]
         para['Ccmp_z_change_zhu'].rlc_s = {
-            1700: [10e-3, None, cv1],
-            2000: [10e-3, None, cv1],
-            2300: [10e-3, None, cv1],
-            2600: [10e-3, None, cv1]}
-        para['Ccmp_z_change_chuan'].rlc_s = {
-            1700: [10e-3, None, cv2],
-            2000: [10e-3, None, cv2],
-            2300: [10e-3, None, cv2],
-            2600: [10e-3, None, cv2]}
+            1700: [10e-3, None, c_value],
+            2000: [10e-3, None, c_value],
+            2300: [10e-3, None, c_value],
+            2600: [10e-3, None, c_value]}
 
-        data['道床电阻'] = rd_temp = 10000
+        # data['被串电容值'] = c_value = 25e-6
+        data['被串电容值'] = c_value = df_input['被串电容值'][temp_temp]
+        para['Ccmp_z_change_chuan'].rlc_s = {
+            1700: [10e-3, None, c_value],
+            2000: [10e-3, None, c_value],
+            2300: [10e-3, None, c_value],
+            2600: [10e-3, None, c_value]}
+
+        # data['道床电阻'] = rd_temp = 10000
+        data['道床电阻'] = rd_temp = df_input['道床电阻(Ω·km)'][temp_temp]
+
+        #################################################################################
+
+        # data['主串道床电阻'] = cv1
+        data['主串道床电阻'] = df_input['主串道床电阻'][temp_temp]
+        para['主串道床电阻'] = Constant(data['主串道床电阻'])
+
+        # data['被串道床电阻'] = cv2
+        data['被串道床电阻'] = df_input['被串道床电阻'][temp_temp]
+        para['被串道床电阻'] = Constant(data['被串道床电阻'])
+
+        # data['主串钢轨电阻'] = cv3
+        data['主串钢轨电阻'] = df_input['主串钢轨电阻'][temp_temp]
+
+        # data['主串钢轨电感'] = cv4
+        data['主串钢轨电感'] = df_input['主串钢轨电感'][temp_temp]
+
+        # data['被串钢轨电阻'] = 1.558
+        data['被串钢轨电阻'] = df_input['被串钢轨电阻'][temp_temp]
+
+        # data['被串钢轨电感'] = 1.291e-3
+        data['被串钢轨电感'] = df_input['被串钢轨电感'][temp_temp]
+
+        para['主串钢轨阻抗'] = ImpedanceMultiFreq()
+        para['主串钢轨阻抗'].rlc_s = \
+            {data['主串频率']: [data['主串钢轨电阻'], data['主串钢轨电感'], None]}
+        para['被串钢轨阻抗'] = ImpedanceMultiFreq()
+        para['被串钢轨阻抗'].rlc_s = \
+            {data['主串频率']: [data['被串钢轨电阻'], data['被串钢轨电感'], None]}
+
+        #################################################################################
 
         data['主串发送器位置'] = para['sr_mod_主'] = '右发'
         data['被串发送器位置'] = para['sr_mod_被'] = '右发'
@@ -168,15 +218,24 @@ if __name__ == '__main__':
             str(para['机车信号比例V']) + '/' + str(para['机车信号比例I'][para['freq_主']])
         para['机车信号系数值'] = para['机车信号比例V'] / para['机车信号比例I'][para['freq_主']]
 
+        # data['功出电压'] = para['pwr_v_flg'] = '最大'
+        data['电源电压'] = para['pwr_v_flg'] = df_input['电源电压'][temp_temp]
 
         # 调整计算最大
         para['Rd'].value = data['道床电阻']
-        para['pwr_v_flg'] = '最大'
+        para['pwr_v_flg'] = data['电源电压']
+
         para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
         para['Cable_C'].value = data['电缆电容最大(F/km)']
 
-        md = PreModel(turnout_list=turnout_list, parameter=para)
+        md = PreModelAdjust(turnout_list=turnout_list, parameter=para)
         m1 = MainModel(md.lg, md=md)
+
+        data1 = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
+        data['调整轨入最大值'] = data1
+
+        data1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
+        data['调整功出电压'] = data1
 
         # data1 = md.lg['线路3']['地面']['区段1'][string_t]['1接收器']['U'].value_c
         # data['调整接收轨入max(V)'] = round(data1, 3)
@@ -194,14 +253,24 @@ if __name__ == '__main__':
         # data1 = md.lg['线路3']['地面']['区段1']['左调谐单元'].md_list[-1]['U2'].value_c
         # data['调整接收轨面max(V)'] = round(data1, 3)
 
-        # 分路计算
-        data2excel.add_row()
+        # data2excel.add_row()
         data['分路间隔'] = interval = 1
-
         posi_list = np.arange(length, -1, -interval)
 
-        for posi_bei in posi_list:
+        # 轨面电压计算
+        para['Rsht_z'] = 100000
+        for posi_zhu in posi_list:
+            md = PreModelAdjust(turnout_list=turnout_list, parameter=para)
+            md.add_train()
+            md.train1.posi_rlt = posi_zhu
+            md.train1.set_posi_abs(0)
+            m1 = MainModel(md.lg, md=md)
+            v_sht_zhu = md.lg['线路3']['列车1']['分路电阻1']['U'].value_c
+            data2excel.add_data(sheet_name="主串轨面电压", data1=v_sht_zhu)
 
+        # 分路计算
+        para['Rsht_z'] = data['分路电阻']
+        for posi_bei in posi_list:
             md = PreModel(turnout_list=turnout_list, parameter=para)
             md.add_train()
             md.train1.posi_rlt = posi_bei
@@ -249,6 +318,9 @@ if __name__ == '__main__':
             # data2excel.add_data(sheet_name="阻抗模值", data1=z_mm_abs)
             # data2excel.add_data(sheet_name="耦合系数", data1=co_mutal)
 
+        if length > columns_max:
+            columns_max = length
+
         i_trk_list = data2excel.data_dict["被串钢轨电流"][-1]
         i_sht_list = data2excel.data_dict["被串分路电流"][-1]
 
@@ -265,22 +337,26 @@ if __name__ == '__main__':
 
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
-    # posi_header = list(range(columns_max+1))
-    # posi_header[0] = '发送端'
+    posi_header = list(range(columns_max+1))
+    posi_header[0] = '发送端'
 
     df_data = pd.DataFrame(excel_data, columns=head_list)
 
 
     # 保存到本地excel
-    filename = 'src/Output/邻线干扰2000A' + timestamp + '.xlsx'
-    with pd.ExcelWriter(filename) as writer:
-        # df_input.to_excel(writer, sheet_name="参数设置", index=False)
+    filename = '仿真输出'
+    # filepath = 'src/Output/'+ filename + timestamp + '.xlsx'
+    filepath = ''+ filename + '_' + timestamp + '.xlsx'
+    with pd.ExcelWriter(filepath) as writer:
+        df_input.to_excel(writer, sheet_name="参数设置", index=False)
         df_data.to_excel(writer, sheet_name="数据输出", index=False)
 
         names = ["主串钢轨电流",
                  "被串钢轨电流",
-                 "被串分路电流"]
+                 "被串分路电流",
+                 "主串轨面电压"]
 
-        data2excel.write2excel(sheet_names=names, header=None, writer1=writer)
+        # data2excel.write2excel(sheet_names=names, header=None, writer1=writer)
+        data2excel.write2excel(sheet_names=names, header=posi_header, writer1=writer)
 
         pass
