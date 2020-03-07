@@ -103,6 +103,8 @@ class TCSR(ElePack):
             self.pwr_voltage.value = self.u_list_max[self.send_level - 1]
         elif flag == '最小':
             self.pwr_voltage.value = self.u_list_min[self.send_level - 1]
+        else:
+            self.pwr_voltage.value = flag
 
     # 变量赋值
     def config_varb(self):
