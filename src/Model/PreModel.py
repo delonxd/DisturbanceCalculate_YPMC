@@ -13,6 +13,8 @@ class PreModel:
         self.parameter = para = parameter
         self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
         self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
+        # self.train3 = Train(name_base='列车3', posi=0, parameter=parameter)
+        # self.train4 = Train(name_base='列车4', posi=0, parameter=parameter)
 
         # 轨道电路初始化
         send_level = para['send_level']
@@ -20,7 +22,6 @@ class PreModel:
         m_frqs = generate_frqs(Freq(para['freq_主']), 3)
         # c_nums = get_c_nums(m_frqs, m_lens)
         # c_nums = [7]
-
 
         sg3 = SectionGroup(name_base='地面', posi=para['offset'], m_num=1,
                            m_frqs=m_frqs,
@@ -54,12 +55,20 @@ class PreModel:
                            send_lvs=[send_level]*3,
                            parameter=parameter)
 
-        if para['adj_flag_zhu'] > 0:
-            str_temp = 'C' + str(para['adj_flag_zhu'])
+        for cv in range(1,para['主串电容数']+1):
+            str_temp = 'C' + str(cv)
+            sg3['区段1'][str_temp].z = para['Ccmp_z_change_zhu']
+
+        for cv in range(1,para['被串电容数']+1):
+            str_temp = 'C' + str(cv)
+            sg4['区段1'][str_temp].z = para['Ccmp_z_change_chuan']
+
+        if para['主串拆卸情况'] > 0:
+            str_temp = 'C' + str(para['主串拆卸情况'])
             sg3['区段1'].element.pop(str_temp)
 
-        if para['adj_flag_chuan'] > 0:
-            str_temp = 'C' + str(para['adj_flag_chuan'])
+        if para['被串拆卸情况'] > 0:
+            str_temp = 'C' + str(para['被串拆卸情况'])
             sg4['区段1'].element.pop(str_temp)
 
         # if para['故障情况'] == '主串PT开路':
@@ -118,8 +127,17 @@ class PreModel:
             sg3['区段1']['TB2'].z = para['标准短路阻抗']
             sg4['区段1']['TB2'].z = para['标准短路阻抗']
 
+        # sg3['区段1'].element.pop('TB1')
         # sg3['区段1'].element.pop('TB2')
+        # #
+        # sg4['区段1'].element.pop('TB1')
         # sg4['区段1'].element.pop('TB2')
+        #
+        #
+        # sg3['区段1'].element.pop('左调谐单元')
+        # sg4['区段1'].element.pop('左调谐单元')
+        # sg4['区段1'].element.pop('右调谐单元')
+
 
         # sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
         # sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准短路阻抗']}
@@ -141,7 +159,7 @@ class PreModel:
 
         self.lg = LineGroup(l3, l4, name_base='线路组')
 
-        self.lg.special_point = [para['special_point']]
+        self.lg.special_point = para['special_point']
         self.lg.refresh()
 
     # def add_train(self):
@@ -162,5 +180,5 @@ class PreModel:
         self.l3 = l3
 
         self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
-        self.lg.special_point = [para['special_point']]
+        self.lg.special_point = para['special_point']
         self.lg.refresh()
