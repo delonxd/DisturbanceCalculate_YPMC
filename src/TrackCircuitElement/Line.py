@@ -18,9 +18,15 @@ class Line(ElePack):
         if sec_group is not None:
             self.add_child(sec_group.name_base, sec_group)
             sec_group.parent_ins = self
+
+        # if train is not None:
+        #     self.add_child(train.name_base, train)
+        #     train.parent_ins = self
+
         if train is not None:
-            self.add_child(train.name_base, train)
-            train.parent_ins = self
+            for ele in train:
+                self.add_child(ele.name_base, ele)
+                ele.parent_ins = self
 
     # def add_element(self, name, instance):
     #     self.element[name] = instance
