@@ -67,13 +67,30 @@ class SingleLineModel(ElePack):
         posi_global = self.posi_global
         posi_ele = self.posi_ele
         posi_rail = self.posi_rail
-        if self.ftype == '元件':
+        flag = self.line.parameter['节点选取模式']
+
+        if flag == '元件':
             if posi_ele[0] < posi_rail[0] or posi_ele[-1] > posi_rail[-1]:
                 raise KeyboardInterrupt('钢轨范围异常')
             else:
                 rg = [posi_ele[0], posi_ele[-1]]
-        elif self.ftype == '钢轨':
+        elif flag == '钢轨':
             rg = [posi_rail[0], posi_rail[-1]]
+        elif flag == '特殊':
+            rg = [posi_global[0], posi_global[-1]]
+        else:
+            raise KeyboardInterrupt('节点设置错误')
+
+        # if self.ftype == '元件':
+        #     if posi_ele[0] < posi_rail[0] or posi_ele[-1] > posi_rail[-1]:
+        #         raise KeyboardInterrupt('钢轨范围异常')
+        #     else:
+        #         rg = [posi_ele[0], posi_ele[-1]]
+        # elif self.ftype == '钢轨':
+        #     rg = [posi_rail[0], posi_rail[-1]]
+        #
+        # # rg = [posi_global[0], posi_global[-1]]
+
         posi_line = self.sort_posi_list(list(filter(lambda posit: rg[0] <= posit <= rg[-1], posi_global)))
         self.posi_line = posi_line
         return posi_line
