@@ -1,228 +1,14 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
 from src.Model.MainModel import *
 from src.Model.ModelParameter import *
+from src.Model.PreModel import *
 from src.FrequencyType import Freq
 from src.Method import *
+from src.Data2Excel import *
 
 import pandas as pd
 import time
 import itertools
 import os
-
-# itertools.permutations
-class TestModel:
-    def __init__(self, turnout_list, parameter):
-        self.parameter = para = parameter
-        self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
-        self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
-        # self.train3 = Train(name_base='列车3', posi=0, parameter=parameter)
-        # self.train4 = Train(name_base='列车4', posi=0, parameter=parameter)
-
-        # 轨道电路初始化
-        send_level = para['send_level']
-        m_lens = [para['length']]*3
-        m_frqs = generate_frqs(Freq(para['freq_主']), 3)
-        # c_nums = get_c_nums(m_frqs, m_lens)
-        # c_nums = [7]
-
-        sg3 = SectionGroup(name_base='地面', posi=para['offset'], m_num=1,
-                           m_frqs=m_frqs,
-                           m_lens=m_lens,
-                           j_lens=[0]*4,
-                           m_typs=['2000A']*3,
-                           c_nums=[para['主串电容数']+2],
-                           sr_mods=[para['sr_mod_主']]*3,
-                           send_lvs=[send_level]*3,
-                           parameter=parameter)
-
-        flg = para['pwr_v_flg']
-        if para['sr_mod_主'] == '左发':
-            sg3['区段1']['左调谐单元'].set_power_voltage(flg)
-        elif para['sr_mod_主'] == '右发':
-            sg3['区段1']['右调谐单元'].set_power_voltage(flg)
-        # sg3['区段1']['左调谐单元'].set_power_voltage()
-
-        m_lens = [para['length']]*3
-        m_frqs = generate_frqs(Freq(para['freq_被']), 3)
-
-        # c_nums = get_c_nums(m_frqs, m_lens)
-        # c_nums = [7]
-        sg4 = SectionGroup(name_base='地面', posi=0, m_num=1,
-                           m_frqs=m_frqs,
-                           m_lens=m_lens,
-                           j_lens=[0]*4,
-                           m_typs=['2000A']*3,
-                           c_nums=[para['被串电容数']+2],
-                           sr_mods=[para['sr_mod_被']]*3,
-                           send_lvs=[send_level]*3,
-                           parameter=parameter)
-
-        for cv in range(1,para['主串电容数']+1):
-            str_temp = 'C' + str(cv)
-            sg3['区段1'][str_temp].z = para['Ccmp_z_change_zhu']
-
-        for cv in range(1,para['被串电容数']+1):
-            str_temp = 'C' + str(cv)
-            sg4['区段1'][str_temp].z = para['Ccmp_z_change_chuan']
-
-        if para['主串拆卸情况'] > 0:
-            str_temp = 'C' + str(para['主串拆卸情况'])
-            sg3['区段1'].element.pop(str_temp)
-
-        if para['被串拆卸情况'] > 0:
-            str_temp = 'C' + str(para['被串拆卸情况'])
-            sg4['区段1'].element.pop(str_temp)
-
-        # if para['故障情况'] == '主串PT开路':
-        #     sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准开路阻抗']}
-        # elif para['故障情况'] == '被串PT开路':
-        #     sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准开路阻抗']}
-        # elif para['故障情况'] == '主被串PT开路':
-        #     sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准开路阻抗']}
-        #     sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准开路阻抗']}
-
-        # sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
-
-        if para['故障情况'] == '主串PT开路':
-            sg3['区段1']['右调谐单元']['5PT_CA'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '被串PT开路':
-            sg4['区段1']['右调谐单元']['5PT_CA'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '主被串PT开路':
-            sg3['区段1']['右调谐单元']['5PT_CA'].z = para['标准开路阻抗']
-            sg4['区段1']['右调谐单元']['5PT_CA'].z = para['标准开路阻抗']
-
-        elif para['故障情况'] == '主串PT短路':
-            sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准短路阻抗']}
-        elif para['故障情况'] == '被串PT短路':
-            sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准短路阻抗']}
-        elif para['故障情况'] == '主被串PT短路':
-            sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准短路阻抗']}
-            sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准短路阻抗']}
-
-        elif para['故障情况'] == '主串SVA1开路':
-            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '被串SVA1开路':
-            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '主被串SVA1开路':
-            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
-            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '主串SVA1短路':
-            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
-        elif para['故障情况'] == '被串SVA1短路':
-            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
-        elif para['故障情况'] == '主被串SVA1短路':
-            sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
-            sg4['区段1']['右调谐单元']['6SVA1'].z = para['标准短路阻抗']
-
-        elif para['故障情况'] == '主串TB开路':
-            sg3['区段1']['TB2'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '被串TB开路':
-            sg4['区段1']['TB2'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '主被串TB开路':
-            sg3['区段1']['TB2'].z = para['标准开路阻抗']
-            sg4['区段1']['TB2'].z = para['标准开路阻抗']
-        elif para['故障情况'] == '主串TB短路':
-            sg3['区段1']['TB2'].z = para['标准短路阻抗']
-        elif para['故障情况'] == '被串TB短路':
-            sg4['区段1']['TB2'].z = para['标准短路阻抗']
-        elif para['故障情况'] == '主被串TB短路':
-            sg3['区段1']['TB2'].z = para['标准短路阻抗']
-            sg4['区段1']['TB2'].z = para['标准短路阻抗']
-
-        # sg3['区段1'].element.pop('TB1')
-        # sg3['区段1'].element.pop('TB2')
-        # #
-        # sg4['区段1'].element.pop('TB1')
-        # sg4['区段1'].element.pop('TB2')
-        #
-        #
-        # sg3['区段1'].element.pop('左调谐单元')
-        # sg4['区段1'].element.pop('左调谐单元')
-        # sg4['区段1'].element.pop('右调谐单元')
-
-
-        # sg3['区段1']['右调谐单元']['6SVA1'].z = para['标准开路阻抗']
-        # sg3['区段1']['右调谐单元']['5BA'].z = {2600: para['标准短路阻抗']}
-        # sg4['区段1']['右调谐单元']['5BA'].z = {2000: para['标准短路阻抗']}
-
-        # sg3['区段1']['TB2'].z = para['标准开路阻抗']
-        # sg4['区段1']['TB2'].z = para['标准开路阻抗']
-
-        self.section_group3 = sg3
-        self.section_group4 = sg4
-
-        # sg3.special_point = [para['special_point']]
-        # sg4.special_point = []
-
-        self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
-                            parameter=parameter)
-        self.l4 = l4 = Line(name_base='线路4', sec_group=sg4,
-                            parameter=parameter)
-
-        self.lg = LineGroup(l3, l4, name_base='线路组')
-
-        self.lg.special_point = para['special_point']
-        self.lg.refresh()
-
-    # def add_train(self):
-    #     l3 = Line(name_base='线路3', sec_group=self.section_group3,
-    #               parameter=self.parameter, train=self.train)
-    #     self.l3 = l3
-    #
-    #     self.lg = LineGroup(l3, name_base='线路组')
-    #     self.lg.refresh()
-
-    def add_train(self):
-        l4 = Line(name_base='线路4', sec_group=self.section_group4,
-                  parameter=self.parameter, train=[self.train1])
-        self.l4 = l4
-
-        l3 = Line(name_base='线路3', sec_group=self.section_group3,
-                  parameter=self.parameter, train=[self.train2])
-        self.l3 = l3
-
-        self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
-        self.lg.special_point = para['special_point']
-        self.lg.refresh()
-
-
-class Data2Excel:
-    def __init__(self, sheet_names):
-        self.sheet_names = sheet_names
-        self.data_dict = {}
-        self.dataframes = {}
-        for name in sheet_names:
-            self.data_dict[name] = []
-
-    def add_row(self):
-        for value in self.data_dict.values():
-            value.append([])
-
-    def add_sheet_name(self, sheet_name):
-        self.data_dict[sheet_name] = []
-
-    def add_dataframes(self, sheet_name, dataframe):
-        self.dataframes[sheet_name] = dataframe
-
-    def add_data(self, sheet_name, data1):
-        if sheet_name in self.data_dict.keys():
-            self.data_dict[sheet_name][-1].append(data1)
-        else:
-            self.data_dict[sheet_name] = [[]]
-            self.data_dict[sheet_name][-1].append(data1)
-
-    # def create_dataframes(self):
-    #     for name, value in self.data_dict.items():
-    #         self.dataframes[name] = pd.DataFrame(value)
-
-    def write2excel(self, sheet_names, header, writer1):
-        for name in sheet_names:
-            df_output = pd.DataFrame(self.data_dict[name], columns=header)
-            df_output.to_excel(writer1, sheet_name=name, index=False)
-
 
 if __name__ == '__main__':
     df_input = pd.read_excel('src/Input/邻线干扰参数输入.xlsx')
@@ -232,8 +18,6 @@ if __name__ == '__main__':
     print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
 
     num_len = len(list(df_input['序号']))
-
-    # para = ModelParameter()
 
     work_path = os.getcwd()
     para = ModelParameter(workpath=work_path)
@@ -245,50 +29,12 @@ if __name__ == '__main__':
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
-    #
-    # trk_2000A_21.rlc_s = {
-    #     1700: [1.58, 1.38e-3, None],
-    #     2000: [1.72, 1.37e-3, None],
-    #     2300: [1.85, 1.36e-3, None],
-    #     2600: [1.98, 1.35e-3, None]}
-
-    # trk_2000A_21.rlc_s = {
-    #     1700: [1.44, 1.25e-3, None],
-    #     2000: [1.57, 1.24e-3, None],
-    #     2300: [1.72, 1.23e-3, None],
-    #     2600: [1.86, 1.22e-3, None]}
-
-    # trk_2000A_21.rlc_s = {
-    #     1700: [1.749, 1.255e-3, None],
-    #     2000: [1.990, 1.243e-3, None],
-    #     2300: [2.233, 1.232e-3, None],
-    #     2600: [2.483, 1.222e-3, None]}
 
     para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
 
     para['Ccmp_z_change_zhu'] = ImpedanceMultiFreq()
     para['Ccmp_z_change_chuan'] = ImpedanceMultiFreq()
 
-    i_trk_scale = {
-        1700: 310-47,
-        2000: 275-41,
-        2300: 255-38,
-        2600: 235-35}
-
-    v_coil_scale = 115
-
-
-    # head_list = ['区段长度', '钢轨电阻', '钢轨电感',
-    #              '主串频率','被串频率',
-    #              '主串发送器位置', '被串发送器位置',
-    #              '分路电阻', '道床电阻',
-    #              '分路间隔','电缆长度', '主串电平级', '相对位置',
-    #              '调整轨入最大值', '最小机车信号位置', '机车信号感应系数',
-    #              '主串分路位置',
-    #              '主串拆卸情况','被串拆卸情况',
-    #              '线间距', '耦合系数',
-    #              '钢轨电流最大值', '最大值位置',
-    #              '故障情况', '极性交叉位置']
 
     head_list = ['序号', '区段长度', '耦合系数',
                  '钢轨电阻', '钢轨电感',
@@ -301,7 +47,6 @@ if __name__ == '__main__':
                  '调整轨入最大值',
                  '钢轨电流最大值', '最大值位置']
 
-    # excel_list = []
     turnout_list = []
 
     excel_data = []
@@ -335,8 +80,11 @@ if __name__ == '__main__':
 
     clist1 = [25e-6, 40e-6]
     clist2 = [25e-6, 50e-6]
-    clist3 = [3,4,5,6,7]
-    clist4 = [3,4,5,6,7]
+    # clist3 = [3,4,5,6,7]
+    # clist4 = [3,4,5,6,7]
+
+    clist3 = [5]
+    clist4 = [5]
 
     clist = list(itertools.product(clist1, clist2, clist3, clist4))
 
@@ -429,8 +177,9 @@ if __name__ == '__main__':
         # denominator = i_trk_scale[para['freq_主']]
         # nominator = v_coil_scale
 
-        data['机车信号感应系数'] = str(v_coil_scale) + '/' + str(i_trk_scale[para['freq_主']])
-        para['机车信号系数值'] = v_coil_scale / i_trk_scale[para['freq_主']]
+        data['机车信号感应系数'] = \
+            str(para['机车信号比例V']) + '/' + str(para['机车信号比例I'][para['freq_主']])
+        para['机车信号系数值'] = para['机车信号比例V'] / para['机车信号比例I'][para['freq_主']]
 
 
         # 调整计算最大
@@ -439,7 +188,7 @@ if __name__ == '__main__':
         para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
         para['Cable_C'].value = data['电缆电容最大(F/km)']
 
-        md = TestModel(turnout_list=turnout_list, parameter=para)
+        md = PreModel(turnout_list=turnout_list, parameter=para)
         m1 = MainModel(md.lg, md=md)
 
         drc_tmp = para['sr_mod_主']
@@ -478,7 +227,8 @@ if __name__ == '__main__':
         posi_list = np.arange(sht_length, -1, -interval)
 
         for posi_tr in posi_list:
-            md = TestModel(turnout_list=turnout_list, parameter=para)
+
+            md = PreModel(turnout_list=turnout_list, parameter=para)
             md.add_train()
             md.train1.posi_rlt = posi_tr
             md.train1.set_posi_abs(0)
@@ -488,15 +238,12 @@ if __name__ == '__main__':
             md.train2.set_posi_abs(0)
 
             # posi_rrr = length - posi_tr + length
-            #
             # md.train3.posi_rlt = posi_rrr
             # md.train3.set_posi_abs(0)
-            #
             # md.train4.posi_rlt = posi_rrr
             # md.train4.set_posi_abs(0)
 
             m1 = MainModel(md.lg, md=md)
-
 
             i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_chuan = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
@@ -542,9 +289,8 @@ if __name__ == '__main__':
         excel_data.append(data_row)
         counter += 1
 
-
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    #
+
     # posi_header = list(range(columns_max+1))
     # posi_header[0] = '发送端'
 
