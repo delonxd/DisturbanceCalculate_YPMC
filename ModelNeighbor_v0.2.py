@@ -64,16 +64,7 @@ if __name__ == '__main__':
     # for temp_temp in range(num_len):
 
     # rd_list = list(range(20, 0, -1))
-    rd_list = list()
-    rd_list.insert(0, 10000)
-
-    # l1 = 6
-    # d = 1.435
-    # k_mutual = 13 / np.log((l1 * l1 - d * d) / l1 / l1)
-    # l2 = 4.5
-    # kkk = k_mutual * np.log((l2 * l2 - d * d) / l2 / l2)
-    # para['线间距'] = l_d
-    # para['耦合系数'] = k_mutual * np.log((l_d * l_d - d * d) / l_d / l_d)
+    # rd_list.insert(0, 10000)
 
     # if length > columns_max:
     #     columns_max = length
@@ -82,7 +73,6 @@ if __name__ == '__main__':
     clist2 = [25e-6, 50e-6]
     # clist3 = [3,4,5,6,7]
     # clist4 = [3,4,5,6,7]
-
     clist3 = [5]
     clist4 = [5]
 
@@ -174,9 +164,6 @@ if __name__ == '__main__':
         data['电缆电容最大(F/km)'] = 28e-9
         data['电缆电容最小(F/km)'] = 28e-9
 
-        # denominator = i_trk_scale[para['freq_主']]
-        # nominator = v_coil_scale
-
         data['机车信号感应系数'] = \
             str(para['机车信号比例V']) + '/' + str(para['机车信号比例I'][para['freq_主']])
         para['机车信号系数值'] = para['机车信号比例V'] / para['机车信号比例I'][para['freq_主']]
@@ -190,13 +177,6 @@ if __name__ == '__main__':
 
         md = PreModel(turnout_list=turnout_list, parameter=para)
         m1 = MainModel(md.lg, md=md)
-
-        drc_tmp = para['sr_mod_主']
-        string_t = None
-        if drc_tmp == '左发':
-            string_t = '右调谐单元'
-        elif drc_tmp == '右发':
-            string_t = '左调谐单元'
 
         # data1 = md.lg['线路3']['地面']['区段1'][string_t]['1接收器']['U'].value_c
         # data['调整接收轨入max(V)'] = round(data1, 3)
@@ -214,27 +194,21 @@ if __name__ == '__main__':
         # data1 = md.lg['线路3']['地面']['区段1']['左调谐单元'].md_list[-1]['U2'].value_c
         # data['调整接收轨面max(V)'] = round(data1, 3)
 
-        # # 调整计算
-        # md = TestModel(turnout_list=turnout_list, parameter=para)
-        # m1 = MainModel(md.lg, md=md)
-
-
         # 分路计算
         data2excel.add_row()
         data['分路间隔'] = interval = 1
 
-        sht_length = length
-        posi_list = np.arange(sht_length, -1, -interval)
+        posi_list = np.arange(length, -1, -interval)
 
-        for posi_tr in posi_list:
+        for posi_bei in posi_list:
 
             md = PreModel(turnout_list=turnout_list, parameter=para)
             md.add_train()
-            md.train1.posi_rlt = posi_tr
+            md.train1.posi_rlt = posi_bei
             md.train1.set_posi_abs(0)
 
-            posi_zhu_fenlu = posi_tr
-            md.train2.posi_rlt = posi_zhu_fenlu
+            posi_zhu = posi_bei
+            md.train2.posi_rlt = posi_zhu
             md.train2.set_posi_abs(0)
 
             # posi_rrr = length - posi_tr + length
@@ -246,9 +220,9 @@ if __name__ == '__main__':
             m1 = MainModel(md.lg, md=md)
 
             i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
-            i_sht_chuan = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
-            i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu_fenlu, direct='右')
-            i_trk_chuan = get_i_trk(line=m1['线路4'], posi=posi_tr, direct='右')
+            i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
+            i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
+            i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
 
             # i_source_fs = m1['线路3'].node_dict[length].l_track['I2'].value
             # i_source_fs = md.lg['线路3']['地面']['区段1']['右调谐单元'].md_list[-1]['I2'].value
@@ -269,8 +243,8 @@ if __name__ == '__main__':
             # i_C5 = md.lg['线路4']['地面']['区段1']['C1']['I'].value_c
 
             data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
-            data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_chuan)
-            data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_chuan)
+            data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
+            data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
             # data2excel.add_data(sheet_name="实测阻抗", data1=z_mm)
             # data2excel.add_data(sheet_name="阻抗模值", data1=z_mm_abs)
             # data2excel.add_data(sheet_name="耦合系数", data1=co_mutal)
