@@ -255,3 +255,30 @@ class ZPW2000A_ZN_BPLN(TCSR):
 
         self.md_list = self.get_md_list([])
         self.config_varb()
+
+# ZPW2000A站内25Hz叠加电码化
+class ZPW2000A_ZN_25Hz_Coding(TCSR):
+    def __init__(self, parent_ins, name_base, posi_flag):
+        super().__init__(parent_ins, name_base, posi_flag)
+        self.parameter = para = parent_ins.parameter
+        self.posi_flag = posi_flag
+        self.init_position(0)
+        self.flag_ele_list = True
+        self.flag_ele_unit = True
+
+        self.add_child('1发送器', OPortPowerU(self, '1发送器', voltage=170))
+        self.add_child('2内阻', TPortZSeries(self, '2内阻',
+                                           para['z_pwr_25Hz_Coding']))
+
+        self.add_child('3FT1u阻抗', TPortZSeries(self, '3FT1u阻抗', para['z_FT1u']))
+        self.add_child('4FT1u变压器', TPortCircuitN(self, '4FT1u变压器', para['n_FT1u']))
+
+        self.add_child('5BPM阻抗', TPortZSeries(self, '5BPM阻抗', para['z_BPM']))
+        self.add_child('6BPM变压器', TPortCircuitN(self, '6BPM变压器', para['n_BPM']))
+
+        self.add_child('7扼流变压器', TPortCircuitN(self, '7扼流变压器', para['n_EL_25Hz']))
+        self.add_child('8扼流阻抗', TPortZParallel(self, '8扼流阻抗', para['z_EL_25Hz']))
+
+
+        self.md_list = self.get_md_list([])
+        self.config_varb()
