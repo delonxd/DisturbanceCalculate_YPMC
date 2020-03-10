@@ -272,6 +272,55 @@ class ModelParameter:
 
         parameter['机车信号比例V'] = 115
 
+########################################################################################################################
+
+        parameter['z_pwr_25Hz_Coding'] = ImpedanceMultiFreq()
+        parameter['z_pwr_25Hz_Coding'].rlc_s = {
+            1700: [100, None, None],
+            2000: [100, None, None],
+            2300: [100, None, None],
+            2600: [100, None, None]}
+
+        parameter['z_FT1u'] = ImpedanceMultiFreq()
+        parameter['z_FT1u'].rlc_s = {
+            1700: [25.5, 1.5e-3, None],
+            2000: [25.5, 1.5e-3, None],
+            2300: [25.5, 1.5e-3, None],
+            2600: [25.5, 1.5e-3, None]}
+
+        n_FT1u = 170 / 100
+        parameter['n_FT1u'] = {
+            1700: n_FT1u,
+            2000: n_FT1u,
+            2300: n_FT1u,
+            2600: n_FT1u}
+
+        parameter['z_BPM'] = ImpedanceMultiFreq()
+        parameter['z_BPM'].rlc_s = {
+            1700: [310, 1e-3, None],
+            2000: [310, 1e-3, None],
+            2300: [310, 1e-3, None],
+            2600: [310, 1e-3, None]}
+
+        parameter['n_BPM'] = {
+            1700: 4,
+            2000: 4,
+            2300: 4,
+            2600: 4}
+
+        parameter['n_EL_25Hz'] = {
+            1700: 3,
+            2000: 3,
+            2300: 3,
+            2600: 3}
+
+        parameter['z_EL_25Hz'] = ImpedanceMultiFreq()
+        parameter['z_EL_25Hz'].rlc_s = {
+            1700: [3.47296, 0.001843964963, None],
+            2000: [3.47296, 0.001843964963, None],
+            2300: [3.47296, 0.001843964963, None],
+            2600: [3.47296, 0.001843964963, None]}
+
         self.parameter = parameter
 
     def __len__(self):
