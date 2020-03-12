@@ -1,6 +1,7 @@
 import pickle
 from src.ImpedanceParaType import ImpedanceMultiFreq
 from src.ConstantType import Constant
+import sys
 
 
 # 模型参数
@@ -10,6 +11,10 @@ class ModelParameter:
                  name='原始参数'):
         self.name = name
         self.workpath = workpath
+
+        if getattr(sys, 'frozen', False):
+            workpath = sys._MEIPASS
+
         path = workpath + '/src/parameter_pkl/BasicParameter.pkl'
         self.parameter = dict()
 
