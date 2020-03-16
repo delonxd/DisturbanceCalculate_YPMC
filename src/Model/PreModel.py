@@ -16,6 +16,8 @@ class PreModel:
         # self.train3 = Train(name_base='列车3', posi=0, parameter=parameter)
         # self.train4 = Train(name_base='列车4', posi=0, parameter=parameter)
 
+        # self.train2['分路电阻1'].z = 1000000
+
         # 轨道电路初始化
         send_level = para['send_level']
         m_frqs = generate_frqs(Freq(para['freq_主']), 3)
@@ -24,8 +26,9 @@ class PreModel:
                            m_frqs=m_frqs,
                            m_lens=[para['length']]*3,
                            j_lens=[0]*4,
+                           # m_typs=['2000A_BPLN']*3,
                            m_typs=['2000A']*3,
-                           c_nums=[para['主串电容数']+2],
+                           c_nums=[para['主串电容数']],
                            sr_mods=[para['sr_mod_主']]*3,
                            send_lvs=[send_level]*3,
                            parameter=parameter)
@@ -43,8 +46,9 @@ class PreModel:
                            m_frqs=m_frqs,
                            m_lens=[para['length']]*3,
                            j_lens=[0]*4,
+                           # m_typs=['2000A_BPLN']*3,
                            m_typs=['2000A']*3,
-                           c_nums=[para['被串电容数']+2],
+                           c_nums=[para['被串电容数']],
                            sr_mods=[para['sr_mod_被']]*3,
                            send_lvs=[send_level]*3,
                            parameter=parameter)
@@ -75,24 +79,63 @@ class PreModel:
 
     def change_c_value(self):
         para = self.parameter
-        for cv in range(1,para['主串电容数']+1):
-            str_temp = 'C' + str(cv)
-            self.section_group3['区段1'][str_temp].z = para['Ccmp_z_change_zhu']
 
-        for cv in range(1,para['被串电容数']+1):
-            str_temp = 'C' + str(cv)
-            self.section_group4['区段1'][str_temp].z = para['Ccmp_z_change_chuan']
+        for ele in self.section_group3['区段1'].element.values():
+            if isinstance(ele, CapC):
+                ele.z = para['Ccmp_z_change_zhu']
+
+        for ele in self.section_group4['区段1'].element.values():
+            if isinstance(ele, CapC):
+                ele.z = para['Ccmp_z_change_chuan']
+
+        # cv = para['换电容位置']
+        # str_temp = 'C' + str(cv)
+        # self.section_group3['区段1'][str_temp].z = para['Ccmp_z_change_zhu']
+        # self.section_group4['区段1'][str_temp].z = para['Ccmp_z_change_chuan']
 
 
     def pop_c(self):
         para = self.parameter
-        if para['主串拆卸情况'] > 0:
-            str_temp = 'C' + str(para['主串拆卸情况'])
+        # self.section_group3['区段1'].element.pop('TB1')
+        # self.section_group3['区段1'].element.pop('TB2')
+        #
+        # self.section_group4['区段1'].element.pop('TB1')
+        # self.section_group4['区段1'].element.pop('TB2')
+
+        # self.section_group4['区段1'].element.pop('C1')
+        # self.section_group4['区段1'].element.pop('C7')
+
+        # if para['主串拆卸情况'] > 0:
+        #     str_temp = 'C' + str(para['主串拆卸情况'])
+        #     self.section_group3['区段1'].element.pop(str_temp)
+        #
+        # if para['被串拆卸情况'] > 0:
+        #     str_temp = 'C' + str(para['被串拆卸情况'])
+        #     self.section_group4['区段1'].element.pop(str_temp)
+
+        # self.section_group3['区段1'].element.pop('TBC1')
+        # self.section_group3['区段1'].element.pop('TBC2')
+        # self.section_group3['区段1'].element.pop('TBC3')
+        # self.section_group3['区段1'].element.pop('TBC4')
+        # self.section_group3['区段1'].element.pop('TBC5')
+        #
+        # self.section_group4['区段1'].element.pop('C1')
+        # self.section_group4['区段1'].element.pop('C2')
+        # self.section_group4['区段1'].element.pop('C3')
+        # self.section_group4['区段1'].element.pop('C4')
+        # self.section_group4['区段1'].element.pop('C5')
+
+        for temp in para['主串拆卸情况']:
+            str_temp = 'C' + str(temp)
             self.section_group3['区段1'].element.pop(str_temp)
 
-        if para['被串拆卸情况'] > 0:
-            str_temp = 'C' + str(para['被串拆卸情况'])
+        for temp in para['被串拆卸情况']:
+            str_temp = 'C' + str(temp)
+            # self.section_group4['区段1'][str_temp].z = para['抑制装置电感短路']
+            #
             self.section_group4['区段1'].element.pop(str_temp)
+
+        # self.section_group4['区段1'].element.pop('C3')
 
     def check_fault(self):
         para = self.parameter
@@ -182,7 +225,7 @@ class PreModelAdjust(PreModel):
                            m_lens=[para['length']] * 3,
                            j_lens=[0] * 4,
                            m_typs=['2000A'] * 3,
-                           c_nums=[para['主串电容数'] + 2],
+                           c_nums=[para['主串电容数']],
                            sr_mods=[para['sr_mod_主']] * 3,
                            send_lvs=[send_level] * 3,
                            parameter=parameter)
@@ -220,3 +263,103 @@ class PreModelAdjust(PreModel):
         self.lg = LineGroup(self.l3, name_base='线路组')
         self.lg.special_point = self.parameter['special_point']
         self.lg.refresh()
+
+class PreModel_25Hz_coding(PreModel):
+    def __init__(self, turnout_list, parameter):
+        super().__init__(turnout_list, parameter)
+        self.parameter = para = parameter
+        self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
+        self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
+        # self.train3 = Train(name_base='列车3', posi=0, parameter=parameter)
+        # self.train4 = Train(name_base='列车4', posi=0, parameter=parameter)
+
+        # 轨道电路初始化
+        send_level = para['send_level']
+        m_frqs = generate_frqs(Freq(para['freq_主']), 3)
+
+        sg3 = SectionGroup(name_base='地面', posi=para['offset'], m_num=1,
+                           m_frqs=m_frqs,
+                           m_lens=[para['length']]*3,
+                           j_lens=[0]*4,
+                           m_typs=['2000A']*3,
+                           c_nums=[para['主串电容数']],
+                           sr_mods=[para['sr_mod_主']]*3,
+                           send_lvs=[send_level]*3,
+                           parameter=parameter)
+
+        # flg = para['pwr_v_flg']
+        # if para['sr_mod_主'] == '左发':
+        #     sg3['区段1']['左调谐单元'].set_power_voltage(flg)
+        # elif para['sr_mod_主'] == '右发':
+        #     sg3['区段1']['右调谐单元'].set_power_voltage(flg)
+        # # sg3['区段1']['左调谐单元'].set_power_voltage()
+
+        m_frqs = generate_frqs(Freq(para['freq_被']), 3)
+        sg4 = SectionGroup(name_base='地面', posi=0, m_num=1,
+                           m_frqs=m_frqs,
+                           m_lens=[para['length']]*3,
+                           j_lens=[0]*4,
+                           m_typs=['2000A']*3,
+                           c_nums=[para['被串电容数']],
+                           sr_mods=[para['sr_mod_被']]*3,
+                           send_lvs=[send_level]*3,
+                           parameter=parameter)
+
+        sg3['区段1'].element.pop('左调谐单元')
+        sg3['区段1'].element.pop('右调谐单元')
+        sg4['区段1'].element.pop('左调谐单元')
+        sg4['区段1'].element.pop('右调谐单元')
+
+        partent = sg3['区段1']
+        ele = ZPW2000A_ZN_25Hz_Coding(parent_ins=partent,
+                                      name_base='25Hz叠加电码化发送器',
+                                      posi_flag='右',)
+        partent.add_child('25Hz叠加电码化发送器', ele)
+        ele.set_posi_abs(0)
+
+        ele = ZOutside(parent_ins=partent,
+                       name_base='接收端阻抗',
+                       posi=0,
+                       z=para['z_EL_25Hz'])
+        partent.add_child('接收端阻抗', ele)
+        ele.set_posi_abs(0)
+
+        partent = sg4['区段1']
+        ele = ZOutside(parent_ins=partent,
+                       name_base='接收端阻抗',
+                       posi=0,
+                       z=para['z_EL_25Hz'])
+        partent.add_child('接收端阻抗', ele)
+        ele.set_posi_abs(0)
+
+        ele = ZOutside(parent_ins=partent,
+                       name_base='发送端阻抗',
+                       posi=para['length'],
+                       z=para['z_EL_25Hz'])
+        partent.add_child('发送端阻抗', ele)
+        ele.set_posi_abs(0)
+
+
+
+        self.section_group3 = sg3
+        self.section_group4 = sg4
+
+        # sg3['区段1'].element.pop('TB2')
+        # sg3['区段1'].element.pop('左调谐单元')
+        # sg3['区段1']['TB2'].z = para['标准开路阻抗']
+
+        self.change_c_value()
+
+        self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
+                            parameter=parameter)
+        self.l4 = l4 = Line(name_base='线路4', sec_group=sg4,
+                            parameter=parameter)
+        self.set_rail_para(line=l3,z_trk=para['主串钢轨阻抗'], rd=para['主串道床电阻'])
+        self.set_rail_para(line=l4,z_trk=para['被串钢轨阻抗'], rd=para['被串道床电阻'])
+
+        self.lg = LineGroup(l3, l4, name_base='线路组')
+
+        self.lg.special_point = para['special_point']
+        self.lg.refresh()
+
+        pass
