@@ -10,6 +10,7 @@ from src.Method import *
 import pandas as pd
 import time
 import itertools
+import os
 
 
 class TestModel:
@@ -158,11 +159,11 @@ class TestModel:
 
     def add_train(self):
         l4 = Line(name_base='线路4', sec_group=self.section_group4,
-                  parameter=self.parameter, train=self.train1)
+                  parameter=self.parameter, train=[self.train1])
         self.l4 = l4
 
         l3 = Line(name_base='线路3', sec_group=self.section_group3,
-                  parameter=self.parameter, train=self.train2)
+                  parameter=self.parameter, train=[self.train2])
         self.l3 = l3
 
         self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
@@ -198,7 +199,8 @@ if __name__ == '__main__':
 
     num_len = len(list(df_input['序号']))
 
-    para = ModelParameter()
+    work_path = os.getcwd()
+    para = ModelParameter(workpath=work_path)
 
     # 钢轨阻抗
     trk_2000A_21 = ImpedanceMultiFreq()
@@ -368,7 +370,8 @@ if __name__ == '__main__':
                     data['电缆长度'] = para['cab_len'] = cab_len = 10
                     data['主串频率'] = freq
                     data['被串频率'] = para['freq_被']
-                    data['分路电阻'] = para['Rsht_z'] = r_sht = 0.0000001
+                    data['分路电阻'] = para['Rsht_z'] = r_sht = 1000000
+                    # data['分路电阻'] = para['Rsht_z'] = r_sht = 0.0000001
                     data['道床电阻'] = rd = rd_temp
 
                     data['最小机车信号位置'] = '-'
@@ -497,7 +500,8 @@ if __name__ == '__main__':
                             i_trk = 0.0
                             z_trk_right = 0.0
 
-                        i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
+                        # i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
+                        i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['U'].value_c
                         if m1['线路3'].node_dict[posi_zhu_fenlu].r_track is not None:
                             i_trk_zhu = m1['线路3'].node_dict[posi_zhu_fenlu].r_track['I1'].value_c
                         else:
@@ -527,7 +531,7 @@ if __name__ == '__main__':
 
                         i_trk_list.append(i_trk)
                         i_trk_zhu_list.append(i_trk_zhu)
-                        i_sht_list.append(i_sht)
+                        i_sht_list.append(i_sht_zhu)
                         z_trk_right_list.append(z_trk_right)
 
 
@@ -592,7 +596,8 @@ if __name__ == '__main__':
         df_data.to_excel(writer, sheet_name="数据输出", index=False)
         df_i_trk_zhu.to_excel(writer, sheet_name="主串分路钢轨电流", index=False)
         df_i_trk.to_excel(writer, sheet_name="被串分路钢轨电流", index=False)
-        df_i_sht.to_excel(writer, sheet_name="分路线电流", index=False)
+        # df_i_sht.to_excel(writer, sheet_name="分路线电流", index=False)
+        df_i_sht.to_excel(writer, sheet_name="轨面电压", index=False)
 
         # df_v_train.to_excel(writer, sheet_name="机车电压", index=False)
         # df_i_tb.to_excel(writer, sheet_name="右侧TB电流", index=False)
