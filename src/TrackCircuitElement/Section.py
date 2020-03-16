@@ -58,39 +58,54 @@ class Section_ZPW2000A(Section):
         hlf_pst = list(np.linspace(offset, (m_len + offset), n_t))
         c_pst = [hlf_pst[num*2+1] for num in range(c_num)]
 
-        c_pst = c_pst[1:-1]
+        # c_pst = c_pst[1:-1]
+        # c_pst = c_pst[:-1]
+        # c_pst = c_pst[1:]
 
         # posi_mid2 = c_pst.pop(3)
         # posi_mid1 = c_pst.pop(1)
 
         self.config_c(c_pst)
 
-        # frq = self.m_freq
+        # for num in range(len(c_pst)):
+        #     c_name = 'TBC' + str(num + 1)
+        #     ele = TB(parent_ins=self,
+        #              name_base=c_name,
+        #              posi=c_pst[num],
+        #              z=self.parameter['TB'][self.m_freq.value])
+        #     self.add_child(c_name, ele)
 
-        ele = TB(parent_ins=self,
-                 name_base='TB1',
-                 posi=18,
-                 z=self.parameter['TB'][self.m_freq.value])
-        self.add_child('TB1', ele)
+        flag = self.parameter['TB模式']
+        if flag == '左':
+            self.change_tb(c_name='C1', tb_name='TB1', posi=18)
+        elif flag == '右':
+            c_name = 'C' + str(c_num)
+            posi_t = m_len - 18
+            self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
+        elif flag == '双':
+            self.change_tb(c_name='C1', tb_name='TB1', posi=18)
+            c_name = 'C' + str(c_num)
+            posi_t = m_len - 18
+            self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
+        elif flag == '无':
+            pass
+        else:
+            raise KeyboardInterrupt('TB模式错误')
 
-        ele = TB(parent_ins=self,
-                 name_base='TB2',
-                 posi=(m_len-18),
-                 z=self.parameter['TB'][self.m_freq.value])
-        self.add_child('TB2', ele)
-
-        # ele = TB(parent_ins=self,
-        #          name_base='TB_mid1',
-        #          posi=posi_mid1,
-        #          z=self.parameter['TB'][self.m_freq.value])
-        # self.add_child('TB_mid1', ele)
+        # z_tb = self.parameter['TB'][self.m_freq.value]
+        # z_tb = z_tb + self.parameter['TB_引接线_有砟']
         #
         # ele = TB(parent_ins=self,
-        #          name_base='TB_mid2',
-        #          posi=posi_mid2,
-        #          z=self.parameter['TB'][self.m_freq.value])
-        # self.add_child('TB_mid2', ele)
-
+        #          name_base='TB1',
+        #          posi=18,
+        #          z=z_tb)
+        # self.add_child('TB1', ele)
+        #
+        # ele = TB(parent_ins=self,
+        #          name_base='TB2',
+        #          posi=(m_len-18),
+        #          z=z_tb)
+        # self.add_child('TB2', ele)
 
         j_clss, tcsr_clss = self.config_class(j_typs=j_typs)
 
@@ -102,6 +117,17 @@ class Section_ZPW2000A(Section):
                                j_typs=j_typs,
                                sr_mods=sr_mods,
                                send_lv=send_lv)
+
+    def change_tb(self, c_name, tb_name, posi):
+        self.element.pop(c_name)
+        z_tb = self.parameter['TB'][self.m_freq.value]
+        z_tb = z_tb + self.parameter['TB_引接线_有砟']
+        ele = TB(parent_ins=self,
+                 name_base=tb_name,
+                 posi=posi,
+                 z=z_tb)
+        self.add_child(tb_name, ele)
+
 
     # 配置电容
     def config_c(self, c_pst):
