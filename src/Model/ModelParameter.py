@@ -293,7 +293,8 @@ class ModelParameter:
             2300: [25.5, 1.5e-3, None],
             2600: [25.5, 1.5e-3, None]}
 
-        n_FT1u = 170 / 100
+        # n_FT1u = 170 / 100
+        n_FT1u = 170 / 40
         parameter['n_FT1u'] = {
             1700: n_FT1u,
             2000: n_FT1u,
@@ -301,11 +302,23 @@ class ModelParameter:
             2600: n_FT1u}
 
         parameter['z_BPM'] = ImpedanceMultiFreq()
+        # parameter['z_BPM'].rlc_s = {
+        #     1700: [310, 1e-3, None],
+        #     2000: [310, 1e-3, None],
+        #     2300: [310, 1e-3, None],
+        #     2600: [310, 1e-3, None]}
+
+        # parameter['z_BPM'].rlc_s = {
+        #     1700: [200, None, 0.286e-6],
+        #     2000: [200, None, 0.286e-6],
+        #     2300: [200, None, 0.286e-6],
+        #     2600: [200, None, 0.286e-6]}
+
         parameter['z_BPM'].rlc_s = {
-            1700: [310, 1e-3, None],
-            2000: [310, 1e-3, None],
-            2300: [310, 1e-3, None],
-            2600: [310, 1e-3, None]}
+            1700: [300, None, None],
+            2000: [300, None, None],
+            2300: [300, None, None],
+            2600: [300, None, None]}
 
         parameter['n_BPM'] = {
             1700: 4,
