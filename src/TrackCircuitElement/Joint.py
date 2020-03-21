@@ -1,5 +1,6 @@
 from src.Module.OutsideElement import SVA
 from src.Module.TcsrLib import *
+from src.Module.BreakPoint import *
 
 
 # 绝缘节
@@ -24,7 +25,8 @@ class Joint(ElePack):
         self.l_section = l_section
         self.r_section = r_section
         self.j_length = j_length
-        self.tcsr_cls = ZPW2000A_ZN_PTSVA1
+        # self.tcsr_cls = ZPW2000A_ZN_PTSVA1
+        self.tcsr_cls = None
         self.set_element()
 
     @property
@@ -85,6 +87,11 @@ class Joint(ElePack):
 # 机械绝缘节
 class Joint_Mechanical(Joint):
     def set_element(self):
+        ele = BreakPoint(parent_ins=self,
+                         name_base='SVA',
+                         posi=0)
+        self.add_child('断点', ele)
+        self.tcsr_cls = ZPW2000A_ZN_PTSVA1
         pass
 
     def add_joint_tcsr(self):
