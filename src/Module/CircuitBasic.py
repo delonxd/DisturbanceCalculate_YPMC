@@ -281,7 +281,8 @@ class TPortZParallel(TwoPortNetwork):
         self.equ1.name = self.name + '_方程1'
         self.equ2.name = self.name + '_方程2'
         self.equ1.varb_list = [self['U1'], self['I1'], self['I2']]
-        self.equ2.varb_list = [self['U2'], self['I1'], self['I2']]
+        # self.equ2.varb_list = [self['U2'], self['I1'], self['I2']]
+        self.equ2.varb_list = [self['U2'], self['U1']]
         self.get_coeffs(freq)
 
     def get_coeffs(self, freq):
@@ -291,7 +292,8 @@ class TPortZParallel(TwoPortNetwork):
 
     def value2coeffs(self, z):
         self.equ1.coeff_list = np.array([-1, -z, z])
-        self.equ2.coeff_list = np.array([-1, -z, z])
+        # self.equ2.coeff_list = np.array([-1, -z, z])
+        self.equ2.coeff_list = np.array([-1, 1])
 
 
 # 传输矩阵二端口网络（ABCD）
