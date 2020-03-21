@@ -69,10 +69,14 @@ class SubRailPi(TwoPortNetwork):
         freq_zhu = self.parent_ins.parameter.parameter['freq_主']
         km = self.parent_ins.parameter.parameter['耦合系数']
 
-        mmm = 2 * np.pi* freq_zhu * km * 1e-6
+        # mmm = 2 * np.pi* freq_zhu * km * 1e-6
+        mmm = 2 * np.pi* freq_zhu * km * 1e-6 * 1j
         # mmm = 2 * np.pi* 2600 * 13 * 1e-6
-        # sp11 = self.parent_ins.parameter.parameter['special_point']
-
+        special_point = self.parent_ins.parameter.parameter['极性交叉位置']
+        for temp_point in special_point:
+            if self.r_posi <= temp_point:
+                break
+            mmm = -mmm
 
         if hasattr(self, 'mutual_trk'):
             # m = self.track_length / 1000 * 0.30
