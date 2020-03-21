@@ -89,23 +89,84 @@ class MainModel(ElePack):
     @staticmethod
     def get_equ_kcl(line):
         equs = EquationGroup()
-        for num in range(len(line.posi_line)):
-            node = line.node_dict[line.posi_line[num]]
-            name = line.name + '_节点KCL方程' + str(num+1)
-            equ = Equation(name=name)
-            for ele in node.element.values():
-                vb = ele.md_list[-1].get_varb(-1)
-                equ.varb_list.append(vb)
-                equ.coeff_list.append(1)
-            if node.l_track is not None:
-                vb = node.l_track.get_varb(-1)
-                equ.varb_list.append(vb)
-                equ.coeff_list.append(1)
-            if node.r_track is not None:
-                vb = node.r_track.get_varb(1)
-                equ.varb_list.append(vb)
-                equ.coeff_list.append(1)
-            equs.add_equation(equ)
+        counter = 1
+        for posi in  line.posi_line:
+            node = line.node_dict[posi]
+
+            if node.node_type == 'connected':
+                name = line.name + '_节点KCL方程' + str(counter)
+                equ = Equation(name=name)
+                for ele in node.element.values():
+                    vb = ele.md_list[-1].get_varb(-1)
+                    equ.varb_list.append(vb)
+                    equ.coeff_list.append(1)
+                if node.l_track is not None:
+                    vb = node.l_track.get_varb(-1)
+                    equ.varb_list.append(vb)
+                    equ.coeff_list.append(1)
+                if node.r_track is not None:
+                    vb = node.r_track.get_varb(1)
+                    equ.varb_list.append(vb)
+                    equ.coeff_list.append(1)
+                equs.add_equation(equ)
+                counter += 1
+
+            elif node.node_type == 'disconnected':
+
+                # 左边钢轨
+                if node.l_track is not None:
+                    name = line.name + '_节点KCL方程' + str(counter)
+                    equ = Equation(name=name)
+                    vb = node.l_track.get_varb(-1)
+                    equ.varb_list.append(vb)
+                    equ.coeff_list.append(1)
+
+                    for ele in node.element.values():
+                        u_track = node.l_track.get_varb(-2)
+                        u_ele = ele.md_list[-1].get_varb(-2)
+                        if u_track == u_ele:
+                            vb = ele.md_list[-1].get_varb(-1)
+                            equ.varb_list.append(vb)
+                            equ.coeff_list.append(1)
+                    equs.add_equation(equ)
+                    counter += 1
+
+                # 右边钢轨
+                if node.r_track is not None:
+                    name = line.name + '_节点KCL方程' + str(counter)
+                    equ = Equation(name=name)
+                    vb = node.r_track.get_varb(1)
+                    equ.varb_list.append(vb)
+                    equ.coeff_list.append(1)
+
+                    for ele in node.element.values():
+                        u_track = node.r_track.get_varb(0)
+                        u_ele = ele.md_list[-1].get_varb(-2)
+                        if u_track == u_ele:
+                            vb = ele.md_list[-1].get_varb(-1)
+                            equ.varb_list.append(vb)
+                            equ.coeff_list.append(1)
+                    equs.add_equation(equ)
+                    counter += 1
+
+        # for num in range(len(line.posi_line)):
+        #     node = line.node_dict[line.posi_line[num]]
+        #     name = line.name + '_节点KCL方程' + str(num+1)
+        #     equ = Equation(name=name)
+        #     for ele in node.element.values():
+        #         vb = ele.md_list[-1].get_varb(-1)
+        #         equ.varb_list.append(vb)
+        #         equ.coeff_list.append(1)
+        #     if node.l_track is not None:
+        #         vb = node.l_track.get_varb(-1)
+        #         equ.varb_list.append(vb)
+        #         equ.coeff_list.append(1)
+        #     if node.r_track is not None:
+        #         vb = node.r_track.get_varb(1)
+        #         equ.varb_list.append(vb)
+        #         equ.coeff_list.append(1)
+        #     equs.add_equation(equ)
+
         return equs
 
     # KVL方程
@@ -115,6 +176,8 @@ class MainModel(ElePack):
         posi_line = line.posi_line[1:-1]
         for num in range(len(posi_line)):
             node = line.node_dict[posi_line[num]]
+            if node.node_type == 'disconnected':
+                continue
             name = line.name + '_节点KVL方程' + str(num+1)
             equ = Equation(name=name)
             if node.l_track is not None:
