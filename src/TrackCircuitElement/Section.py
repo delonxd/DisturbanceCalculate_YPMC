@@ -77,15 +77,19 @@ class Section_ZPW2000A(Section):
 
         flag = self.parameter['TB模式']
         if flag == '左':
+            self.element.pop('C1')
             self.change_tb(c_name='C1', tb_name='TB1', posi=18)
         elif flag == '右':
             c_name = 'C' + str(c_num)
-            posi_t = m_len - 18
+            posi_t = self.s_length - 18
+            self.element.pop(c_name)
             self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
         elif flag == '双':
+            self.element.pop('C1')
             self.change_tb(c_name='C1', tb_name='TB1', posi=18)
             c_name = 'C' + str(c_num)
-            posi_t = m_len - 18
+            posi_t = self.s_length - 18
+            self.element.pop(c_name)
             self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
         elif flag == '无':
             pass
@@ -119,7 +123,7 @@ class Section_ZPW2000A(Section):
                                send_lv=send_lv)
 
     def change_tb(self, c_name, tb_name, posi):
-        self.element.pop(c_name)
+        # self.element.pop(c_name)
         z_tb = self.parameter['TB'][self.m_freq.value]
         z_tb = z_tb + self.parameter['TB_引接线_有砟']
         ele = TB(parent_ins=self,
