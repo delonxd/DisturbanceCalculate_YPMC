@@ -1,9 +1,12 @@
 from src.AbstractClass.ElePack import *
 from src.Module.SubRail import *
-
+from src.Module.BreakPoint import *
+from src.TrackCircuitElement.Train import *
 
 class Node:
     def __init__(self, posi):
+        self.node_type = 'connected'
+        # self.node_type = 'disconnected'
         self.posi = posi
         self.element = dict()
         self.l_track = None
@@ -125,7 +128,10 @@ class SingleLineModel(ElePack):
         for posi in self.posi_line:
             self.node_dict[posi] = Node(posi)
         for ele in self['元件'].values():
-            self.node_dict[ele.posi_abs].element[ele.name] = ele
+            if isinstance(ele, BreakPoint):
+                self.node_dict[ele.posi_abs].node_type = 'disconnected'
+            else:
+                self.node_dict[ele.posi_abs].element[ele.name] = ele
         for ele in self['钢轨'].values():
             self.node_dict[ele.l_posi].r_track = ele
             self.node_dict[ele.r_posi].l_track = ele
@@ -133,11 +139,24 @@ class SingleLineModel(ElePack):
     # 设备和钢轨相连
     def link_track_ele(self):
         for node in self.node_dict.values():
-            for ele in node.element.values():
-                if node.track[1] is not None:
-                    self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
-                else:
-                    self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
+            if node.node_type == 'connected':
+                for ele in node.element.values():
+                    if node.track[1] is not None:
+                        self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                    else:
+                        self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
+            elif node.node_type == 'disconnected':
+                for ele in node.element.values():
+                    if isinstance(ele.parent_ins, Train):
+                        if node.track[1] is not None:
+                            self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                        else:
+                            self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
+                    else:
+                        if ele.posi_rlt <= 0:
+                            self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                        else:
+                            self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
 
     # 按位置筛选元件
     @staticmethod
