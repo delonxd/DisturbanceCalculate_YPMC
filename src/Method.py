@@ -96,6 +96,25 @@ def get_mutual(distance):
     return k2
 
 
+def config_sva1_mutual(model, temp, zm_sva):
+    # zm_sva = 2 * np.pi * 1700 * 1 * 1e-6 * 1j
+    m1 = model
+
+    # temp_list = [(3, 4, '右'), (3, 4, '左') ,(4, 3, '左') ,(4, 3, '左')]
+    # for temp in temp_list:
+    line_zhu = '线路' + str(temp[0])
+    line_bei = '线路' + str(temp[1])
+    str_t = '线路组_' + line_bei + '_地面_区段1_' + temp[2] + '调谐单元_6SVA1_方程1'
+    equ_t = m1.equs.equ_dict[str_t]
+    str_t = '线路组_' + line_zhu + '_地面_区段1_' + temp[2] + '调谐单元'
+    varb1 = m1[line_zhu]['元件'][str_t]['6SVA1']['I1']
+    varb2 = m1[line_zhu]['元件'][str_t]['6SVA1']['I2']
+    equ_t.varb_list.append(varb1)
+    equ_t.varb_list.append(varb2)
+    equ_t.coeff_list = np.append(equ_t.coeff_list, zm_sva)
+    equ_t.coeff_list = np.append(equ_t.coeff_list, -zm_sva)
+
+
 if __name__ == '__main__':
     # m_lens = [700, 700, 700]
     # m_frqs = generate_frqs(Freq(2600), 3)
