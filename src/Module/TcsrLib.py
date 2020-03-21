@@ -266,11 +266,12 @@ class ZPW2000A_ZN_25Hz_Coding(TCSR):
         self.flag_ele_list = True
         self.flag_ele_unit = True
 
+        # self.add_child('1发送器', OPortPowerU(self, '1发送器', voltage=(170/3.885)))
         self.add_child('1发送器', OPortPowerU(self, '1发送器', voltage=170))
         self.add_child('2内阻', TPortZSeries(self, '2内阻',
                                            para['z_pwr_25Hz_Coding']))
 
-        self.add_child('3FT1u阻抗', TPortZSeries(self, '3FT1u阻抗', para['z_FT1u']))
+        # self.add_child('3FT1u阻抗', TPortZSeries(self, '3FT1u阻抗', para['z_FT1u']))
         self.add_child('4FT1u变压器', TPortCircuitN(self, '4FT1u变压器', para['n_FT1u']))
 
         self.add_child('5BPM阻抗', TPortZSeries(self, '5BPM阻抗', para['z_BPM']))
