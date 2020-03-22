@@ -1,4 +1,5 @@
 from src.AbstractClass.ElePack import *
+from src.Module.JumperWire import *
 import numpy as np
 from src.FrequencyType import Freq
 
@@ -113,6 +114,14 @@ def config_sva1_mutual(model, temp, zm_sva):
     equ_t.varb_list.append(varb2)
     equ_t.coeff_list = np.append(equ_t.coeff_list, zm_sva)
     equ_t.coeff_list = np.append(equ_t.coeff_list, -zm_sva)
+
+
+def config_jumpergroup(*jumpers):
+    for jumper in jumpers:
+        if not isinstance(jumper, JumperWire):
+            raise KeyboardInterrupt('类型错误：参数需要为跳线类型')
+        else:
+            jumper.jumpergroup = list(jumpers)
 
 
 if __name__ == '__main__':
