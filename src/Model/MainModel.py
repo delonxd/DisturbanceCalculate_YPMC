@@ -1,8 +1,7 @@
 import numpy as np
 import numpy.matlib
 from src.Model.SingleLineModel import *
-from src.TrackCircuitElement.Line import Line, Turnout
-from src.TrackCircuitElement.JumperWires import *
+from src.TrackCircuitElement.Line import Line
 from src.Module.OutsideElement import *
 
 from numba import jit
@@ -18,7 +17,6 @@ class MainModel(ElePack):
         self.varbs = None
         self.module_set = set()
         self.value_c = None
-        self.jumper_dict = dict()
         self.init_model()
 
         # 获取方程
@@ -42,9 +40,6 @@ class MainModel(ElePack):
         for ele in self.line_group.values():
             if isinstance(ele, Line):
                 self[ele.name_base] = SingleLineModel(self, ele)
-            if isinstance(ele, Turnout):
-                for jumper in ele.jumper_list:
-                    self.jumper_dict[jumper.name_base] = jumper
         self.config_mutual()
         self.get_ele_set(ele_set=set())
 
@@ -66,8 +61,6 @@ class MainModel(ElePack):
             equs.add_equations(self.get_equ_unit(line_model, self.freq.value))
             equs.add_equations(self.get_equ_kcl(line_model))
             equs.add_equations(self.get_equ_kvl(line_model))
-        for jumper in self.jumper_dict.values():
-            equs.add_equations(jumper.get_equs())
         return equs
 
     # 元器件方程
