@@ -34,17 +34,6 @@ class OPortZ(OnePortNetwork):
         self.equ1.coeff_list = np.array([-1, z])
 
 
-class OPortJumperWire(OnePortNetwork):
-    # 变量类型
-    para_type = {}
-
-    def __init__(self, parent_ins, name_base):
-        super().__init__(parent_ins, name_base)
-
-    def init_equs(self, freq):
-        return None
-
-
 ########################################################################################################################
 
 # 并联电压源
