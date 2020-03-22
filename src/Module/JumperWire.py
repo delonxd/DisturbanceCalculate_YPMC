@@ -25,7 +25,7 @@ class JumperWire(OnePortNetwork):
         equs.add_equation(equ)
 
         self.equ1 = equs.equs[group_index]
-        self.equ1 = self.name + '_跳线组方程' + str(group_index)
+        self.equ1.name = self.name + '_跳线组方程' + str(group_index)
 
         self.equs = EquationGroup()
         self.equs.add_equation(self.equ1)
