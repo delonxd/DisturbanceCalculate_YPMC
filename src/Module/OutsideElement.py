@@ -1,5 +1,5 @@
 from src.Module.CircuitBasic import OPortZ, OPortPowerU
-from src.Module.ParameterType import *
+from src.ConstantType import *
 
 
 class UPowerOut(OPortPowerU):
