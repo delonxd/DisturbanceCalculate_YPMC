@@ -1,16 +1,16 @@
 from src.ImpedanceParaType import ImpedanceMultiFreq
 
 
-# 常量
-class Constant:
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-
-    @classmethod
-    def func_get_value(cls):
-        func = lambda obj, *para: obj.value
-        return func
+# # 常量
+# class Constant:
+#     def __init__(self, name, value):
+#         self.name = name
+#         self.value = value
+#
+#     @classmethod
+#     def func_get_value(cls):
+#         func = lambda obj, *para: obj.value
+#         return func
 
 
 # 多频率的变量
