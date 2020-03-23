@@ -1,6 +1,7 @@
 from src.Module.PortNetwork import TwoPortNetwork
 from src.AbstractClass.Equation import *
 from src.Module.ParameterType import *
+from src.ConstantType import *
 import numpy as np
 
 
