@@ -1,5 +1,5 @@
 from src.Module.CircuitBasic import *
-from src.Module.ParameterType import Constant
+from src.ConstantType import *
 
 
 # 电缆等效电路
