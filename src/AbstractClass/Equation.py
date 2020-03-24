@@ -14,6 +14,10 @@ class EquationGroup:
         self.varbs = VarbGroup()
         self.len_row = None
         self.len_column = None
+
+        self.equ_num = dict()
+        self.varb_num = dict()
+
         self.m_matrix = None
         self.constant = None
         self.solution = None
@@ -78,33 +82,40 @@ class EquationGroup:
 
     # 设置方程编号
     def config_equ_num(self):
-        name_list = self.equ_names
         num = 0
-        for name in name_list:
-            equ = self.equ_dict[name]
-            # equ.num = num
-            equ.num[self] = num
+        for equ in self.equs:
+            self.equ_num[equ] = num
             num += 1
 
     # 设置方程编号
     def config_varb_num(self):
-        varbs = self.get_varbs()
-        varbs.config_varb_num(self)
+        varb_set = set()
+        num = 0
+        for equ in self.equs:
+            for varb in equ.varb_list:
+                if not varb in varb_set:
+                    varb_set.add(varb)
+                    self.varb_num[varb] = num
+                    num += 1
 
     # 创建矩阵
     def creat_matrix(self):
-        self.len_row = len_row = len(self)
-        self.len_column = len_column = len(self.varbs)
-        m_matrix = np.matlib.zeros((len_row, len_column), dtype=complex)
-        constant = np.zeros(len_row, dtype=complex)
+        self.config_varb_num()
+        self.config_equ_num()
+
+        len_row = len(self)
+        len_column = len(self.varb_num)
+        m_matrix = np.zeros((len_row, len_column), dtype=complex)
+        constant = np.zeros((len_row, 1), dtype=complex)
 
         for equ in self.equs:
-            row = equ.num[self]
-            equ.get_varbs_num_list(self)
-            columns = equ.varbs_num_list[self]
-            m_matrix[row, columns] = equ.coeff_list
+            row = self.equ_num[equ]
+            for varb, coeff in zip(equ.varb_list, equ.coeff_list):
+                column = self.varb_num[varb]
+                m_matrix[row, column] = coeff
             constant[row] = equ.constant
         self.m_matrix, self.constant = m_matrix, constant
+
         return m_matrix, constant
 
     def solve_matrix(self):
@@ -115,8 +126,9 @@ class EquationGroup:
         self.set_varbs_solution()
 
     def set_varbs_solution(self):
-        for varb in self.varbs.varb_set:
-            varb.value = self.solution[varb.num[self]]
+        for varb, idx in self.varb_num.items():
+            varb.value = self.solution[idx]
+            varb.value = varb.value[0]
             varb.value_c = abs(varb.value)
 
     # 方程按名称排序
@@ -136,51 +148,6 @@ class EquationGroup:
         for equ in self.equs:
             equ.src_ele = ele
 
-    # @jit
-    def simplify_equs(self, varbs1, varbs2, name):
-        self.config_equ_num()
-        self.config_varb_num()
-        self.creat_matrix()
-        nums1 = list()
-        nums2 = list()
-        for varb in varbs1:
-            nums1.append(varb.num[self])
-        for varb in varbs2:
-            nums2.append(varb.num[self])
-        len_smp = len(nums1)
-        rng_smp = np.array(range(len_smp))
-        mtrx_smp = np.matlib.zeros((len_smp, len_smp+1), dtype=complex)
-        mtrx_smp[:, 0] = 1
-        mtrx_t = np.matlib.zeros((len_smp, self.len_column), dtype=complex)
-        cstt_t = np.zeros(len_smp, dtype=complex)
-        for row in rng_smp:
-            mtrx_t[row, nums1[row]] = 1
-        mtrx_t = np.insert(self.m_matrix, 0, values=mtrx_t, axis=0)
-        cstt_t = np.insert(self.constant, 0, values=cstt_t, axis=0)
-
-        cstt_smp = np.linalg.solve(mtrx_t, cstt_t)
-        cstt_smp = cstt_smp[nums2]
-
-        for row in rng_smp:
-            cstt_t[rng_smp] = np.zeros(len_smp)
-            cstt_t[row] = 1
-            solution = np.linalg.solve(mtrx_t, cstt_t)
-            solution = solution[nums2]
-            mtrx_smp[:, row+1] = (cstt_smp - solution).reshape(len_smp, 1)
-
-        equs = EquationGroup()
-        for row in rng_smp:
-            equ = Equation(name=name + '_化简方程_' + str(row+1))
-            equ.varb_list = [varbs2[row]]
-            equ.varb_list.extend(varbs1)
-            equ.coeff_list = np.array(mtrx_smp[row])
-            equ.constant = cstt_smp[row]
-            equs.add_equation(equ)
-
-        self.del_num()
-        # print(mtrx_smp, cstt_smp)
-        return equs
-
     def del_num(self):
         for equ in self.equs:
             equ.num.pop(self)
@@ -198,11 +165,46 @@ class EquationGroup:
         return len(self.equs)
 
 
-# # 方程项
-# class EquItem:
-#     def __init__(self, varb=None, coefficient=None):
-#         self.varb = varb
-#         self.coefficient = coefficient
+    def simplify_equs(self, varbs1, varbs2, equ_name):
+        if len(self.equs) < 6:
+            return self
+        self.creat_matrix()
+        num_varbs = np.array(range(self.m_matrix.shape[1]))
+
+        columns = np.array([], dtype='int64')
+        for varb2 in varbs2:
+            columns = np.append(columns, self.varb_num[varb2])
+
+        column_array = self.m_matrix[:, columns]
+
+        num_varbs = np.delete(num_varbs, columns, axis=0)
+
+        row_new = np.array([], dtype='int64')
+        for varb1 in varbs1:
+            num_t = np.argwhere(num_varbs == self.varb_num[varb1])
+            row_new = np.append(row_new, num_t[0, 0])
+
+        a_temp = np.delete(self.m_matrix, columns, axis=1)
+        b_temp = np.hstack((column_array, self.constant))
+
+        solution = np.linalg.solve(a_temp, b_temp)
+        simple_equ = solution[row_new, :]
+
+        equs = EquationGroup()
+
+        m_new = np.hstack((np.eye(len(row_new), dtype=complex), simple_equ))
+        b_new = m_new[:, -1]
+        a_new = np.delete(m_new, -1, axis=1)
+
+        varb_list = varbs1.copy()
+        varb_list.extend(varbs2)
+        for row in range(len(row_new)):
+            equ = Equation(name=equ_name + '化简方程_' + str(row + 1))
+            equ.varb_list = varb_list.copy()
+            equ.coeff_list = a_new[row, :]
+            equ.constant = b_new[row]
+            equs.add_equation(equ)
+        return equs
 
 
 # 方程
@@ -236,6 +238,10 @@ class Equation:
         self.coeff_list = equ.coeff_list
         self.constant = equ.constant
 
+    def add_coeff(self, varb, value=1):
+        self.varb_list.append(varb)
+        self.coeff_list.append(value)
+
     @property
     def varbs(self):
         varbs = VarbGroup()
@@ -258,17 +264,26 @@ if __name__ == '__main__':
     e3 = Equation(name='eq3')
 
     e1.varb_list = [x1, x2, x4]
+    # e1.varb_list = [x2, x4]
     e1.coeff_list = [1, 2, 5]
-    e1.constant = 1
+    # e1.coeff_list = [1, 1]
+    e1.constant = 4
     e2.varb_list = [x2, x3]
-    e2.coeff_list = [2, 4]
-    e2.constant = 3
+    e2.coeff_list = [1, 2]
+    e2.constant = 5
 
     e3.varb_list = [x4, x3]
-    e3.coeff_list = [1, 6]
-    e3.constant = 2
+    e3.coeff_list = [2, 3]
+    e3.constant = 12
 
     equs1 = EquationGroup(e1, e2, e3)
-    equs2 = equs1.simplify_equs([x1], [x4])
+
+    equs1.config_equ_num()
+    equs1.config_varb_num()
+    equs1.creat_matrix()
+    # equs1.solve_matrix()
+    equs1.simplify_equs([x1], [x4], equ_name='测试')
+
+    # equs2 = equs1.simplify_equs([x1], [x4])
 
     pass
