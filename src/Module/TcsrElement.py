@@ -196,3 +196,71 @@ class TcsrCableComp(TPortZSeries):
         z = self.z
         self.value2coeffs(z)
         return self.equs
+
+########################################################################################################################
+
+# FT1-u变压器
+class TcsrFT1u(ElePack):
+    def __init__(self, parent_ins, name_base, r1, zs, zm, n):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1电阻', TPortZSeries(self, '1电阻', r1))
+        self.add_child('2短路阻抗', TPortZSeries(self, '2短路阻抗', zs))
+        self.add_child('3开路阻抗', TPortZParallel(self, '3开路阻抗', zm))
+        self.add_child('4变压器', TPortCircuitN(self, '4变压器', n))
+
+class TcsrNGLz3(TPortZParallel):
+    def __init__(self, parent_ins, name_base, l, c3, c4):
+        super().__init__(parent_ins, name_base, 0)
+        self.l = l
+        self.c3 = c3
+        self.c4 = c4
+
+    def get_coeffs(self, freq):
+        l = self.l[self.m_freq.value][freq]
+        c3 = self.c3[freq]
+        c4 = self.c4[freq]
+
+        impedance = (l // c3) + c4
+        z = impedance.z
+        self.value2coeffs(z)
+        return self.equs
+
+    @property
+    def m_freq(self):
+        return self.parent_ins.parent_ins.m_freq
+
+
+# 电码化室内隔离盒
+class TcsrNGL25HzCoding(ElePack):
+    def __init__(self, parent_ins, name_base, z1, c1, l, c3, c4):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1阻抗', TPortZParallel(self, '1阻抗', z1))
+        self.add_child('2电容C1', TPortZSeries(self, '2阻抗', c1))
+        self.add_child('3阻抗', TcsrNGLz3(self, '3阻抗', l, c3, c4))
+
+
+# 电码化室外隔离盒
+class TcsrWGL25HzCoding(ElePack):
+    def __init__(self, parent_ins, name_base, l1, c1, zs, zm, n, c2, l2):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1电感L1', TPortZParallel(self, '1电感L1', l1))
+        self.add_child('2电容C1', TPortZSeries(self, '2电容C1', c1))
+        self.add_child('3短路阻抗', TPortZSeries(self, '3短路阻抗', zs))
+        self.add_child('4开路阻抗', TPortZParallel(self, '4开路阻抗', zm))
+        self.add_child('5变压器', TPortCircuitN(self, '5变压器', n))
+        self.add_child('6电容C2', TPortZSeries(self, '6电容C2', c2))
+        self.add_child('7电感L2', TPortZParallel(self, '7电感L2', l2))
+
+
+
+# 电码化扼流变压器
+class TcsrEL25HzCoding(ElePack):
+    def __init__(self, parent_ins, name_base, zs, zm, n):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1短路阻抗', TPortZSeries(self, '1短路阻抗', zs))
+        self.add_child('2开路阻抗', TPortZParallel(self, '2开路阻抗', zm))
+        self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))
