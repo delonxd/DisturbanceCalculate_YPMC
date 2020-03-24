@@ -113,18 +113,14 @@ class TCSR(ElePack):
             self.equal_varb([self.md_list[num], -1], [self.md_list[num + 1], 1])
 
     def init_equs(self, freq):
-        self.equs_cmplx = equs = EquationGroup()
-        for module in self.md_list[1:]:
+        equs = EquationGroup()
+        for module in self.md_list:
             module.init_equs(freq)
             equs.add_equations(module.equs)
         varb_U2 = self.md_list[-1].get_varb(-2)
         varb_I2 = self.md_list[-1].get_varb(-1)
-        varb_U1 = self.md_list[0].get_varb(0)
-        varb_I1 = self.md_list[0].get_varb(1)
-        name = self.name
-        self.equs = equs.simplify_equs([varb_U1, varb_I1], [varb_U2, varb_I2], name=name)
-        self.md_list[0].init_equs(freq)
-        self.equs.add_equations(self.md_list[0].equs)
+        self.equs = equs.simplify_equs([varb_U2], [varb_I2], equ_name=self.name)
+        # self.equs = equs
         return self.equs
 
     def refresh_coeffs(self, freq):
