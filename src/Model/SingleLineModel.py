@@ -3,6 +3,74 @@ from src.Module.SubRail import *
 from src.Module.BreakPoint import *
 from src.TrackCircuitElement.Train import *
 
+class NodeGroup:
+    def __init__(self):
+        # self.parent_line = parent_line
+        self.node_dict = dict()
+        self.group_type = None
+
+    @property
+    def posi_list(self):
+        posi_list = list(self.node_dict.keys())
+        posi_list.sort()
+        return posi_list
+
+    @property
+    def posi_set(self):
+        posi_set = set(self.node_dict.keys())
+        return posi_set
+
+    def left_node(self, node):
+        posi_list = self.posi_list
+        index_num = posi_list.index(node.posi) - 1
+        if index_num >= 0:
+            return self.node_dict[posi_list[index_num]]
+        else:
+            return None
+
+    def right_node(self, node):
+        posi_list = self.posi_list
+        index_num = posi_list.index(node.posi) + 1
+        if index_num < len(posi_list):
+            return self.node_dict[posi_list[index_num]]
+        else:
+            return None
+
+    def get_equs(self):
+        equs = EquationGroup()
+        counter = 0
+        for posi in self.posi_list:
+            node = self.node_dict[posi]
+            equs.add_equations(node.equs)
+            if counter == 0:
+                counter += 1
+                continue
+            for ele in node.l_track:
+                equs.add_equations(ele.equs)
+
+        return equs
+
+    def __len__(self):
+        return len(self.node_dict)
+
+    def __getitem__(self, key):
+        return self.node_dict[key]
+
+    def __setitem__(self, key, value):
+        self.node_dict[key] = value
+
+    def values(self):
+        return self.node_dict.values()
+
+    def keys(self):
+        return self.node_dict.keys()
+
+    def items(self):
+        return self.node_dict.items()
+
+    def clear(self):
+        self.node_dict.clear()
+
 class Node:
     def __init__(self, posi):
         self.node_type = 'connected'
@@ -11,6 +79,7 @@ class Node:
         self.element = dict()
         self.l_track = None
         self.r_track = None
+        self.equs = EquationGroup()
 
     @property
     def track(self):
@@ -22,6 +91,53 @@ class Node:
         self.l_track = value[0]
         self.r_track = value[1]
 
+    def get_left_equs(self, node_group):
+        if self.r_track is []:
+            raise KeyboardInterrupt('空值错误：节点右侧没有钢轨')
+
+        varbs1 = []
+        varbs2 = []
+        for ele in self.r_track:
+            varbs1.append(ele.get_varb(1))
+            varbs2.append(ele.get_varb(0))
+
+        equs = EquationGroup()
+        equs.add_equations(self.equs)
+        for ele in self.l_track:
+            equs.add_equations(ele.equs)
+
+        node_left = node_group.left_node(self)
+        if node_left is not None:
+            equs.add_equations(node_left.get_left_equs(node_group))
+
+        equ_name = str(self.posi) + '左侧'
+        equs_new = equs.simplify_equs(varbs1, varbs2, equ_name)
+
+        return equs_new
+
+    def get_right_equs(self, node_group):
+        if self.l_track is []:
+            raise KeyboardInterrupt('空值错误：节点右侧没有钢轨')
+
+        varbs1 = []
+        varbs2 = []
+        for ele in self.l_track:
+            varbs1.append(ele.get_varb(-1))
+            varbs2.append(ele.get_varb(-2))
+
+        equs = EquationGroup()
+        equs.add_equations(self.equs)
+        for ele in self.r_track:
+            equs.add_equations(ele.equs)
+
+        node_right = node_group.right_node(self)
+        if node_right is not None:
+            equs.add_equations(node_right.get_right_equs(node_group))
+
+        equ_name = str(self.posi) + '右侧'
+        equs_new = equs.simplify_equs(varbs1, varbs2, equ_name)
+
+        return equs_new
 
 class SingleLineModel(ElePack):
     def __init__(self, parent_ins, line):
@@ -32,7 +148,8 @@ class SingleLineModel(ElePack):
         self['钢轨'] = ElePack(self, '钢轨')
         self.ftype = '元件'
         self.posi_line = []
-        self.node_dict = dict()
+        # self.node_dict = dict()
+        self.node_dict = NodeGroup()
         # self.var_set = set()
         self.config_model()
 
