@@ -132,6 +132,13 @@ class Section_ZPW2000A(Section):
                  z=z_tb)
         self.add_child(tb_name, ele)
 
+    def get_C_TB_names(self):
+        name_list = []
+        for ele in self.element.values():
+            if isinstance(ele, (TB, CapC)):
+                name_list.append((ele.posi_rlt, ele.name_base))
+        name_list.sort()
+        return name_list
 
     # 配置电容
     def config_c(self, c_pst):
@@ -251,3 +258,26 @@ class Section_ZPW2000A_BPLN(Section_ZPW2000A):
             else:
                 raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
         return j_clss, tcsr_clss
+
+
+# 2000A_电码化
+class Section_ZPW2000A_25Hz_Coding(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_25Hz_Coding'
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                raise KeyboardInterrupt('2000A_25Hz_Coding不支持电气绝缘节')
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_ZN_25Hz_Coding
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
+
