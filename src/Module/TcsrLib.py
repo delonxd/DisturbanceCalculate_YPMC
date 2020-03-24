@@ -256,29 +256,86 @@ class ZPW2000A_ZN_BPLN(TCSR):
         self.md_list = self.get_md_list([])
         self.config_varb()
 
+
+
 # ZPW2000A站内25Hz叠加电码化
 class ZPW2000A_ZN_25Hz_Coding(TCSR):
-    def __init__(self, parent_ins, name_base, posi_flag):
+    # def __init__(self, parent_ins, name_base, posi_flag):
+    def __init__(self, parent_ins, name_base,
+                 posi_flag, cable_length, mode, level):
         super().__init__(parent_ins, name_base, posi_flag)
         self.parameter = para = parent_ins.parameter
         self.posi_flag = posi_flag
         self.init_position(0)
         self.flag_ele_list = True
         self.flag_ele_unit = True
+        self.mode = mode
+        self.send_level = level
+        self.u_list_max = [170]
+        self.u_list_min = [170]
 
-        # self.add_child('1发送器', OPortPowerU(self, '1发送器', voltage=(170/3.885)))
-        self.add_child('1发送器', OPortPowerU(self, '1发送器', voltage=170))
-        self.add_child('2内阻', TPortZSeries(self, '2内阻',
-                                           para['z_pwr_25Hz_Coding']))
+        if self.mode == '发送':
+            self.add_child('1发送器', TcsrPower(
+                self, '1发送器',
+                z=para['z_pwr_25Hz_Coding']))
 
-        # self.add_child('3FT1u阻抗', TPortZSeries(self, '3FT1u阻抗', para['z_FT1u']))
-        self.add_child('4FT1u变压器', TPortCircuitN(self, '4FT1u变压器', para['n_FT1u']))
+            self.add_child('2FT1u', TcsrFT1u(
+                self, '2FT1u',
+                r1=para['R1_FT1u_25Hz_Coding'],
+                zs=para['zs_FT1u_25Hz_Coding'],
+                zm=para['zm_FT1u_25Hz_Coding'],
+                n=para['n_FT1u_25Hz_Coding']))
 
-        self.add_child('5BPM阻抗', TPortZSeries(self, '5BPM阻抗', para['z_BPM']))
-        self.add_child('6BPM变压器', TPortCircuitN(self, '6BPM变压器', para['n_BPM']))
+        elif self.mode == '接收':
+            self.add_child('1开关断开', OPortPowerI(
+                self, '1开关断开',
+                current=0))
 
-        self.add_child('7扼流变压器', TPortCircuitN(self, '7扼流变压器', para['n_EL_25Hz']))
-        self.add_child('8扼流阻抗', TPortZParallel(self, '8扼流阻抗', para['z_EL_25Hz']))
+        self.add_child('3调整电阻', TPortZSeries(
+            self, '3调整电阻',
+            z=para['Rt_25Hz_Coding']))
+
+        self.add_child('3室内隔离盒', TcsrNGL25HzCoding(
+            self, '3室内隔离盒',
+            z1=para['z1_NGL_25Hz_Coding'],
+            c1=para['C1_NGL_25Hz_Coding'],
+            l=para['L_NGL_25Hz_Coding'],
+            c3=para['C3_NGL_25Hz_Coding'],
+            c4=para['C4_NGL_25Hz_Coding']))
+
+        self.add_child('4Cab', TPortCable(
+            self, '4Cab',
+            length=cable_length,
+            cab_r=para['Cable_R'],
+            cab_l=para['Cable_L'],
+            cab_c=para['Cable_C']))
+
+        self.add_child('5室外隔离盒', TcsrWGL25HzCoding(
+            self, '5室外隔离盒',
+            l1=para['L1_WGL_25Hz_Coding'],
+            c1=para['C1_WGL_25Hz_Coding'],
+            zs=para['zs_WGL_25Hz_Coding'],
+            zm=para['zm_WGL_25Hz_Coding'],
+            n=para['n_WGL_25Hz_Coding'],
+            c2=para['C2_WGL_25Hz_Coding'],
+            l2=para['L2_WGL_25Hz_Coding']))
+
+        self.add_child('6扼流', TcsrEL25HzCoding(
+            self, '6扼流',
+            zs=para['zs_EL_25Hz_Coding'],
+            zm=para['zm_EL_25Hz_Coding'],
+            n=para['n_EL_25Hz_Coding']))
+
+
+        # self.add_child('3FT1u电阻', TPortZSeries(self, '3FT1u阻抗', para['z_FT1u']))
+        # self.add_child('4FT1u开路电阻', TPortZSeries(self, '3FT1u阻抗', para['z_FT1u']))
+        # self.add_child('5FT1u变压器', TPortCircuitN(self, '4FT1u变压器', para['n_FT1u']))
+        #
+        # self.add_child('5BPM阻抗', TPortZSeries(self, '5BPM阻抗', para['z_BPM']))
+        # self.add_child('6BPM变压器', TPortCircuitN(self, '6BPM变压器', para['n_BPM']))
+        #
+        # self.add_child('7扼流变压器', TPortCircuitN(self, '7扼流变压器', para['n_EL_25Hz']))
+        # self.add_child('8扼流阻抗', TPortZParallel(self, '8扼流阻抗', para['z_EL_25Hz']))
 
 
         self.md_list = self.get_md_list([])
