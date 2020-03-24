@@ -1,5 +1,6 @@
 from src.AbstractClass.ElePack import *
 from src.Module.JumperWire import *
+from src.Model.SingleLineModel import *
 import numpy as np
 from src.FrequencyType import Freq
 
@@ -124,9 +125,56 @@ def config_jumpergroup(*jumpers):
             jumper.jumpergroup = list(jumpers)
 
 
+def combine_node(nodes):
+    if len(nodes) < 1:
+        raise KeyboardInterrupt('数量错误：合并node至少需要1个参数')
+
+    posi = nodes[0].posi
+    node_new = Node(posi)
+    node_new.node_type = 'combined'
+    node_new.l_track = list()
+    node_new.r_track = list()
+    for node in nodes:
+        if not isinstance(node, Node):
+            raise KeyboardInterrupt('类型错误：合并node参数需要为节点类型')
+        elif not node.posi == posi:
+            raise KeyboardInterrupt('位置错误：合并node需要节点在相同水平位置')
+        else:
+            if node.l_track is not None:
+                node_new.l_track.append(node.l_track)
+            if node.r_track is not None:
+                node_new.r_track.append(node.r_track)
+            for key, value in node.element.items():
+                node_new.element[key] = value
+            node_new.equs.add_equations(node.equs)
+    node_new.group_type = 'combined'
+    return node_new
+
+
+def combine_node_group(lines):
+    groups = NodeGroup()
+    posi_set = set()
+    for line in lines:
+        posi_set.update(line.node_dict.posi_set)
+
+    posi_list = list(posi_set)
+    posi_list.sort()
+
+    for posi in posi_list:
+        nodes_list = list()
+        for line in lines:
+            if posi in line.node_dict.keys():
+                nodes_list.append(line.node_dict[posi])
+        nodes = tuple(nodes_list)
+        node_new = combine_node(nodes)
+        groups.node_dict[posi] = node_new
+
+    return groups
+
+
 if __name__ == '__main__':
     # m_lens = [700, 700, 700]
     # m_frqs = generate_frqs(Freq(2600), 3)
     # c_nums = get_c_nums(m_frqs, m_lens)
-
+    a = [1,2,3]
     pass
