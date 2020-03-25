@@ -88,7 +88,7 @@ class Joint(ElePack):
 class Joint_Mechanical(Joint):
     def set_element(self):
         ele = BreakPoint(parent_ins=self,
-                         name_base='SVA',
+                         name_base='断点',
                          posi=0)
         self.add_child('断点', ele)
         self.tcsr_cls = ZPW2000A_ZN_PTSVA1
