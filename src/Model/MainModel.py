@@ -5,8 +5,8 @@ from src.TrackCircuitElement.Line import Line
 from src.Module.OutsideElement import *
 from src.Method import *
 
-from numba import jit
-import time
+# from numba import jit
+# import time
 
 
 class MainModel(ElePack):
