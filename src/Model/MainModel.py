@@ -99,12 +99,11 @@ class MainModel(ElePack):
         ele_set = line.ele_set
         for ele in ele_set:
             ele.init_equs(freq)
-            node = line.node_dict[ele.posi_abs]
-
             equs.add_equations(ele.equs)
             self.module_set.add(ele)
 
             if not isinstance(ele, SubRailPi):
+                node = line.node_dict[ele.posi_abs]
                 node.equs.add_equations(ele.equs)
 
             # for module in ele.md_list:
