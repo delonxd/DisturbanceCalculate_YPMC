@@ -1,9 +1,9 @@
 from src.AbstractClass.Varb import *
 from src.AbstractClass.ElePack import *
 import numpy as np
-import numpy.matlib
-import sympy as sp
-from numba import jit
+# import numpy.matlib
+# import sympy as sp
+# from numba import jit
 
 
 # 方程组
