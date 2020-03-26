@@ -271,13 +271,13 @@ class ZPW2000A_ZN_25Hz_Coding(TCSR):
         self.flag_ele_unit = True
         self.mode = mode
         self.send_level = level
-        self.u_list_max = [170]
-        self.u_list_min = [170]
+        self.u_list_max = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
+        self.u_list_min = [167, 150, 130, 105, 74.5, 61, 55, 44, 37]
 
         if self.mode == '发送':
             self.add_child('1发送器', TcsrPower(
                 self, '1发送器',
-                z=para['z_pwr_25Hz_Coding']))
+                z=para['z_pwr']))
 
             self.add_child('2FT1u', TcsrFT1u(
                 self, '2FT1u',
@@ -286,7 +286,7 @@ class ZPW2000A_ZN_25Hz_Coding(TCSR):
                 zm=para['zm_FT1u_25Hz_Coding'],
                 n=para['n_FT1u_25Hz_Coding']))
 
-        elif self.mode == '接收':
+        elif self.mode == '接收' or self.mode == '不发码':
             self.add_child('1开关断开', OPortPowerI(
                 self, '1开关断开',
                 current=0))
