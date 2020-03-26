@@ -237,7 +237,7 @@ class TcsrNGL25HzCoding(ElePack):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
         self.add_child('1阻抗', TPortZParallel(self, '1阻抗', z1))
-        self.add_child('2电容C1', TPortZSeries(self, '2阻抗', c1))
+        self.add_child('2电容C1', TPortZSeries(self, '2电容C1', c1))
         self.add_child('3阻抗', TcsrNGLz3(self, '3阻抗', l, c3, c4))
 
 
