@@ -29,6 +29,8 @@ class Section(ElePack):
             sr_mod = ['发送', '接收']
         elif sr_mod_t == '右发':
             sr_mod = ['接收', '发送']
+        elif sr_mod_t == '不发码':
+            sr_mod = ['不发码', '不发码']
         m_len = s_len - (j_len[0] + j_len[1]) / 2
         init_list = m_len, j_len, c_num, j_typ, sr_mod, send_lv
         self.set_element(init_list)
