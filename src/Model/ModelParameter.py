@@ -358,17 +358,17 @@ class ModelParameter:
 
         parameter['zs_FT1u_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['zs_FT1u_25Hz_Coding'].rlc_s = {
-            1700: [1e-6, None, None],
-            2000: [1e-6, None, None],
-            2300: [1e-6, None, None],
-            2600: [1e-6, None, None]}
+            1700: [54.86, 5.762e-3, None],
+            2000: [58.15, 5.610e-3, None],
+            2300: [61.47, 5.467e-3, None],
+            2600: [64.79, 5.334e-3, None]}
 
         parameter['zm_FT1u_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['zm_FT1u_25Hz_Coding'].rlc_s = {
-            1700: [1e6, None, None],
-            2000: [1e6, None, None],
-            2300: [1e6, None, None],
-            2600: [1e6, None, None]}
+            1700: [9461, 0.3898, None],
+            2000: [10410, 0.2796, None],
+            2300: [11050, 0.2158, None],
+            2600: [11590, 0.1647, None]}
 
         n_FT1u = 170 / 40
         parameter['n_FT1u_25Hz_Coding'] = {
@@ -404,27 +404,27 @@ class ModelParameter:
         parameter['L_NGL_25Hz_Coding'][1700] = ImpedanceMultiFreq()
         parameter['L_NGL_25Hz_Coding'][1700].rlc_s = {
             1700: (67.3, 0.0698, None),
-            2000: (82.1, 0.069, None),
-            2300: (97, 0.068, None),
+            2000: (82.1, 0.0690, None),
+            2300: (97.0, 0.0680, None),
             2600: (111, 0.0675, None)}
 
         parameter['L_NGL_25Hz_Coding'][2000] = ImpedanceMultiFreq()
         parameter['L_NGL_25Hz_Coding'][2000].rlc_s = {
-            1700: (50.2, 0.051, None),
-            2000: (61.2, 0.05, None),
+            1700: (50.2, 0.0510, None),
+            2000: (61.2, 0.0500, None),
             2300: (72.5, 0.0494, None),
             2600: (83.8, 0.0489, None)}
 
         parameter['L_NGL_25Hz_Coding'][2300] = ImpedanceMultiFreq()
         parameter['L_NGL_25Hz_Coding'][2300].rlc_s = {
-            1700: (38.9, 0.0386, None),
-            2000: (47.2, 0.038, None),
-            2300: (56.1, 0.0376, None),
+            1700: (38.90, 0.0386, None),
+            2000: (47.20, 0.0380, None),
+            2300: (56.10, 0.0376, None),
             2600: (64.72, 0.0372, None)}
 
         parameter['L_NGL_25Hz_Coding'][2600] = ImpedanceMultiFreq()
         parameter['L_NGL_25Hz_Coding'][2600].rlc_s = {
-            1700: (30.5, 0.03, None),
+            1700: (30.5, 0.0300, None),
             2000: (37.5, 0.0298, None),
             2300: (44.6, 0.0295, None),
             2600: (51.6, 0.0292, None)}
@@ -455,7 +455,7 @@ class ModelParameter:
         parameter['L2_WGL_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['L2_WGL_25Hz_Coding'].rlc_s = {
             1700: (6.14, 0.00385, None),
-            2000: (7.7, 0.00381, None),
+            2000: (7.70, 0.00381, None),
             2300: (9.36, 0.00375, None),
             2600: (11.07, 0.0037, None)}
 
@@ -475,17 +475,17 @@ class ModelParameter:
 
         parameter['zs_WGL_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['zs_WGL_25Hz_Coding'].rlc_s = {
-            1700: (1e-6, None, None),
-            2000: (1e-6, None, None),
-            2300: (1e-6, None, None),
-            2600: (1e-6, None, None)}
+            1700: (5.80, 1.30e-3, None),
+            2000: (6.00, 1.30e-3, None),
+            2300: (6.39, 1.30e-3, None),
+            2600: (6.65, 1.29e-3, None)}
 
         parameter['zm_WGL_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['zm_WGL_25Hz_Coding'].rlc_s = {
-            1700: (1e6, None, None),
-            2000: (1e6, None, None),
-            2300: (1e6, None, None),
-            2600: (1e6, None, None)}
+            1700: (1040, 0.192, None),
+            2000: (1130, 0.170, None),
+            2300: (1150, 0.153, None),
+            2600: (1130, 0.141, None)}
 
         n_WGL_25Hz_Coding = 4
         parameter['n_WGL_25Hz_Coding'] = {
@@ -498,18 +498,18 @@ class ModelParameter:
 
         parameter['zs_EL_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['zs_EL_25Hz_Coding'].rlc_s = {
-            1700: (1e-6, None, None),
-            2000: (1e-6, None, None),
-            2300: (1e-6, None, None),
-            2600: (1e-6, None, None)}
+            1700: (0.255, 0.120e-3, None),
+            2000: (0.272, 0.119e-3, None),
+            2300: (0.289, 0.118e-3, None),
+            2600: (0.307, 0.117e-3, None)}
 
 
         parameter['zm_EL_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['zm_EL_25Hz_Coding'].rlc_s = {
-            1700: (1e6, None, None),
-            2000: (1e6, None, None),
-            2300: (1e6, None, None),
-            2600: (1e6, None, None)}
+            1700: (110, 0.024, None),
+            2000: (123, 0.023, None),
+            2300: (138, 0.021, None),
+            2600: (154, 0.020, None)}
 
         n_EL_25Hz_Coding = 3
         parameter['n_EL_25Hz_Coding'] = {
