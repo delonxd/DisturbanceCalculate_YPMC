@@ -31,5 +31,9 @@ class Data2Excel:
 
     def write2excel(self, sheet_names, header, writer1):
         for key_name in sheet_names:
-            df_output = pd.DataFrame(self.data_dict[key_name], columns=header)
-            df_output.to_excel(writer1, sheet_name=key_name, index=False)
+            # df_output = pd.DataFrame(self.data_dict[key_name], columns=header)
+            df_output = pd.DataFrame(self.data_dict[key_name])
+            columns = len(df_output.columns)
+
+            header_t = header[:columns]
+            df_output.to_excel(writer1, sheet_name=key_name, index=False, header=header_t)
