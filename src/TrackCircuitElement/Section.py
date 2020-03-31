@@ -142,6 +142,14 @@ class Section_ZPW2000A(Section):
         name_list.sort()
         return name_list
 
+    def get_C_names(self):
+        name_list = []
+        for ele in self.element.values():
+            if isinstance(ele, CapC):
+                name_list.append((ele.posi_rlt, ele.name_base))
+        name_list.sort()
+        return name_list
+
     # 配置电容
     def config_c(self, c_pst):
         for num in range(len(c_pst)):
