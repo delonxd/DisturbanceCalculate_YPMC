@@ -28,7 +28,7 @@ class PreModel:
                            j_lens=[0]*4,
                            # m_typs=['2000A_BPLN']*3,
                            m_typs=['2000A']*3,
-                           c_nums=[para['主串电容数']],
+                           c_nums=[para['主串电容数']]*3,
                            sr_mods=[para['sr_mod_主']]*3,
                            send_lvs=[send_level]*3,
                            parameter=parameter)
@@ -48,17 +48,68 @@ class PreModel:
                            j_lens=[0]*4,
                            # m_typs=['2000A_BPLN']*3,
                            m_typs=['2000A']*3,
-                           c_nums=[para['被串电容数']],
+                           c_nums=[para['被串电容数']]*3,
                            sr_mods=[para['sr_mod_被']]*3,
                            send_lvs=[send_level]*3,
                            parameter=parameter)
 
+        # partent = sg3['区段1']
+        # ele = JumperWire(parent_ins=partent,
+        #                  name_base='跳线',
+        #                  posi=para['主串区段长度'])
+        # partent.add_child('跳线', ele)
+        # ele.set_posi_abs(0)
+        # jumper1 = ele
+
+        # partent = sg3['区段2']
+        # ele = JumperWire(parent_ins=partent,
+        #                  name_base='跳线',
+        #                  posi=0)
+        # partent.add_child('跳线', ele)
+        # ele.set_posi_abs(0)
+        # jumper2 = ele
+
+        # config_jumpergroup(jumper1, jumper2)
+
+        # partent = sg4['区段1']
+        #
+        # posi = partent['C2'].posi_rlt
+        # partent.element.pop('C2')
+        # partent.change_tb(c_name='C2', tb_name='TB中1', posi=posi)
+        #
+        #
+        # posi = partent['C4'].posi_rlt
+        # partent.element.pop('C4')
+        # partent.change_tb(c_name='C4', tb_name='TB中2', posi=posi)
+        #
+        #
+        # posi = partent['C6'].posi_rlt
+        # partent.element.pop('C6')
+        # partent.change_tb(c_name='C6', tb_name='TB中3', posi=posi)
+        #
+        # partent['TB中1'].set_posi_abs(0)
+        # partent['TB中2'].set_posi_abs(0)
+        # partent['TB中3'].set_posi_abs(0)
+
+        # partent = sg4['区段1']
+        #
+        # posi = partent['C3'].posi_rlt
+        # partent.element.pop('C3')
+        # partent.change_tb(c_name='C3', tb_name='TB中1', posi=posi)
+        #
+        # posi = partent['C5'].posi_rlt
+        # partent.element.pop('C5')
+        # partent.change_tb(c_name='C5', tb_name='TB中2', posi=posi)
+        #
+        # partent['TB中1'].set_posi_abs(0)
+        # partent['TB中2'].set_posi_abs(0)
 
         self.section_group3 = sg3
         self.section_group4 = sg4
 
         self.change_c_value()
         self.pop_c()
+        self.config_c_posi()
         self.check_fault()
 
         # sg3['区段1'].element.pop('TB2')
@@ -96,15 +147,42 @@ class PreModel:
 
     def pop_c(self):
         para = self.parameter
+        name_list = self.section_group3['区段1'].get_C_TB_names()
+
         for temp in para['主串拆卸情况']:
-            str_temp = 'C' + str(temp)
+            str_temp = name_list[-temp][1]
             self.section_group3['区段1'].element.pop(str_temp)
 
+        name_list = self.section_group4['区段1'].get_C_TB_names()
         for temp in para['被串拆卸情况']:
-            str_temp = 'C' + str(temp)
-            # self.section_group4['区段1'][str_temp].z = para['抑制装置电感短路']
-
+            str_temp = name_list[-temp][1]
             self.section_group4['区段1'].element.pop(str_temp)
+
+        # for temp in para['主串拆卸情况']:
+        #     str_temp = 'C' + str(temp)
+        #     self.section_group3['区段1'].element.pop(str_temp)
+        #
+        # for temp in para['被串拆卸情况']:
+        #     str_temp = 'C' + str(temp)
+        #     # self.section_group4['区段1'][str_temp].z = para['抑制装置电感短路']
+        #
+        #     self.section_group4['区段1'].element.pop(str_temp)
+
+    def config_c_posi(self):
+        para = self.parameter
+
+        name_list = self.section_group3['区段1'].get_C_names()
+        if para['主串电容位置'] is not None:
+            for name_ele, temp in zip(name_list, para['主串电容位置']):
+                self.section_group3['区段1'][name_ele[1]].posi_rlt = temp
+
+        if para['被串电容位置'] is not None:
+            name_list = self.section_group4['区段1'].get_C_names()
+            for name_ele, temp in zip(name_list, para['被串电容位置']):
+                self.section_group4['区段1'][name_ele[1]].posi_rlt = temp
+
+        self.section_group3.set_posi_abs(0)
+        self.section_group4.set_posi_abs(0)
 
 
     def check_fault(self):
@@ -237,7 +315,7 @@ class PreModelAdjust(PreModel):
 
 class PreModel_25Hz_coding(PreModel):
     def __init__(self, turnout_list, parameter):
-        super().__init__(turnout_list, parameter)
+        # super().__init__(turnout_list, parameter)
         self.parameter = para = parameter
         self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
         self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
@@ -248,60 +326,65 @@ class PreModel_25Hz_coding(PreModel):
 
         sg3 = SectionGroup(name_base='地面', posi=para['offset'], m_num=1,
                            m_frqs=m_frqs,
-                           m_lens=[para['length']]*3,
+                           m_lens=[para['主串区段长度']]*3,
                            j_lens=[0]*4,
-                           m_typs=['2000A']*3,
+                           m_typs=['2000A_25Hz_Coding']*3,
                            c_nums=[para['主串电容数']],
                            sr_mods=[para['sr_mod_主']]*3,
                            send_lvs=[send_level]*3,
                            parameter=parameter)
 
+        flg = para['pwr_v_flg']
+        if para['sr_mod_主'] == '左发':
+            sg3['区段1']['左调谐单元'].set_power_voltage(flg)
+        elif para['sr_mod_主'] == '右发':
+            sg3['区段1']['右调谐单元'].set_power_voltage(flg)
+
         m_frqs = generate_frqs(Freq(para['freq_被']), 3)
         sg4 = SectionGroup(name_base='地面', posi=0, m_num=1,
                            m_frqs=m_frqs,
-                           m_lens=[para['length']]*3,
+                           m_lens=[para['被串区段长度']]*3,
                            j_lens=[0]*4,
-                           m_typs=['2000A']*3,
+                           m_typs=['2000A_25Hz_Coding']*3,
                            c_nums=[para['被串电容数']],
                            sr_mods=[para['sr_mod_被']]*3,
                            send_lvs=[send_level]*3,
                            parameter=parameter)
 
-        sg3['区段1'].element.pop('左调谐单元')
-        sg3['区段1'].element.pop('右调谐单元')
-        sg4['区段1'].element.pop('左调谐单元')
-        sg4['区段1'].element.pop('右调谐单元')
+        # sg3['区段1'].element.pop('左调谐单元')
+        # sg3['区段1'].element.pop('右调谐单元')
+        # sg4['区段1'].element.pop('左调谐单元')
+        # sg4['区段1'].element.pop('右调谐单元')
 
-        partent = sg3['区段1']
-        ele = ZPW2000A_ZN_25Hz_Coding(parent_ins=partent,
-                                      name_base='25Hz叠加电码化发送器',
-                                      posi_flag='右',)
-        partent.add_child('25Hz叠加电码化发送器', ele)
-        ele.set_posi_abs(0)
+        # partent = sg3['区段1']
+        # ele = ZPW2000A_ZN_25Hz_Coding(parent_ins=partent,
+        #                               name_base='25Hz叠加电码化发送器',
+        #                               posi_flag='右',)
+        # partent.add_child('25Hz叠加电码化发送器', ele)
+        # ele.set_posi_abs(0)
+        #
+        # ele = ZOutside(parent_ins=partent,
+        #                name_base='接收端阻抗',
+        #                posi=0,
+        #                z=para['z_EL_25Hz'])
+        # partent.add_child('接收端阻抗', ele)
+        # ele.set_posi_abs(0)
+        #
+        # partent = sg4['区段1']
+        # ele = ZOutside(parent_ins=partent,
+        #                name_base='接收端阻抗',
+        #                posi=0,
+        #                z=para['z_EL_25Hz'])
+        # partent.add_child('接收端阻抗', ele)
+        # ele.set_posi_abs(0)
+        #
+        # ele = ZOutside(parent_ins=partent,
+        #                name_base='发送端阻抗',
+        #                posi=para['被串区段长度'],
+        #                z=para['z_EL_25Hz'])
+        # partent.add_child('发送端阻抗', ele)
+        # ele.set_posi_abs(0)
 
-        ele = ZOutside(parent_ins=partent,
-                       name_base='接收端阻抗',
-                       posi=0,
-                       z=para['z_EL_25Hz'])
-        partent.add_child('接收端阻抗', ele)
-        ele.set_posi_abs(0)
-
-        partent = sg4['区段1']
-        ele = ZOutside(parent_ins=partent,
-                       name_base='接收端阻抗',
-                       posi=0,
-                       z=para['z_EL_25Hz'])
-        partent.add_child('接收端阻抗', ele)
-        ele.set_posi_abs(0)
-
-        ele = ZOutside(parent_ins=partent,
-                       name_base='发送端阻抗',
-                       posi=para['length'],
-                       z=para['z_EL_25Hz'])
-        partent.add_child('发送端阻抗', ele)
-        ele.set_posi_abs(0)
-
-        self.change_c_value()
 
         # for ttt in [1,3,5,7,9,11]:
         # for ttt in [2,4,6,8,10]:
@@ -309,10 +392,20 @@ class PreModel_25Hz_coding(PreModel):
         #     sg3['区段1'].element.pop(str_temp)
         #     sg4['区段1'].element.pop(str_temp)
 
+        partent = sg3['区段1']
+        ele = JumperWire(parent_ins=partent,
+                         name_base='跳线',
+                         posi=para['主串区段长度'])
+        partent.add_child('跳线', ele)
+        ele.set_posi_abs(0)
+        self.jumper = ele
+
         self.section_group3 = sg3
         self.section_group4 = sg4
 
         self.change_c_value()
+        self.pop_c()
+
 
         self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
                             parameter=parameter)
@@ -326,7 +419,6 @@ class PreModel_25Hz_coding(PreModel):
         self.lg.special_point = para['special_point']
         self.lg.refresh()
 
-        pass
 
 
 class PreModel_EeMe(PreModel):
