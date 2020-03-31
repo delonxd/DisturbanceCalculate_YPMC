@@ -98,18 +98,18 @@ class MainModel(ElePack):
         # ele_set = line.get_ele_set(ele_set=set())
         ele_set = line.ele_set
         for ele in ele_set:
-            # ele.init_equs(freq)
-            # equs.add_equations(ele.equs)
-            # self.module_set.add(ele)
-            #
-            # if not isinstance(ele, SubRailPi):
-            #     node = line.node_dict[ele.posi_abs]
-            #     node.equs.add_equations(ele.equs)
+            ele.init_equs(freq)
+            equs.add_equations(ele.equs)
+            self.module_set.add(ele)
 
-            for module in ele.md_list:
-                self.module_set.add(module)
-                module.init_equs(freq)
-                equs.add_equations(module.equs)
+            if not isinstance(ele, SubRailPi):
+                node = line.node_dict[ele.posi_abs]
+                node.equs.add_equations(ele.equs)
+
+            # for module in ele.md_list:
+            #     self.module_set.add(module)
+            #     module.init_equs(freq)
+            #     equs.add_equations(module.equs)
         return equs
 
     # KCL方程

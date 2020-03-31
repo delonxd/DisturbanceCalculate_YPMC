@@ -217,16 +217,19 @@ if __name__ == '__main__':
     # clist1 = list(range(-5, 6, 1))
     clist1 = [1]
     clist2 = [0]
-    # clist3 = [2600]
-    # clist4 = [2000]
-    clist3 = freq_list
-    clist4 = freq_list
-    # clist5 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
-    # clist5.insert(0, [])
-    # clist6 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
-    # clist6.insert(0, [])
+    clist3 = [2600]
+    clist4 = [2000]
+    # clist3 = freq_list
+    # clist4 = freq_list
+
+    C_7_1 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
+    C_7_2 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 2))
+
     clist5 = [[]]
     clist6 = [[]]
+    clist5.extend(C_7_1)
+    clist6.extend(C_7_1)
+    clist6.extend(C_7_2)
     # clist5 = [[],[1],[2],[3],[1,2],[1,2,3]]
     # clist6 = [[],[1],[2],[3],[1,2],[1,2,3]]
     # clist5 = [[],[11],[10],[9],[11,10],[11,10,9]]
@@ -243,19 +246,19 @@ if __name__ == '__main__':
     temp_temp = 0
     cv1, cv2, cv3, cv4, cv5, cv6 = [0] * 6
 
-    pd_read_flag = True
-    # pd_read_flag = False
+    # pd_read_flag = True
+    pd_read_flag = False
 
-    for temp_temp in range(num_len):
-    # for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
+    # for temp_temp in range(num_len):
+    for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
 
         #################################################################################
 
         # c_zhu = 60
         # c_bei = 80
 
-        c_zhu = 5
-        c_bei = 5
+        c_zhu = 25
+        c_bei = 25
 
         # if cv3 == 1700 or cv3 == 2000:
         #     c_zhu = 80e-6
@@ -458,8 +461,8 @@ if __name__ == '__main__':
 
         # TB模式
         # data['TB模式'] = flag_tb = '发送端单TB'
-        data['TB模式'] = flag_tb = '无TB'
-        # data['TB模式'] = flag_tb = '双端TB'
+        # data['TB模式'] = flag_tb = '无TB'
+        data['TB模式'] = flag_tb = '双端TB'
         # data['TB模式'] = flag_tb = df_input['TB模式'][temp_temp]
         if flag_tb == '双端TB':
             para['TB模式'] = '双'
@@ -578,159 +581,6 @@ if __name__ == '__main__':
         # # 电码化参数配置
         config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag)
 
-        # #################################################################################
-        #
-        # # FT1-U参数
-        # if pd_read_flag:
-        #     # data['FT1-U短路阻抗-Rs(Ω)'] = value_r1 = df_input['FT1-U短路阻抗-Rs(Ω)'][temp_temp]
-        #     # data['FT1-U短路阻抗-Ls(mH)'] = value_l1 = df_input['FT1-U短路阻抗-Ls(mH)'][temp_temp]
-        #     # data['FT1-U开路阻抗-Rs(Ω)'] = value_r2 = df_input['FT1-U开路阻抗-Rs(Ω)'][temp_temp]
-        #     # data['FT1-U开路阻抗-Ls(H)'] = value_l2 = df_input['FT1-U开路阻抗-Ls(H)'][temp_temp]
-        #     #
-        #     # value_l1 = value_l1 * 1e-3
-        #     # para['zm_FT1u_25Hz_Coding'].rlc_s = {
-        #     #     1700: [value_r2, value_l2, None],
-        #     #     2000: [value_r2, value_l2, None],
-        #     #     2300: [value_r2, value_l2, None],
-        #     #     2600: [value_r2, value_l2, None]}
-        #     #
-        #     # para['zs_FT1u_25Hz_Coding'].rlc_s = {
-        #     #     1700: [value_r1, value_l1, None],
-        #     #     2000: [value_r1, value_l1, None],
-        #     #     2300: [value_r1, value_l1, None],
-        #     #     2600: [value_r1, value_l1, None]}
-        #
-        #     n2_FT1u = df_input['FT1-U二次侧输出电压(V)'][temp_temp]
-        # else:
-        #     n2_FT1u = 40
-        #
-        # value_n = 170 / n2_FT1u
-        # para['n_FT1u_25Hz_Coding'] = {
-        #     1700: value_n,
-        #     2000: value_n,
-        #     2300: value_n,
-        #     2600: value_n}
-        #
-        # #################################################################################
-        #
-        # # 设备参数
-        # if pd_read_flag:
-        #     data['调整电阻(Ω)'] = Rt = df_input['调整电阻(Ω)'][temp_temp]
-        #     data['调整电感(H)'] = Lt = df_input['调整电感(H)'][temp_temp]
-        #     data['调整电容(F)'] = Ct = df_input['调整电容(F)'][temp_temp]
-        #     data['调整RLC模式'] = mode_rlc = df_input['调整RLC模式'][temp_temp]
-        # else:
-        #     data['调整电阻(Ω)'] = Rt = 50
-        #     data['调整电感(H)'] = Lt = None
-        #     data['调整电容(F)'] = Ct = None
-        #     data['调整RLC模式'] = mode_rlc = '串联'
-        #
-        # if mode_rlc == '串联':
-        #     para['Rt_25Hz_Coding'].rlc_s = {
-        #         1700: [Rt, Lt, Ct],
-        #         2000: [Rt, Lt, Ct],
-        #         2300: [Rt, Lt, Ct],
-        #         2600: [Rt, Lt, Ct]}
-        # elif mode_rlc == '并联':
-        #     para['Rt_25Hz_Coding'].rlc_p = {
-        #         1700: [Rt, Lt, Ct],
-        #         2000: [Rt, Lt, Ct],
-        #         2300: [Rt, Lt, Ct],
-        #         2600: [Rt, Lt, Ct]}
-        #
-        # #################################################################################
-        #
-        # # 室内隔离盒
-        # if pd_read_flag:
-        #     data['NGL-C1(μF)'] = value_c = df_input['NGL-C1(μF)'][temp_temp]
-        # else:
-        #     data['NGL-C1(μF)'] = value_c = 1
-        #
-        # value_c = value_c * 1e-6
-        # para['C1_NGL_25Hz_Coding'].rlc_s = {
-        #     1700: [None, None, value_c],
-        #     2000: [None, None, value_c],
-        #     2300: [None, None, value_c],
-        #     2600: [None, None, value_c]}
-        #
-        # #################################################################################
-        #
-        # # 室外隔离盒
-        # if pd_read_flag:
-        #     data['WGL-C1(μF)'] = value_c1 = df_input['WGL-C1(μF)'][temp_temp]
-        #     data['WGL-C2(μF)'] = value_c2 = df_input['WGL-C2(μF)'][temp_temp]
-        #     data['WGL-L1-R(Ω)'] = value_r1 = df_input['WGL-L1-R(Ω)'][temp_temp]
-        #     data['WGL-L1-L(H)'] = value_l1 = df_input['WGL-L1-L(H)'][temp_temp]
-        #     data['WGL-L2-R(Ω)'] = value_r2 = df_input['WGL-L2-R(Ω)'][temp_temp]
-        #     data['WGL-L2-L(mH)'] = value_l2 = df_input['WGL-L2-L(mH)'][temp_temp]
-        #     data['WGL-BPM变比'] = value_n = df_input['WGL-BPM变比'][temp_temp]
-        # else:
-        #     data['WGL-C1(μF)'] = value_c1 = 1
-        #     data['WGL-C2(μF)'] = value_c2 = 20
-        #     data['WGL-L1-R(Ω)'] = value_r1 = None
-        #     data['WGL-L1-L(H)'] = value_l1 = 0.5
-        #     data['WGL-L2-R(Ω)'] = value_r2 = None
-        #     data['WGL-L2-L(mH)'] = value_l2 = 5
-        #     data['WGL-BPM变比'] = value_n = 4
-        #
-        # value_c1 = value_c1 * 1e-6
-        # value_c2 = value_c2 * 1e-6
-        # value_l2 = value_l2 * 1e-3
-        #
-        # para['C1_WGL_25Hz_Coding'].rlc_s = {
-        #     1700: [None, None, value_c1],
-        #     2000: [None, None, value_c1],
-        #     2300: [None, None, value_c1],
-        #     2600: [None, None, value_c1]}
-        #
-        # para['C2_WGL_25Hz_Coding'].rlc_s = {
-        #     1700: [None, None, value_c2],
-        #     2000: [None, None, value_c2],
-        #     2300: [None, None, value_c2],
-        #     2600: [None, None, value_c2]}
-        #
-        # para['L1_WGL_25Hz_Coding'].rlc_s = {
-        #     1700: [value_r1, value_l1, None],
-        #     2000: [value_r1, value_l1, None],
-        #     2300: [value_r1, value_l1, None],
-        #     2600: [value_r1, value_l1, None]}
-        #
-        # para['L2_WGL_25Hz_Coding'].rlc_s = {
-        #     1700: [value_r2, value_l2, None],
-        #     2000: [value_r2, value_l2, None],
-        #     2300: [value_r2, value_l2, None],
-        #     2600: [value_r2, value_l2, None]}
-        #
-        # para['n_WGL_25Hz_Coding'] = {
-        #     1700: value_n,
-        #     2000: value_n,
-        #     2300: value_n,
-        #     2600: value_n}
-        #
-        # #################################################################################
-        #
-        # # 扼流变压器
-        # if pd_read_flag:
-        #     data['扼流变压器变比'] = value_n = df_input['扼流变压器变比'][temp_temp]
-        #     data['BE-Rm(Ω)'] = value_r = df_input['BE-Rm(Ω)'][temp_temp]
-        #     data['BE-Lm(H)'] = value_l = df_input['BE-Lm(H)'][temp_temp]
-        # else:
-        #     data['扼流变压器变比'] = value_n = 3
-        #     data['BE-Rm(Ω)'] = value_r = 110
-        #     data['BE-Lm(H)'] = value_l = 0.024
-        #
-        # para['n_EL_25Hz_Coding'] = {
-        #     1700: value_n,
-        #     2000: value_n,
-        #     2300: value_n,
-        #     2600: value_n}
-        #
-        # para['zm_EL_25Hz_Coding'].rlc_s = {
-        #     1700: [value_r, value_l, None],
-        #     2000: [value_r, value_l, None],
-        #     2300: [value_r, value_l, None],
-        #     2600: [value_r, value_l, None]}
-
         #################################################################################
 
         # 分路间隔
@@ -740,6 +590,25 @@ if __name__ == '__main__':
             data['分路间隔(m)'] = interval = 1
 
         len_posi = 0
+
+        #################################################################################
+
+        # # 轨面电压计算
+        # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
+        # md.lg = LineGroup(md.l3, name_base='线路组')
+        # md.lg.special_point = para['special_point']
+        # md.lg.refresh()
+        # posi_list = np.arange(data['主串区段长度(m)'], -0.00001, -interval)
+        #
+        # len_posi = len(posi_list)
+        #
+        # for posi_zhu in posi_list:
+        #     md.jumper.posi_rlt = posi_zhu
+        #     md.jumper.set_posi_abs(0)
+        #     m1 = MainModel(md.lg, md=md)
+        #
+        #     v_rail_zhu = md.lg['线路3']['地面']['区段1']['跳线']['U'].value_c
+        #     data2excel.add_data(sheet_name="主串轨面电压", data1=v_rail_zhu)
 
         #################################################################################
 
@@ -775,9 +644,9 @@ if __name__ == '__main__':
         # 分路计算
         para['Rsht_z'] = data['分路电阻(Ω)']
 
-        # md = PreModel(turnout_list=turnout_list, parameter=para)
+        md = PreModel(turnout_list=turnout_list, parameter=para)
         # md = PreModel_EeMe(turnout_list=turnout_list, parameter=para)
-        md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
+        # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
         md.add_train()
 
         posi_list = np.arange(data['被串区段长度(m)'], -0.00001, -interval)
