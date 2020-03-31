@@ -172,6 +172,176 @@ def combine_node_group(lines):
     return groups
 
 
+def  config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag):
+
+    # 发码方向
+    if pd_read_flag:
+        data['发码继电器状态'] = df_input['发码继电器状态'][temp_temp]
+    else:
+        # data['发码继电器状态'] = 1
+        data['发码继电器状态'] = 0
+
+    if data['发码继电器状态'] == 1:
+        data['被串发送器位置'] = para['sr_mod_被'] = '不发码'
+    elif data['发码继电器状态'] == 0:
+        data['被串发送器位置'] = para['sr_mod_被'] = '右发'
+
+    #################################################################################
+
+    # FT1-U参数
+    if pd_read_flag:
+        # data['FT1-U短路阻抗-Rs(Ω)'] = value_r1 = df_input['FT1-U短路阻抗-Rs(Ω)'][temp_temp]
+        # data['FT1-U短路阻抗-Ls(mH)'] = value_l1 = df_input['FT1-U短路阻抗-Ls(mH)'][temp_temp]
+        # data['FT1-U开路阻抗-Rs(Ω)'] = value_r2 = df_input['FT1-U开路阻抗-Rs(Ω)'][temp_temp]
+        # data['FT1-U开路阻抗-Ls(H)'] = value_l2 = df_input['FT1-U开路阻抗-Ls(H)'][temp_temp]
+        #
+        # value_l1 = value_l1 * 1e-3
+        # para['zm_FT1u_25Hz_Coding'].rlc_s = {
+        #     1700: [value_r2, value_l2, None],
+        #     2000: [value_r2, value_l2, None],
+        #     2300: [value_r2, value_l2, None],
+        #     2600: [value_r2, value_l2, None]}
+        #
+        # para['zs_FT1u_25Hz_Coding'].rlc_s = {
+        #     1700: [value_r1, value_l1, None],
+        #     2000: [value_r1, value_l1, None],
+        #     2300: [value_r1, value_l1, None],
+        #     2600: [value_r1, value_l1, None]}
+
+        n2_FT1u = df_input['FT1-U二次侧输出电压(V)'][temp_temp]
+    else:
+        n2_FT1u = 40
+
+    value_n = 170 / n2_FT1u
+    para['n_FT1u_25Hz_Coding'] = {
+        1700: value_n,
+        2000: value_n,
+        2300: value_n,
+        2600: value_n}
+
+    #################################################################################
+
+    # 设备参数
+    if pd_read_flag:
+        data['调整电阻(Ω)'] = Rt = df_input['调整电阻(Ω)'][temp_temp]
+        data['调整电感(H)'] = Lt = df_input['调整电感(H)'][temp_temp]
+        data['调整电容(F)'] = Ct = df_input['调整电容(F)'][temp_temp]
+        data['调整RLC模式'] = mode_rlc = df_input['调整RLC模式'][temp_temp]
+    else:
+        data['调整电阻(Ω)'] = Rt = 50
+        data['调整电感(H)'] = Lt = None
+        data['调整电容(F)'] = Ct = None
+        data['调整RLC模式'] = mode_rlc = '串联'
+
+    if mode_rlc == '串联':
+        para['Rt_25Hz_Coding'].rlc_s = {
+            1700: [Rt, Lt, Ct],
+            2000: [Rt, Lt, Ct],
+            2300: [Rt, Lt, Ct],
+            2600: [Rt, Lt, Ct]}
+    elif mode_rlc == '并联':
+        para['Rt_25Hz_Coding'].rlc_p = {
+            1700: [Rt, Lt, Ct],
+            2000: [Rt, Lt, Ct],
+            2300: [Rt, Lt, Ct],
+            2600: [Rt, Lt, Ct]}
+
+    #################################################################################
+
+    # 室内隔离盒
+    if pd_read_flag:
+        data['NGL-C1(μF)'] = value_c = df_input['NGL-C1(μF)'][temp_temp]
+    else:
+        data['NGL-C1(μF)'] = value_c = 1
+
+    value_c = value_c * 1e-6
+    para['C1_NGL_25Hz_Coding'].rlc_s = {
+        1700: [None, None, value_c],
+        2000: [None, None, value_c],
+        2300: [None, None, value_c],
+        2600: [None, None, value_c]}
+
+    #################################################################################
+
+    # 室外隔离盒
+    if pd_read_flag:
+        data['WGL-C1(μF)'] = value_c1 = df_input['WGL-C1(μF)'][temp_temp]
+        data['WGL-C2(μF)'] = value_c2 = df_input['WGL-C2(μF)'][temp_temp]
+        data['WGL-L1-R(Ω)'] = value_r1 = df_input['WGL-L1-R(Ω)'][temp_temp]
+        data['WGL-L1-L(H)'] = value_l1 = df_input['WGL-L1-L(H)'][temp_temp]
+        data['WGL-L2-R(Ω)'] = value_r2 = df_input['WGL-L2-R(Ω)'][temp_temp]
+        data['WGL-L2-L(mH)'] = value_l2 = df_input['WGL-L2-L(mH)'][temp_temp]
+        data['WGL-BPM变比'] = value_n = df_input['WGL-BPM变比'][temp_temp]
+    else:
+        data['WGL-C1(μF)'] = value_c1 = 1
+        data['WGL-C2(μF)'] = value_c2 = 20
+        data['WGL-L1-R(Ω)'] = value_r1 = None
+        data['WGL-L1-L(H)'] = value_l1 = 0.5
+        data['WGL-L2-R(Ω)'] = value_r2 = None
+        data['WGL-L2-L(mH)'] = value_l2 = 5
+        data['WGL-BPM变比'] = value_n = 4
+
+    value_c1 = value_c1 * 1e-6
+    value_c2 = value_c2 * 1e-6
+    value_l2 = value_l2 * 1e-3
+
+    para['C1_WGL_25Hz_Coding'].rlc_s = {
+        1700: [None, None, value_c1],
+        2000: [None, None, value_c1],
+        2300: [None, None, value_c1],
+        2600: [None, None, value_c1]}
+
+    para['C2_WGL_25Hz_Coding'].rlc_s = {
+        1700: [None, None, value_c2],
+        2000: [None, None, value_c2],
+        2300: [None, None, value_c2],
+        2600: [None, None, value_c2]}
+
+    para['L1_WGL_25Hz_Coding'].rlc_s = {
+        1700: [value_r1, value_l1, None],
+        2000: [value_r1, value_l1, None],
+        2300: [value_r1, value_l1, None],
+        2600: [value_r1, value_l1, None]}
+
+    para['L2_WGL_25Hz_Coding'].rlc_s = {
+        1700: [value_r2, value_l2, None],
+        2000: [value_r2, value_l2, None],
+        2300: [value_r2, value_l2, None],
+        2600: [value_r2, value_l2, None]}
+
+    para['n_WGL_25Hz_Coding'] = {
+        1700: value_n,
+        2000: value_n,
+        2300: value_n,
+        2600: value_n}
+
+    #################################################################################
+
+    # 扼流变压器
+    if pd_read_flag:
+        data['扼流变压器变比'] = value_n = df_input['扼流变压器变比'][temp_temp]
+        data['BE-Rm(Ω)'] = value_r = df_input['BE-Rm(Ω)'][temp_temp]
+        data['BE-Lm(H)'] = value_l = df_input['BE-Lm(H)'][temp_temp]
+    else:
+        data['扼流变压器变比'] = value_n = 3
+        data['BE-Rm(Ω)'] = value_r = 110
+        data['BE-Lm(H)'] = value_l = 0.024
+
+    para['n_EL_25Hz_Coding'] = {
+        1700: value_n,
+        2000: value_n,
+        2300: value_n,
+        2600: value_n}
+
+    para['zm_EL_25Hz_Coding'].rlc_s = {
+        1700: [value_r, value_l, None],
+        2000: [value_r, value_l, None],
+        2300: [value_r, value_l, None],
+        2600: [value_r, value_l, None]}
+
+    ################################################################################
+
+
 if __name__ == '__main__':
     # m_lens = [700, 700, 700]
     # m_frqs = generate_frqs(Freq(2600), 3)
