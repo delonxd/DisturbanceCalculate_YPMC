@@ -150,6 +150,16 @@ class Section_ZPW2000A(Section):
         name_list.sort()
         return name_list
 
+    def change_CapC2TB(self):
+        name_list = self.get_C_names()
+        for posi, name_c in name_list:
+            # posi = self[name_c].posi_rlt
+            self.element.pop(name_c)
+            name_new = name_c + '2TB'
+            self.change_tb(c_name=name_c, tb_name=name_new, posi=posi)
+            self[name_new].set_posi_abs(0)
+
+
     # 配置电容
     def config_c(self, c_pst):
         for num in range(len(c_pst)):
