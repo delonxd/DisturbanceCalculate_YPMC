@@ -25,8 +25,8 @@ if __name__ == '__main__':
     # 参数输入
     # df_input = pd.read_excel('邻线干扰参数输入_v0.3.1.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_拆电容.xlsx')
-    df_input = pd.read_excel('邻线干扰参数输入_电码化.xlsx')
-    # df_input = pd.read_excel('邻线干扰参数输入_v0.4.xlsx')
+    # df_input = pd.read_excel('邻线干扰参数输入_电码化.xlsx')
+    df_input = pd.read_excel('邻线干扰参数输入_v0.4.xlsx')
 
     df_input = df_input.where(df_input.notnull(), None)
     num_len = len(list(df_input['序号']))
@@ -180,8 +180,13 @@ if __name__ == '__main__':
         '主串电平级',
         '电源电压',
 
+        '是否全部更换TB',
+
+        # '主串轨入电压(调整状态)',
+        # '被串最大轨入电压(主备串同时分路状态)',
+
         '被串最大干扰电流(A)', '被串最大干扰位置(m)',
-        '主串出口电流(A)', '主串入口电流(A)',
+        # '主串出口电流(A)', '主串入口电流(A)',
     ]
 
 
@@ -208,28 +213,38 @@ if __name__ == '__main__':
     # 获取循环变量
     freq_list = [1700, 2000, 2300, 2600]
 
-    # clist1 = [(300, 3), (350, 3),
-    #           (350, 4), (400, 4),
-    #           (400, 5), (450, 5), (500, 5),
-    #           (500, 6), (550, 6), (600, 6),
-    #           (600, 7), (650, 7)]
+    # clist1 = [
+    #     (300, 2),
+    #     (300, 3),
+    #     (350, 3),
+    #     (400, 4),
+    #     (450, 5),
+    #     (500, 5),
+    #     (550, 6),
+    #     (600, 6),
+    #     (650, 7)
+    # ]
+
     # clist1 = [(650, 7)]
     # clist1 = list(range(-5, 6, 1))
-    clist1 = [1]
-    clist2 = [0]
-    clist3 = [2600]
-    clist4 = [2000]
-    # clist3 = freq_list
-    # clist4 = freq_list
+    # clist1 = [1]
+    clist1 = [True, False]
+
+    clist2 = [1]
+    # clist3 = [2600]
+    # clist4 = [2000]
+    clist3 = freq_list
+    clist4 = freq_list
 
     C_7_1 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
     C_7_2 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 2))
 
     clist5 = [[]]
+    # clist5 = [True, False]
     clist6 = [[]]
-    clist5.extend(C_7_1)
-    clist6.extend(C_7_1)
-    clist6.extend(C_7_2)
+    # clist5.extend(C_7_1)
+    # clist6.extend(C_7_1)
+    # clist6.extend(C_7_2)
     # clist5 = [[],[1],[2],[3],[1,2],[1,2,3]]
     # clist6 = [[],[1],[2],[3],[1,2],[1,2,3]]
     # clist5 = [[],[11],[10],[9],[11,10],[11,10,9]]
@@ -250,6 +265,7 @@ if __name__ == '__main__':
     pd_read_flag = False
 
     # for temp_temp in range(num_len):
+        # for temp_temp in [0]:
     for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
 
         #################################################################################
@@ -293,7 +309,8 @@ if __name__ == '__main__':
         if pd_read_flag:
             data['备注'] =  df_input['备注'][temp_temp]
         else:
-            data['备注'] = '电容数为包含TB的电容数'
+            data['备注'] = ''
+            # data['备注'] = '电容数为包含TB的电容数'
             # data['备注'] = '发码继电器（0代表闭合，1代表断开）'
 
         data['故障情况'] = para['故障情况'] = '正常'
@@ -369,6 +386,22 @@ if __name__ == '__main__':
         #     # data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
         data['主串电容(不含TB)位置'] = para['主串电容位置'] = None
         data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
+
+        #################################################################################
+
+        # 电容换TB
+
+        data['主串更换TB'] = para['主串更换TB'] = False
+        data['被串更换TB'] = para['被串更换TB'] = False
+
+        # data['是否全部更换TB'] = True
+        data['是否全部更换TB'] = cv1
+
+        if data['是否全部更换TB'] is True:
+            if data['主串频率(Hz)'] == 1700 or data['主串频率(Hz)'] == 2000:
+                data['主串更换TB'] = para['主串更换TB'] = True
+            if data['被串频率(Hz)'] == 1700 or data['被串频率(Hz)'] == 2000:
+                data['被串更换TB'] = para['被串更换TB'] = True
 
         #################################################################################
 
@@ -486,6 +519,7 @@ if __name__ == '__main__':
 
         data['主串发送器位置'] = para['sr_mod_主'] = '右发'
         data['被串发送器位置'] = para['sr_mod_被'] = '右发'
+        # data['被串发送器位置'] = para['sr_mod_被'] = '左发'
 
         # if data['发码继电器状态'] == 1:
         #     data['被串发送器位置'] = para['sr_mod_被'] = '不发码'
@@ -499,10 +533,10 @@ if __name__ == '__main__':
             data['主串拆卸情况'] = para['主串拆卸情况'] = eval(df_input['主串拆卸情况'][temp_temp])
             data['被串拆卸情况'] = para['被串拆卸情况'] = eval(df_input['被串拆卸情况'][temp_temp])
         else:
-            # data['主串拆卸情况'] = para['主串拆卸情况'] = []
-            # data['被串拆卸情况'] = para['被串拆卸情况'] = []
-            data['主串拆卸情况'] = para['主串拆卸情况'] = cv5
-            data['被串拆卸情况'] = para['被串拆卸情况'] = cv6
+            data['主串拆卸情况'] = para['主串拆卸情况'] = []
+            data['被串拆卸情况'] = para['被串拆卸情况'] = []
+            # data['主串拆卸情况'] = para['主串拆卸情况'] = cv5
+            # data['被串拆卸情况'] = para['被串拆卸情况'] = cv6
             # data['电感短路故障情况'] = data['被串拆卸情况']
 
         #################################################################################
@@ -579,7 +613,7 @@ if __name__ == '__main__':
         # data['电源电压'] = para['pwr_v_flg'] = df_input['电源电压'][temp_temp]
 
         # # 电码化参数配置
-        config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag)
+        # config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag)
 
         #################################################################################
 
@@ -590,6 +624,16 @@ if __name__ == '__main__':
             data['分路间隔(m)'] = interval = 1
 
         len_posi = 0
+        #################################################################################
+
+        # 调整计算
+        md = PreModel(turnout_list=turnout_list, parameter=para)
+        md.lg = LineGroup(md.l3, name_base='线路组')
+        md.lg.special_point = para['special_point']
+        md.lg.refresh()
+        m1 = MainModel(md.lg, md=md)
+
+        # data['主串轨入电压(调整状态)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
 
         #################################################################################
 
@@ -711,12 +755,16 @@ if __name__ == '__main__':
             # i_C4 = md.lg['线路4']['地面']['区段1']['C2']['I'].value_c
             # i_C5 = md.lg['线路4']['地面']['区段1']['C1']['I'].value_c
 
+            # v_rcv_bei = md.lg['线路4']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
+            # v_rcv_bei = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
+
             #################################################################################
 
             data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
             data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
             data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
+            # data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
             # data2excel.add_data(sheet_name="主串SVA'电流", data1=i_sva1)
             # data2excel.add_data(sheet_name="被串钢轨电流折算后", data1=i_trk_bei_temp)
             # data2excel.add_data(sheet_name="实测阻抗", data1=z_mm)
@@ -739,6 +787,9 @@ if __name__ == '__main__':
         data['主串入口电流(A)'] = i_sht_list_zhu[-1]
         data['被串最大干扰位置(m)'] = i_trk_list.index(max(i_trk_list))
 
+        # v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
+        # data['被串最大轨入电压(主备串同时分路状态)'] = max(v_rcv_bei_list)
+
         data_row = [data[key] for key in head_list]
         excel_data.append(data_row)
         counter += 1
@@ -756,7 +807,8 @@ if __name__ == '__main__':
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
     posi_header = list(range(columns_max))
-    posi_header[0] = '发送端'
+    # posi_header[0] = '发送端'
+    posi_header[0] = '主串发送端'
     # posi_header[0] = '调整状态'
     # posi_header[1] = '发送端0m分路'
     # posi_header = None
@@ -783,6 +835,7 @@ if __name__ == '__main__':
             # "主串轨面电压",
             # "主串SVA'电流",
             # "被串钢轨电流折算后",
+            # "被串轨入电压",
         ]
 
         # data2excel.write2excel(sheet_names=names, header=None, writer1=writer)
