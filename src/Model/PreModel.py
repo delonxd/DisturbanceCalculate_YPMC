@@ -71,37 +71,11 @@ class PreModel:
 
         # config_jumpergroup(jumper1, jumper2)
 
-        partent = sg4['区段1']
-
-        posi = partent['C2'].posi_rlt
-        partent.element.pop('C2')
-        partent.change_tb(c_name='C2', tb_name='TB_C2', posi=posi)
-
-        posi = partent['C3'].posi_rlt
-        partent.element.pop('C3')
-        partent.change_tb(c_name='C3', tb_name='TB_C3', posi=posi)
-
-        posi = partent['C4'].posi_rlt
-        partent.element.pop('C4')
-        partent.change_tb(c_name='C4', tb_name='TB_C4', posi=posi)
-
-        posi = partent['C5'].posi_rlt
-        partent.element.pop('C5')
-        partent.change_tb(c_name='C5', tb_name='TB_C5', posi=posi)
-
-        posi = partent['C6'].posi_rlt
-        partent.element.pop('C6')
-        partent.change_tb(c_name='C6', tb_name='TB_C6', posi=posi)
-
-        partent['TB_C2'].set_posi_abs(0)
-        partent['TB_C3'].set_posi_abs(0)
-        partent['TB_C4'].set_posi_abs(0)
-        partent['TB_C5'].set_posi_abs(0)
-        partent['TB_C6'].set_posi_abs(0)
 
         self.section_group3 = sg3
         self.section_group4 = sg4
 
+        self.check_C2TB()
         self.change_c_value()
         self.pop_c()
         self.config_c_posi()
@@ -122,6 +96,16 @@ class PreModel:
 
         self.lg.special_point = para['special_point']
         self.lg.refresh()
+
+    def check_C2TB(self):
+        para = self.parameter
+
+        if para['主串更换TB'] is True:
+            self.section_group3['区段1'].change_CapC2TB()
+
+        if para['被串更换TB'] is True:
+            self.section_group4['区段1'].change_CapC2TB()
+
 
     def change_c_value(self):
         para = self.parameter
