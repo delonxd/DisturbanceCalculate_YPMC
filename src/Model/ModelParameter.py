@@ -53,6 +53,7 @@ class ModelParameter:
             2300: [0.694, 0.058e-3, None],
             2600: [0.699, 0.058e-3, None]}
 
+        # 移频脉冲发送器隔离
         parameter['z_pwr_ypmc_iso'] = ImpedanceMultiFreq()
         parameter['z_pwr_ypmc_iso'].rlc_s = {
             1700: [6.9, 2.62e-3, 2e-6],
@@ -60,6 +61,7 @@ class ModelParameter:
             2300: [6.9, 2.62e-3, 2e-6],
             2600: [6.9, 2.62e-3, 2e-6]}
 
+        # 移频脉冲防雷变压器
         parameter['z1_FL_ypmc'] = ImpedanceMultiFreq()
         parameter['z1_FL_ypmc'].rlc_s = {
             1700: [15.55, 6.90e-3, None],
@@ -76,10 +78,10 @@ class ModelParameter:
             2300: [3511, 972e-3, None],
             2600: [4643, 1003e-3, None]}
 
-        para1 = parameter['z1_FL_ypmc']
-        para2 = parameter['z2_FL_ypmc']
-        para3 = para1 * para2 / (para2 - para1)
-        parameter['z1_FL_ypmc'] = para3
+        # para1 = parameter['z1_FL_ypmc']
+        # para2 = parameter['z2_FL_ypmc']
+        # para3 = para1 * para2 / (para2 - para1)
+        # parameter['z1_FL_ypmc'] = para3
 
         n_t = 1/1.095
         parameter['n_FL_ypmc'] = {
@@ -88,18 +90,19 @@ class ModelParameter:
             2300: n_t,
             2600: n_t}
 
+        # 移频脉冲扼流变压器
         parameter['z1_EL_ypmc'] = ImpedanceMultiFreq()
         parameter['z1_EL_ypmc'].rlc_s = {
-            # 1700: [1.539, 502e-6, None],
-            1700: [1.539, 502.818e-6, None],
+            1700: [1.539, 502e-6, None],
+            # 1700: [1.539, 502.818e-6, None],
             2000: [1.595, 500e-6, None],
             2300: [1.652, 498e-6, None],
             2600: [1.712, 496e-6, None]}
 
         parameter['z2_EL_ypmc'] = ImpedanceMultiFreq()
         parameter['z2_EL_ypmc'].rlc_s = {
-            # 1700: [221, 44.2e-3, None],
-            1700: [221.835, 44.169e-3, None],
+            1700: [221, 44.2e-3, None],
+            # 1700: [221.835, 44.169e-3, None],
             2000: [253, 40.9e-3, None],
             2300: [277, 38.3e-3, None],
             2600: [298, 36.1e-3, None]}
@@ -115,6 +118,7 @@ class ModelParameter:
             2300: 5,
             2600: 5}
 
+        # 移频脉冲接收端
         parameter['z_rcv_ypmc_iso'] = ImpedanceMultiFreq()
         parameter['z_rcv_ypmc_iso'].rlc_s = {
             1700: [25, 0.61e-3, 2e-6],
