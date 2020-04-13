@@ -26,8 +26,8 @@ class PreModel:
                            m_frqs=m_frqs,
                            m_lens=[para['主串区段长度']]*3,
                            j_lens=[0]*4,
-                           # m_typs=['2000A_BPLN']*3,
-                           m_typs=['2000A']*3,
+                           m_typs=['2000A_BPLN']*3,
+                           # m_typs=['2000A']*3,
                            c_nums=[para['主串电容数']]*3,
                            sr_mods=[para['sr_mod_主']]*3,
                            send_lvs=[send_level]*3,
@@ -46,8 +46,8 @@ class PreModel:
                            m_frqs=m_frqs,
                            m_lens=[para['被串区段长度']]*3,
                            j_lens=[0]*4,
-                           # m_typs=['2000A_BPLN']*3,
-                           m_typs=['2000A']*3,
+                           m_typs=['2000A_BPLN']*3,
+                           # m_typs=['2000A']*3,
                            c_nums=[para['被串电容数']]*3,
                            sr_mods=[para['sr_mod_被']]*3,
                            send_lvs=[send_level]*3,
@@ -96,6 +96,8 @@ class PreModel:
 
         self.lg.special_point = para['special_point']
         self.lg.refresh()
+
+        pass
 
     def check_C2TB(self):
         para = self.parameter
@@ -150,8 +152,8 @@ class PreModel:
     def config_c_posi(self):
         para = self.parameter
 
-        name_list = self.section_group3['区段1'].get_C_names()
         if para['主串电容位置'] is not None:
+            name_list = self.section_group3['区段1'].get_C_names()
             for name_ele, temp in zip(name_list, para['主串电容位置']):
                 self.section_group3['区段1'][name_ele[1]].posi_rlt = temp
 
