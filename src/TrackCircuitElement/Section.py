@@ -223,17 +223,17 @@ class Section_ZPW2000A_YPMC(Section_ZPW2000A):
         self.m_type = '2000A_YPMC'
 
     @staticmethod
-    def config_class(j_type):
-        j_cls, tcsr_cls = [None, None], [None, None]
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
         for num in range(2):
-            if j_type[num] == '电气':
+            if j_typs[num] == '电气':
                 raise KeyboardInterrupt('2000A移频脉冲不支持电气绝缘节')
-            elif j_type[num] == '机械':
-                j_cls[num] = Joint_Mechanical
-                tcsr_cls[num] = ZPW2000A_YPMC_Normal
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_YPMC_Normal
             else:
                 raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
-        return j_cls, tcsr_cls
+        return j_clss, tcsr_clss
 
 
 # 2000A白俄配置
