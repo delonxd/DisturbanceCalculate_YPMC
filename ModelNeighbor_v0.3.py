@@ -228,7 +228,8 @@ if __name__ == '__main__':
     # clist1 = [(650, 7)]
     # clist1 = list(range(-5, 6, 1))
     # clist1 = [1]
-    clist1 = [True, False]
+    clist1 = [6,  7]
+    # clist1 = [True, False]
 
     clist2 = [1]
     # clist3 = [2600]
@@ -273,8 +274,8 @@ if __name__ == '__main__':
         # c_zhu = 60
         # c_bei = 80
 
-        c_zhu = 25
-        c_bei = 25
+        c_zhu = 80
+        c_bei = 80
 
         # if cv3 == 1700 or cv3 == 2000:
         #     c_zhu = 80e-6
@@ -342,7 +343,7 @@ if __name__ == '__main__':
         if pd_read_flag:
             data['耦合系数'] = para['耦合系数'] = df_input['耦合系数'][temp_temp]
         else:
-            data['耦合系数'] = para['耦合系数'] = 13
+            data['耦合系数'] = para['耦合系数'] = 24
 
         #################################################################################
 
@@ -369,8 +370,10 @@ if __name__ == '__main__':
             data['主串电容数(含TB)'] = para['主串电容数'] = df_input['主串电容数(含TB)'][temp_temp]
             data['被串电容数(含TB)'] = para['被串电容数'] = df_input['被串电容数(含TB)'][temp_temp]
         else:
-            data['主串电容数(含TB)'] = para['主串电容数'] = 7
-            data['被串电容数(含TB)'] = para['被串电容数'] = 7
+            # data['主串电容数(含TB)'] = para['主串电容数'] = 7
+            # data['被串电容数(含TB)'] = para['被串电容数'] = 7
+            data['主串电容数(含TB)'] = para['主串电容数'] = cv1
+            data['被串电容数(含TB)'] = para['被串电容数'] = cv1
 
         #################################################################################
 
@@ -395,7 +398,7 @@ if __name__ == '__main__':
         data['被串更换TB'] = para['被串更换TB'] = False
 
         # data['是否全部更换TB'] = True
-        data['是否全部更换TB'] = cv1
+        # data['是否全部更换TB'] = cv1
 
         if data['是否全部更换TB'] is True:
             if data['主串频率(Hz)'] == 1700 or data['主串频率(Hz)'] == 2000:
@@ -494,8 +497,8 @@ if __name__ == '__main__':
 
         # TB模式
         # data['TB模式'] = flag_tb = '发送端单TB'
-        # data['TB模式'] = flag_tb = '无TB'
-        data['TB模式'] = flag_tb = '双端TB'
+        data['TB模式'] = flag_tb = '无TB'
+        # data['TB模式'] = flag_tb = '双端TB'
         # data['TB模式'] = flag_tb = df_input['TB模式'][temp_temp]
         if flag_tb == '双端TB':
             para['TB模式'] = '双'
@@ -582,7 +585,7 @@ if __name__ == '__main__':
         if pd_read_flag:
             data['电缆长度(km)'] = para['cab_len'] = df_input['电缆长度(km)'][temp_temp]
         else:
-            data['电缆长度(km)'] = para['cab_len'] = cab_len = 10
+            data['电缆长度(km)'] = para['cab_len'] = cab_len = 0.75
 
         #################################################################################
 
@@ -606,7 +609,7 @@ if __name__ == '__main__':
         if pd_read_flag:
             data['主串电平级'] = para['send_level'] = df_input['主串电平级'][temp_temp]
         else:
-            data['主串电平级'] = para['send_level'] = 5
+            data['主串电平级'] = para['send_level'] = 4
 
         data['电源电压'] = para['pwr_v_flg'] = '最大'
         # data['电源电压'] = para['pwr_v_flg'] = 105.9
@@ -626,14 +629,14 @@ if __name__ == '__main__':
         len_posi = 0
         #################################################################################
 
-        # 调整计算
-        md = PreModel(turnout_list=turnout_list, parameter=para)
-        md.lg = LineGroup(md.l3, name_base='线路组')
-        md.lg.special_point = para['special_point']
-        md.lg.refresh()
-        m1 = MainModel(md.lg, md=md)
-
-        # data['主串轨入电压(调整状态)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
+        # # 调整计算
+        # md = PreModel(turnout_list=turnout_list, parameter=para)
+        # md.lg = LineGroup(md.l3, name_base='线路组')
+        # md.lg.special_point = para['special_point']
+        # md.lg.refresh()
+        # m1 = MainModel(md.lg, md=md)
+        #
+        # # data['主串轨入电压(调整状态)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
 
         #################################################################################
 
@@ -688,7 +691,8 @@ if __name__ == '__main__':
         # 分路计算
         para['Rsht_z'] = data['分路电阻(Ω)']
 
-        md = PreModel(turnout_list=turnout_list, parameter=para)
+        # md = PreModel(turnout_list=turnout_list, parameter=para)
+        md = PreModel_YPMC(turnout_list=turnout_list, parameter=para)
         # md = PreModel_EeMe(turnout_list=turnout_list, parameter=para)
         # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
         md.add_train()
