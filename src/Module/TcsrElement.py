@@ -105,9 +105,9 @@ class TcsrTransformerOpenShort(ElePack):
     def __init__(self, parent_ins, name_base, z1, z2, n):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
-        self.add_child('1开路阻抗', TPortZParallel(self, '1开路阻抗', z2))
-        self.add_child('2短路阻抗', TPortZSeries(self, '2短路阻抗', z1))
-        # self.add_child('2开路阻抗', TPortZParallel(self, '2开路阻抗', z2))
+        # self.add_child('1开路阻抗', TPortZParallel(self, '1开路阻抗', z2))
+        self.add_child('1短路阻抗', TPortZSeries(self, '1短路阻抗', z1))
+        self.add_child('2开路阻抗', TPortZParallel(self, '2开路阻抗', z2))
         self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))
 
 
