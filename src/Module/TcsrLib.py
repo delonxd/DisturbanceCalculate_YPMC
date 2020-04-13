@@ -164,7 +164,8 @@ class ZPW2000A_YPMC_Normal(TCSR):
                                          para['z2_EL_ypmc'],
                                          para['n_EL_ypmc']))
         # self.add_child('5BA', TcsrBA(self, '5BA', para['PT']))
-        self.add_child('6CA', TcsrCA(self, '6CA', para['CA_z_区间']))
+        # self.add_child('6CA', TcsrCA(self, '6CA', para['CA_z_区间']))
+        self.add_child('6CA', TcsrCA(self, '6CA', para['CA_z_站内']))
 
         self.md_list = self.get_md_list([])
         self.config_varb()
