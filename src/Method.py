@@ -172,7 +172,7 @@ def combine_node_group(lines):
     return groups
 
 
-def  config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag):
+def config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag):
 
     # 发码方向
     if pd_read_flag:
@@ -340,6 +340,28 @@ def  config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag):
         2600: [value_r, value_l, None]}
 
     ################################################################################
+
+def config_ypmc_para(df_input, temp_temp, para, data, pd_read_flag):
+
+    # 设置变比
+    if pd_read_flag:
+        data['主串扼流变比'] = value_n = df_input['主串扼流变压器变比'][temp_temp]
+        para['主串扼流变比'] = {
+            1700: value_n,
+            2000: value_n,
+            2300: value_n,
+            2600: value_n}
+
+        data['被串扼流变比'] = value_n = df_input['被串扼流变压器变比'][temp_temp]
+        para['被串扼流变比'] = {
+            1700: value_n,
+            2000: value_n,
+            2300: value_n,
+            2600: value_n}
+
+    else:
+        data['主串扼流变比'] = para['主串扼流变比'] = None
+        data['被串扼流变比'] = para['被串扼流变比'] = None
 
 
 if __name__ == '__main__':
