@@ -75,10 +75,10 @@ class PreModel:
         self.section_group3 = sg3
         self.section_group4 = sg4
 
-        self.check_C2TB()
+        # self.check_C2TB()
         self.change_c_value()
         self.pop_c()
-        self.config_c_posi()
+        # self.config_c_posi()
         self.check_fault()
 
         # sg3['区段1'].element.pop('TB2')
@@ -516,6 +516,8 @@ class PreModel_YPMC(PreModel):
         self.change_c_value()
         self.pop_c()
 
+        self.change_EL_n()
+
         self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
                             parameter=parameter)
         self.l4 = l4 = Line(name_base='线路4', sec_group=sg4,
@@ -527,3 +529,18 @@ class PreModel_YPMC(PreModel):
 
         self.lg.special_point = para['special_point']
         self.lg.refresh()
+
+    def change_EL_n(self):
+        para = self.parameter
+
+        if para['主串扼流变比'] is not None:
+            for ele in self.section_group3['区段1'].element.values():
+                if isinstance(ele, ZPW2000A_YPMC_Normal):
+                    ele_EL = ele['4扼流']
+                    ele_EL.n = para['主串扼流变比']
+
+        if para['被串扼流变比'] is not None:
+            for ele in self.section_group4['区段1'].element.values():
+                if isinstance(ele, ZPW2000A_YPMC_Normal):
+                    ele_EL = ele['4扼流']
+                    ele_EL.n = para['被串扼流变比']
