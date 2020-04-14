@@ -514,9 +514,11 @@ class PreModel_YPMC(PreModel):
         self.section_group4 = sg4
 
         self.change_c_value()
-        self.pop_c()
+        # self.pop_c()
 
         self.change_EL_n()
+        self.change_cable_length()
+        self.change_r_shunt()
 
         self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
                             parameter=parameter)
@@ -536,11 +538,35 @@ class PreModel_YPMC(PreModel):
         if para['主串扼流变比'] is not None:
             for ele in self.section_group3['区段1'].element.values():
                 if isinstance(ele, ZPW2000A_YPMC_Normal):
-                    ele_EL = ele['4扼流']
+                    ele_EL = ele['4扼流']['3变压器']
                     ele_EL.n = para['主串扼流变比']
 
         if para['被串扼流变比'] is not None:
             for ele in self.section_group4['区段1'].element.values():
                 if isinstance(ele, ZPW2000A_YPMC_Normal):
-                    ele_EL = ele['4扼流']
+                    ele_EL = ele['4扼流']['3变压器']
                     ele_EL.n = para['被串扼流变比']
+
+    def change_cable_length(self):
+        para = self.parameter
+
+        if para['主串电缆长度'] is not None:
+            for ele in self.section_group3['区段1'].element.values():
+                if isinstance(ele, ZPW2000A_YPMC_Normal):
+                    ele_cab = ele['3Cab']
+                    ele_cab.length = para['主串电缆长度']
+
+        if para['被串电缆长度'] is not None:
+            for ele in self.section_group4['区段1'].element.values():
+                if isinstance(ele, ZPW2000A_YPMC_Normal):
+                    ele_cab = ele['3Cab']
+                    ele_cab.length = para['被串电缆长度']
+
+    def change_r_shunt(self):
+        para = self.parameter
+
+        if para['主串分路电阻'] is not None:
+            self.train2['分路电阻1'].z = para['主串分路电阻']
+
+        if para['被串分路电阻'] is not None:
+            self.train1['分路电阻1'].z = para['被串分路电阻']
