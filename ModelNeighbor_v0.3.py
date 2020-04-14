@@ -26,7 +26,9 @@ if __name__ == '__main__':
     # df_input = pd.read_excel('邻线干扰参数输入_v0.3.1.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_拆电容.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_电码化.xlsx')
-    df_input = pd.read_excel('邻线干扰参数输入_v0.4.xlsx')
+    # df_input = pd.read_excel('邻线干扰参数输入_v0.4.xlsx')
+    # df_input = pd.read_excel('移频脉冲邻线干扰输入表格_v0.2.xlsx')
+    df_input = pd.read_excel('邻线干扰参数输入_BPLN.xlsx')
 
     df_input = df_input.where(df_input.notnull(), None)
     num_len = len(list(df_input['序号']))
@@ -180,7 +182,7 @@ if __name__ == '__main__':
         '主串电平级',
         '电源电压',
 
-        '是否全部更换TB',
+        # '是否全部更换TB',
 
         # '主串轨入电压(调整状态)',
         # '被串最大轨入电压(主备串同时分路状态)',
@@ -232,10 +234,10 @@ if __name__ == '__main__':
     # clist1 = [True, False]
 
     clist2 = [1]
-    # clist3 = [2600]
-    # clist4 = [2000]
-    clist3 = freq_list
-    clist4 = freq_list
+    clist3 = [2600]
+    clist4 = [2000]
+    # clist3 = freq_list
+    # clist4 = freq_list
 
     C_7_1 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
     C_7_2 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 2))
@@ -262,12 +264,12 @@ if __name__ == '__main__':
     temp_temp = 0
     cv1, cv2, cv3, cv4, cv5, cv6 = [0] * 6
 
-    # pd_read_flag = True
-    pd_read_flag = False
+    pd_read_flag = True
+    # pd_read_flag = False
 
-    # for temp_temp in range(num_len):
+    for temp_temp in range(num_len):
         # for temp_temp in [0]:
-    for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
+    # for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
 
         #################################################################################
 
@@ -326,8 +328,8 @@ if __name__ == '__main__':
             data['主串区段长度(m)'] = para['主串区段长度'] = df_input['主串区段长度(m)'][temp_temp]
             data['被串区段长度(m)'] = para['被串区段长度'] = df_input['被串区段长度(m)'][temp_temp]
         else:
-            data['主串区段长度(m)'] = para['主串区段长度'] = 470
-            data['被串区段长度(m)'] = para['被串区段长度'] = 470
+            data['主串区段长度(m)'] = para['主串区段长度'] = 650
+            data['被串区段长度(m)'] = para['被串区段长度'] = 650
 
         # data['发送接收长度'] = data['区段长度']
         # data['区段实际长度'] = df_input['区段长度(m)'][temp_temp]
@@ -343,8 +345,8 @@ if __name__ == '__main__':
         if pd_read_flag:
             data['耦合系数'] = para['耦合系数'] = df_input['耦合系数'][temp_temp]
         else:
-            data['耦合系数'] = para['耦合系数'] = 15.5
-            # data['耦合系数'] = para['耦合系数'] = 13
+            # data['耦合系数'] = para['耦合系数'] = 15.5
+            data['耦合系数'] = para['耦合系数'] = 13
 
         #################################################################################
 
@@ -371,8 +373,8 @@ if __name__ == '__main__':
             data['主串电容数(含TB)'] = para['主串电容数'] = df_input['主串电容数(含TB)'][temp_temp]
             data['被串电容数(含TB)'] = para['被串电容数'] = df_input['被串电容数(含TB)'][temp_temp]
         else:
-            data['主串电容数(含TB)'] = para['主串电容数'] = 5
-            data['被串电容数(含TB)'] = para['被串电容数'] = 5
+            data['主串电容数(含TB)'] = para['主串电容数'] = 7
+            data['被串电容数(含TB)'] = para['被串电容数'] = 7
             # data['主串电容数(含TB)'] = para['主串电容数'] = cv1
             # data['被串电容数(含TB)'] = para['被串电容数'] = cv1
 
@@ -389,14 +391,14 @@ if __name__ == '__main__':
         #     # data['主串电容(不含TB)位置'] = para['主串电容位置'] = [10, 20, 30, 40, 50]
         #     # data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
 
-        hlf_pst = list(np.linspace(0, 650, 15))
-        c_pst = [hlf_pst[num * 2 + 1] - 90 for num in range(7)]
-        c_pst = c_pst[1:-1]
-
-        # data['主串电容(不含TB)位置'] = para['主串电容位置'] = None
-        # data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
-        data['主串电容(不含TB)位置'] = para['主串电容位置'] = c_pst
-        data['被串电容(不含TB)位置'] = para['被串电容位置'] = c_pst
+        # hlf_pst = list(np.linspace(0, 650, 15))
+        # c_pst = [hlf_pst[num * 2 + 1] - 90 for num in range(7)]
+        # c_pst = c_pst[1:-1]
+        #
+        # # data['主串电容(不含TB)位置'] = para['主串电容位置'] = None
+        # # data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
+        # data['主串电容(不含TB)位置'] = para['主串电容位置'] = c_pst
+        # data['被串电容(不含TB)位置'] = para['被串电容位置'] = c_pst
 
         #################################################################################
 
@@ -405,8 +407,8 @@ if __name__ == '__main__':
         data['主串更换TB'] = para['主串更换TB'] = False
         data['被串更换TB'] = para['被串更换TB'] = False
 
-        data['是否全部更换TB'] = True
-        # data['是否全部更换TB'] = False
+        # data['是否全部更换TB'] = True
+        data['是否全部更换TB'] = False
         # data['是否全部更换TB'] = cv1
 
         if data['是否全部更换TB'] is True:
@@ -622,7 +624,7 @@ if __name__ == '__main__':
         if pd_read_flag:
             data['主串电平级'] = para['send_level'] = df_input['主串电平级'][temp_temp]
         else:
-            data['主串电平级'] = para['send_level'] = 8
+            data['主串电平级'] = para['send_level'] = 5
 
         data['电源电压'] = para['pwr_v_flg'] = '最大'
         # data['电源电压'] = para['pwr_v_flg'] = 105.9
@@ -630,6 +632,10 @@ if __name__ == '__main__':
 
         # # 电码化参数配置
         # config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag)
+
+        # 移频脉冲参数配置
+        # config_ypmc_para(df_input, temp_temp, para, data, pd_read_flag)
+
 
         #################################################################################
 
@@ -654,7 +660,8 @@ if __name__ == '__main__':
         #################################################################################
 
         # # 轨面电压计算
-        # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
+        # # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
+        # md = PreModel_YPMC(turnout_list=turnout_list, parameter=para)
         # md.lg = LineGroup(md.l3, name_base='线路组')
         # md.lg.special_point = para['special_point']
         # md.lg.refresh()
