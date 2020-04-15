@@ -716,11 +716,24 @@ def config_data_rd(df_input, row, para, data, pd_read_flag, rd_zhu, rd_bei):
 # 配置钢轨阻抗
 def config_data_trk_z(df_input, row, para, data, pd_read_flag):
     freq = data['主串频率(Hz)']
-    data['钢轨电阻(Ω/km)'] = round(para['Trk_z'].rlc_s[freq][0], 10)
-    data['钢轨电感(H/km)'] = round(para['Trk_z'].rlc_s[freq][1], 10)
+
+    if pd_read_flag:
+        data['钢轨电阻(Ω/km)'] = df_input['钢轨电阻(Ω/km)'][row]
+        data['钢轨电感(H/km)'] = df_input['钢轨电感(H/km)'][row]
+        para['Trk_z'].rlc_s = \
+                {freq: [data['钢轨电阻(Ω/km)'], data['钢轨电感(H/km)'], None]}
+    else:
+        data['钢轨电阻(Ω/km)'] = round(para['Trk_z'].rlc_s[freq][0], 10)
+        data['钢轨电感(H/km)'] = round(para['Trk_z'].rlc_s[freq][1], 10)
+
+
+    # data['钢轨电阻(Ω/km)'] = round(para['Trk_z'].rlc_s[freq][0], 10)
+    # data['钢轨电感(H/km)'] = round(para['Trk_z'].rlc_s[freq][1], 10)
 
     para['主串钢轨阻抗'] = para['Trk_z']
     para['被串钢轨阻抗'] = para['Trk_z']
+
+
 
     # # data['主串钢轨电阻'] = cv3
     # data['主串钢轨电阻'] = df_input['主串钢轨电阻'][temp_temp]
