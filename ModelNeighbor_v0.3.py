@@ -4,7 +4,9 @@ from src.Model.PreModel import *
 from src.FrequencyType import Freq
 from src.ConstantType import *
 from src.Method import *
+from src.ConfigHeadList import *
 from src.Data2Excel import *
+from src.RowData import RowData
 
 import pandas as pd
 import time
@@ -84,119 +86,11 @@ if __name__ == '__main__':
     #################################################################################
 
     # 获取表头
-
-    # head_list = [
-    #     '序号',
-    #     '区段长度',
-    #     # '主串区段长度', '被串区段长度',
-    #     # '区段实际长度',
-    #     # '发送接收长度',
-    #     '耦合系数',
-    #     '钢轨电阻', '钢轨电感',
-    #     # '道床电阻',
-    #     '主串道床电阻', '被串道床电阻',
-    #     # '主串钢轨电阻', '主串钢轨电感',
-    #     # '被串钢轨电阻', '被串钢轨电感',
-    #     '主串频率', '被串频率',
-    #     '主串电容数', '被串电容数',
-    #     # 'TB模式',
-    #     '主串电容值', '被串电容值',
-    #     '主串拆卸情况', '被串拆卸情况',
-    #     # '电感短路故障情况',
-    #     # '换电容位置',
-    #     '分路电阻',
-    #     # 'TB引接线阻抗',
-    #     '分路间隔', '电缆长度',
-    #     '主串电平级',
-    #     '电源电压',
-    #     # '调整功出电压', '调整轨入最大值',
-    #     '钢轨电流最大值', '最大值位置',
-    #     # "SVA'互感",
-    #     # '主串出口电流', '主串入口电流',
-    #     '备注'
-    # ]
-
-    # head_list = [
-    #     '序号',
-    #     '备注',
-    #
-    #     '主串区段长度(m)', '被串区段长度(m)',
-    #
-    #     '钢轨电阻(Ω/km)', '钢轨电感(H/km)',
-    #
-    #     '耦合系数',
-    #     '主串频率(Hz)', '被串频率(Hz)',
-    #     '主串道床电阻(Ω·km)', '被串道床电阻(Ω·km)',
-    #     '主串电容数(含TB)', '被串电容数(含TB)',
-    #     '主串电容值(μF)', '被串电容值(μF)',
-    #     '主串拆卸情况', '被串拆卸情况',
-    #
-    #     '分路电阻(Ω)',
-    #     '分路间隔(m)',
-    #     '电缆长度(km)',
-    #
-    #     '主串电平级',
-    #     '发码继电器状态',
-    #
-    #     # '调整电阻(Ω)', '调整电感(H)', '调整电容(F)',
-    #     # '调整RLC模式',
-    #     #
-    #     # 'NGL-C1(μF)',
-    #     #
-    #     # 'WGL-C1(μF)',
-    #     # 'WGL-C2(μF)',
-    #     # 'WGL-L1-R(Ω)', 'WGL-L1-L(H)',
-    #     # 'WGL-L2-R(Ω)', 'WGL-L2-L(mH)',
-    #     #
-    #     # 'WGL-BPM变比',
-    #     # '扼流变压器变比',
-    #     #
-    #     # 'BE-Rm(Ω)', 'BE-Lm(H)',
-    #
-    #     '被串最大干扰电流(A)', '被串最大干扰位置(m)',
-    #     '主串出口电流(A)', '主串入口电流(A)',
-    # ]
-
-    # head_list = [
-    #     '序号',
-    #     '备注',
-    #
-    #     '主串区段长度(m)', '被串区段长度(m)',
-    #
-    #     '钢轨电阻(Ω/km)', '钢轨电感(H/km)',
-    #
-    #     '耦合系数',
-    #     '主串频率(Hz)', '被串频率(Hz)',
-    #     '主串道床电阻(Ω·km)', '被串道床电阻(Ω·km)',
-    #     '主串电容数(含TB)', '被串电容数(含TB)',
-    #     '主串电容值(μF)', '被串电容值(μF)',
-    #     '主串拆卸情况', '被串拆卸情况',
-    #
-    #     'TB模式',
-    #     # "SVA'互感",
-    #
-    #     '分路电阻(Ω)',
-    #     '分路间隔(m)',
-    #     '电缆长度(km)',
-    #
-    #     '主串电平级',
-    #     '电源电压',
-    #
-    #     # '是否全部更换TB',
-    #
-    #     # '主串轨入电压(调整状态)',
-    #     # '被串最大轨入电压(主备串同时分路状态)',
-    #
-    #     '被串最大干扰电流(A)', '被串最大干扰位置(m)',
-    #     # '主串出口电流(A)', '主串入口电流(A)',
-    # ]
-
-    head_list = config_ypmc_headlist()
+    head_list = config_headlist_ypmc()
 
     #################################################################################
 
-    turnout_list = []
-
+    # 初始化excel数据
     excel_data = []
     data2excel = Data2Excel(sheet_names=[])
 
@@ -216,35 +110,16 @@ if __name__ == '__main__':
     # 获取循环变量
     freq_list = [1700, 2000, 2300, 2600]
 
-    # clist1 = [
-    #     (300, 2),
-    #     (300, 3),
-    #     (350, 3),
-    #     (400, 4),
-    #     (450, 5),
-    #     (500, 5),
-    #     (550, 6),
-    #     (600, 6),
-    #     (650, 7)
-    # ]
-
-    # clist1 = [(650, 7)]
-    # clist1 = list(range(-5, 6, 1))
     clist1 = [1]
-    # clist1 = [6,  7]
-    # clist1 = [True, False]
-
     clist2 = [1]
     clist3 = [2600]
     clist4 = [2000]
     # clist3 = freq_list
     # clist4 = freq_list
-
     C_7_1 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
     C_7_2 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 2))
 
     clist5 = [[]]
-    # clist5 = [True, False]
     clist6 = [[]]
     # clist5.extend(C_7_1)
     # clist6.extend(C_7_1)
@@ -269,21 +144,8 @@ if __name__ == '__main__':
     # pd_read_flag = False
 
     for temp_temp in range(num_len):
-        # for temp_temp in [0]:
-    # for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
+        # for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
 
-        #################################################################################
-
-        # c_zhu = 60
-        # c_bei = 80
-
-        c_zhu = 25
-        c_bei = 25
-
-        # if cv3 == 1700 or cv3 == 2000:
-        #     c_zhu = 80e-6
-        # if cv4 == 1700 or cv4 == 2000:
-        #     c_bei = 80e-6
 
         #################################################################################
 
@@ -292,8 +154,6 @@ if __name__ == '__main__':
         if getattr(sys, 'frozen', False):
             print(df_input[temp_temp:(temp_temp + 1)])
 
-        aaa = df_input[temp_temp:(temp_temp + 1)]
-        # print(df_input.head())
         #################################################################################
 
         # 数据表初始化
@@ -304,423 +164,47 @@ if __name__ == '__main__':
         # 添加数据行
         data2excel.add_row()
 
+        # 打包行数据
+        df_input_row = df_input.iloc[temp_temp]
+        row_data = RowData(df_input_row, para, data, pd_read_flag)
+
         #################################################################################
 
-        # 序号
-        config_data_number(df_input, temp_temp, para, data, pd_read_flag, counter)
+        # 载入数据
+        flag = pd_read_flag
+        row_data.config_number(counter, pd_read_flag=flag)
+        row_data.config_remarks('无', pd_read_flag=flag)
+        row_data.config_sec_length(650, 650, pd_read_flag=flag)
+        row_data.config_mutual_coeff(13, pd_read_flag=flag)
+        row_data.config_freq(1700, 1700, pd_read_flag=flag)
+        row_data.config_c_num(7, 7, pd_read_flag=flag)
+        row_data.config_c_posi(None, None, pd_read_flag=False)
+        row_data.config_c2TB(False)
+        row_data.config_c_value(25, 25, pd_read_flag=flag)
+        row_data.config_rd(10000, 10000, pd_read_flag=flag, respectively=True)
+        row_data.config_trk_z(pd_read_flag=flag, respectively=False)
+        row_data.config_TB_mode('无TB', pd_read_flag=False)
+        row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
+        row_data.config_pop([], [], pd_read_flag=False)
+        row_data.config_cable_para()
+        row_data.config_cable_length(10, 10, pd_read_flag=flag, respectively=True)
+        row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
+        row_data.config_power(5, '最大', pd_read_flag=flag)
 
-        # 备注
-        config_data_remarks(df_input, temp_temp, para, data, pd_read_flag, '无')
+        row_data.config_sp_posi()
+        row_data.config_train_signal()
+        row_data.config_error()
 
-        # 区段长度
-        config_data_length(df_input, temp_temp, para, data, pd_read_flag, 650, 650)
+        interval = row_data.config_interval(1, pd_read_flag=flag)
 
-        # 耦合系数
-        config_data_mutualcoeff(df_input, temp_temp, para, data, pd_read_flag, 13)
-
-        # 区段频率
-        config_data_freq(df_input, temp_temp, para, data, pd_read_flag, 1700, 1700)
-
-        # 电容数量
-        config_data_c_num(df_input, temp_temp, para, data, pd_read_flag, 7, 7)
-
-        # 电容位置
-        config_data_c_posi(df_input, temp_temp, para, data, pd_read_flag, None, None)
-
-        # 电容换TB
-        config_data_c2TB(para, data, False)
-
-        # 电容容值
-        config_data_c_value(df_input, temp_temp, para, data, pd_read_flag, 25, 25)
-
-        # 道床电阻
-        config_data_rd(df_input, temp_temp, para, data, pd_read_flag, 10000, 10000)
-
-        # 钢轨阻抗
-        config_data_trk_z(df_input, temp_temp, para, data, pd_read_flag)
-
-        # TB模式
-        config_data_TB_mode(df_input, temp_temp, para, data, pd_read_flag, '无TB')
-
-        # 发码方向
-        config_data_sr_mode(df_input, temp_temp, para, data, pd_read_flag, '右发', '右发')
-
-        # 设备拆卸情况
-        config_data_pop(df_input, temp_temp, para, data, pd_read_flag, [], [])
-
-        # 电缆参数
-        config_data_cable_para(para, data)
-
-        # 电缆长度
-        config_data_cable_length(df_input, temp_temp, para, data, pd_read_flag, 10)
-
-        # 分路电阻
-        config_data_r_sht(df_input, temp_temp, para, data, pd_read_flag, 1e-7)
-
-        # 功出电源
-        config_data_power(df_input, temp_temp, para, data, pd_read_flag, 5, '最大')
-
-        # 分路间隔
-        interval = config_data_interval(df_input, temp_temp, data, pd_read_flag, 1)
-
-        # 特殊位置
-        config_data_sp_posi(para, data)
-
-        # 机车信号
-        config_data_train_signal(para, data)
-
-        data['故障情况'] = para['故障情况'] = '正常'
-
-
-        # #################################################################################
-        #
-        # if pd_read_flag:
-        #     data['序号'] = para['序号'] = df_input['序号'][temp_temp]
-        # else:
-        #     data['序号'] = para['序号'] = counter
-        #
-        # if pd_read_flag:
-        #     data['备注'] =  df_input['备注'][temp_temp]
-        # else:
-        #     data['备注'] = ''
-        #     # data['备注'] = '电容数为包含TB的电容数'
-        #     # data['备注'] = '发码继电器（0代表闭合，1代表断开）'
-        #
-        # data['故障情况'] = para['故障情况'] = '正常'
-        #
-        # #################################################################################
-        #
-        # # 区段长度位置
-        # # data['区段长度'] = para['length'] = length = 1050
-        # # data['区段长度'] = para['length'] = length = df_input['区段长度(m)'][temp_temp]
-        #
-        # if pd_read_flag:
-        #     data['主串区段长度(m)'] = para['主串区段长度'] = df_input['主串区段长度(m)'][temp_temp]
-        #     data['被串区段长度(m)'] = para['被串区段长度'] = df_input['被串区段长度(m)'][temp_temp]
-        # else:
-        #     data['主串区段长度(m)'] = para['主串区段长度'] = 650
-        #     data['被串区段长度(m)'] = para['被串区段长度'] = 650
-        #
-        # # data['发送接收长度'] = data['区段长度']
-        # # data['区段实际长度'] = df_input['区段长度(m)'][temp_temp]
-        #
-        # # data['相对位置'] = para['offset'] = 0
-        #
-        # data['主被发送相对位置'] = off_set_send = 0
-        # para['offset'] = data['被串区段长度(m)'] - data['主串区段长度(m)'] - off_set_send
-        #
-        # #################################################################################
-        #
-        # # 耦合系数
-        # if pd_read_flag:
-        #     data['耦合系数'] = para['耦合系数'] = df_input['耦合系数'][temp_temp]
-        # else:
-        #     # data['耦合系数'] = para['耦合系数'] = 15.5
-        #     data['耦合系数'] = para['耦合系数'] = 13
-        #
-        # #################################################################################
-        #
-        # # 频率
-        # if pd_read_flag:
-        #     data['主串频率(Hz)'] = para['freq_主'] = freq = df_input['主串频率(Hz)'][temp_temp]
-        #     data['被串频率(Hz)'] = para['freq_被'] = df_input['被串频率(Hz)'][temp_temp]
-        # else:
-        #     # data['主串频率(Hz)'] = para['freq_主'] = freq = 1700
-        #     # data['被串频率(Hz)'] = para['freq_被'] = 1700
-        #
-        #     data['主串频率(Hz)'] = para['freq_主'] = freq = cv3
-        #     data['被串频率(Hz)'] = para['freq_被'] = cv4
-        #
-        # data['freq'] = para['freq'] = Freq(freq)
-        #
-        # #################################################################################
-        #
-        # # 电容配置
-        # # data['主串电容数'] = para['主串电容数'] = get_c_num(Freq(data['主串频率']), data['区段长度'])
-        # # data['被串电容数'] = para['被串电容数'] = get_c_num(Freq(data['被串频率']), data['区段长度'])
-        #
-        # if pd_read_flag:
-        #     data['主串电容数(含TB)'] = para['主串电容数'] = df_input['主串电容数(含TB)'][temp_temp]
-        #     data['被串电容数(含TB)'] = para['被串电容数'] = df_input['被串电容数(含TB)'][temp_temp]
-        # else:
-        #     data['主串电容数(含TB)'] = para['主串电容数'] = 7
-        #     data['被串电容数(含TB)'] = para['被串电容数'] = 7
-        #     # data['主串电容数(含TB)'] = para['主串电容数'] = cv1
-        #     # data['被串电容数(含TB)'] = para['被串电容数'] = cv1
-        #
-        # #################################################################################
-        #
-        # # 电容位置
-        #
-        # # if pd_read_flag:
-        # #     data['主串电容(不含TB)位置'] = para['主串电容位置'] = df_input['主串电容(不含TB)位置'][temp_temp]
-        # #     data['被串电容(不含TB)位置'] = para['被串电容位置'] = df_input['主串电容(不含TB)位置'][temp_temp]
-        # # else:
-        # #     data['主串电容(不含TB)位置'] = para['主串电容位置'] = None
-        # #     data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
-        # #     # data['主串电容(不含TB)位置'] = para['主串电容位置'] = [10, 20, 30, 40, 50]
-        # #     # data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
-        #
-        # # hlf_pst = list(np.linspace(0, 650, 15))
-        # # c_pst = [hlf_pst[num * 2 + 1] - 90 for num in range(7)]
-        # # c_pst = c_pst[1:-1]
-        # #
-        # # # data['主串电容(不含TB)位置'] = para['主串电容位置'] = None
-        # # # data['被串电容(不含TB)位置'] = para['被串电容位置'] = None
-        # # data['主串电容(不含TB)位置'] = para['主串电容位置'] = c_pst
-        # # data['被串电容(不含TB)位置'] = para['被串电容位置'] = c_pst
-        #
-        # #################################################################################
-        #
-        # # 电容换TB
-        #
-        # data['主串更换TB'] = para['主串更换TB'] = False
-        # data['被串更换TB'] = para['被串更换TB'] = False
-        #
-        # # data['是否全部更换TB'] = True
-        # data['是否全部更换TB'] = False
-        # # data['是否全部更换TB'] = cv1
-        #
-        # if data['是否全部更换TB'] is True:
-        #     # if data['主串频率(Hz)'] == 1700 or data['主串频率(Hz)'] == 2000:
-        #     #     data['主串更换TB'] = para['主串更换TB'] = True
-        #     # if data['被串频率(Hz)'] == 1700 or data['被串频率(Hz)'] == 2000:
-        #     #     data['被串更换TB'] = para['被串更换TB'] = True
-        #
-        #     data['主串更换TB'] = para['主串更换TB'] = True
-        #     data['被串更换TB'] = para['被串更换TB'] = True
-        #
-        #
-        # #################################################################################
-        #
-        # # 电容容值
-        # if pd_read_flag:
-        #     data['主串电容值(μF)'] = c_value1 = df_input['主串电容值(μF)'][temp_temp]
-        #     data['被串电容值(μF)'] = c_value2 = df_input['被串电容值(μF)'][temp_temp]
-        # else:
-        #     data['主串电容值(μF)'] = c_value1 = c_zhu
-        #     data['被串电容值(μF)'] = c_value2 = c_bei
-        #
-        # c_value1 = c_value1 * 1e-6
-        # c_value2 = c_value2 * 1e-6
-        # para['Ccmp_z_change_zhu'].rlc_s = {
-        #     1700: [10e-3, None, c_value1],
-        #     2000: [10e-3, None, c_value1],
-        #     2300: [10e-3, None, c_value1],
-        #     2600: [10e-3, None, c_value1]}
-        # para['Ccmp_z_change_chuan'].rlc_s = {
-        #     1700: [10e-3, None, c_value2],
-        #     2000: [10e-3, None, c_value2],
-        #     2300: [10e-3, None, c_value2],
-        #     2600: [10e-3, None, c_value2]}
-        #
-        # # para['Ccmp_z_change_chuan'].rlc_s = {
-        # #     1700: [10e-3, 390e-6, 11.9e-6],
-        # #     2000: [10e-3, 390e-6, 11.9e-6],
-        # #     2300: [10e-3, 390e-6, 11.9e-6],
-        # #     2600: [10e-3, 390e-6, 11.9e-6]}
-        #
-        # # data['被串电容值'] = '抑制装置'
-        # # para['抑制装置电感短路'] = ImpedanceMultiFreq()
-        # # para['抑制装置电感短路'].rlc_s = {
-        # #     1700: [10e-3, None, 11.9e-6],
-        # #     2000: [10e-3, None, 11.9e-6],
-        # #     2300: [10e-3, None, 11.9e-6],
-        # #     2600: [10e-3, None, 11.9e-6]}
-        #
-        # # data['换电容位置'] = para['换电容位置'] = cv2
-        # # data['换电容位置'] = para['换电容位置'] = 0
-        #
-        # #################################################################################
-        #
-        # # 道床电阻
-        # data['道床电阻'] = rd_temp = 10000
-        # # data['道床电阻'] = rd_temp = 20
-        # # data['道床电阻'] = rd_temp = cv5
-        # # data['道床电阻'] = rd_temp = df_input['道床电阻(Ω·km)'][temp_temp]
-        # # data['道床电阻'] = df_input['主串道床电阻'][temp_temp]
-        #
-        # if pd_read_flag:
-        #     data['主串道床电阻(Ω·km)'] = df_input['主串道床电阻(Ω·km)'][temp_temp]
-        #     data['被串道床电阻(Ω·km)'] = df_input['被串道床电阻(Ω·km)'][temp_temp]
-        # else:
-        #     data['主串道床电阻(Ω·km)'] = data['道床电阻']
-        #     data['被串道床电阻(Ω·km)'] = data['道床电阻']
-        #
-        # para['主串道床电阻'] = Constant(data['主串道床电阻(Ω·km)'])
-        # para['被串道床电阻'] = Constant(data['被串道床电阻(Ω·km)'])
-        #
-        # #################################################################################
-        #
-        # # 钢轨阻抗
-        # data['钢轨电阻(Ω/km)'] = round(para['Trk_z'].rlc_s[freq][0], 10)
-        # data['钢轨电感(H/km)'] = round(para['Trk_z'].rlc_s[freq][1], 10)
-        #
-        # para['主串钢轨阻抗'] = para['Trk_z']
-        # para['被串钢轨阻抗'] = para['Trk_z']
-        #
-        # # # data['主串钢轨电阻'] = cv3
-        # # data['主串钢轨电阻'] = df_input['主串钢轨电阻'][temp_temp]
-        # #
-        # # # data['主串钢轨电感'] = cv4
-        # # data['主串钢轨电感'] = df_input['主串钢轨电感'][temp_temp]
-        # #
-        # # # data['被串钢轨电阻'] = 1.558
-        # # data['被串钢轨电阻'] = df_input['被串钢轨电阻'][temp_temp]
-        # #
-        # # # data['被串钢轨电感'] = 1.291e-3
-        # # data['被串钢轨电感'] = df_input['被串钢轨电感'][temp_temp]
-        # #
-        # # para['主串钢轨阻抗'] = ImpedanceMultiFreq()
-        # # para['主串钢轨阻抗'].rlc_s = \
-        # #     {data['主串频率']: [data['主串钢轨电阻'], data['主串钢轨电感'], None]}
-        # # para['被串钢轨阻抗'] = ImpedanceMultiFreq()
-        # # para['被串钢轨阻抗'].rlc_s = \
-        # #     {data['主串频率']: [data['被串钢轨电阻'], data['被串钢轨电感'], None]}
-        #
-        # #################################################################################
-        #
-        # # TB模式
-        # # data['TB模式'] = flag_tb = '发送端单TB'
-        # data['TB模式'] = flag_tb = '无TB'
-        # # data['TB模式'] = flag_tb = '双端TB'
-        # # data['TB模式'] = flag_tb = df_input['TB模式'][temp_temp]
-        # if flag_tb == '双端TB':
-        #     para['TB模式'] = '双'
-        # elif flag_tb == '发送端单TB':
-        #     para['TB模式'] = '右'
-        # elif flag_tb == '接收端单TB':
-        #     para['TB模式'] = '左'
-        # elif flag_tb == '无TB':
-        #     para['TB模式'] = '无'
-        # else:
-        #     raise KeyboardInterrupt('TB模式错误')
-        #
-        # #################################################################################
-        #
-        # # # 发码方向
-        # # if pd_read_flag:
-        # #     data['发码继电器状态'] = df_input['发码继电器状态'][temp_temp]
-        # # else:
-        # #     # data['发码继电器状态'] = 1
-        # #     data['发码继电器状态'] = 0
-        #
-        # data['主串发送器位置'] = para['sr_mod_主'] = '右发'
-        # data['被串发送器位置'] = para['sr_mod_被'] = '右发'
-        # # data['被串发送器位置'] = para['sr_mod_被'] = '左发'
-        #
-        # # if data['发码继电器状态'] == 1:
-        # #     data['被串发送器位置'] = para['sr_mod_被'] = '不发码'
-        # # elif data['发码继电器状态'] == 0:
-        # #     data['被串发送器位置'] = para['sr_mod_被'] = '右发'
-        #
-        # #################################################################################
-        #
-        # # # 设备拆卸情况
-        # # if pd_read_flag:
-        # #     data['主串拆卸情况'] = para['主串拆卸情况'] = eval(df_input['主串拆卸情况'][temp_temp])
-        # #     data['被串拆卸情况'] = para['被串拆卸情况'] = eval(df_input['被串拆卸情况'][temp_temp])
-        # # else:
-        # #     data['主串拆卸情况'] = para['主串拆卸情况'] = []
-        # #     data['被串拆卸情况'] = para['被串拆卸情况'] = []
-        # #     # data['主串拆卸情况'] = para['主串拆卸情况'] = cv5
-        # #     # data['被串拆卸情况'] = para['被串拆卸情况'] = cv6
-        # #     # data['电感短路故障情况'] = data['被串拆卸情况']
-        #
-        # #################################################################################
-        #
-        # # 极性交叉位置
-        # data['极性交叉位置'] = para['极性交叉位置'] = []
-        #
-        # # data['特殊位置'] = para['special_point'] = list(np.linspace(0,length + length, 21))
-        # data['特殊位置'] = para['special_point'] = data['极性交叉位置']
-        #
-        # data['节点选取模式'] = para['节点选取模式'] = '特殊'
-        #
-        # #################################################################################
-        #
-        # # SVA'互感
-        # data["SVA'互感"] = para["SVA'互感"] = 1
-        #
-        # #################################################################################
-        #
-        # # 机车信号
-        # data['最小机车信号位置'] = '-'
-        #
-        # data['机车信号感应系数'] = \
-        #     str(para['机车信号比例V']) + '/' + str(para['机车信号比例I'][para['freq_主']])
-        # para['机车信号系数值'] = para['机车信号比例V'] / para['机车信号比例I'][para['freq_主']]
-        #
-        # #################################################################################
-        #
-        # # 电缆参数
-        # data['电缆电阻最大(Ω/km)'] = 45
-        # data['电缆电阻最小(Ω/km)'] = 43
-        # # data['电缆电容最大(F/km)'] = 30e-9
-        # # data['电缆电容最小(F/km)'] = 26e-9
-        # data['电缆电容最大(F/km)'] = 28e-9
-        # data['电缆电容最小(F/km)'] = 28e-9
-        #
-        # para['Cable_R'].value = data['电缆电阻最小(Ω/km)']
-        # para['Cable_C'].value = data['电缆电容最大(F/km)']
-        #
-        # #################################################################################
-        #
-        # # # 电缆长度
-        # # if pd_read_flag:
-        # #     data['电缆长度(km)'] = para['cab_len'] = df_input['电缆长度(km)'][temp_temp]
-        # # else:
-        # #     data['电缆长度(km)'] = para['cab_len'] = cab_len = 10
-        # #
-        # # #################################################################################
-        # #
-        # # # 分路电阻
-        # # if pd_read_flag:
-        # #     data['分路电阻(Ω)'] = para['Rsht_z'] = df_input['分路电阻(Ω)'][temp_temp]
-        # # else:
-        # #     data['分路电阻(Ω)'] = para['Rsht_z'] = 0.0000001
-        #
-        # #################################################################################
-        #
-        # # 道床电阻
-        # # data['道床电阻最大(Ω·km)'] = 1000
-        # # data['道床电阻最小(Ω·km)'] = 2
-        #
-        # para['Rd'].value = data['道床电阻']
-        #
-        # #################################################################################
-        #
-        # # 电源配置
-        # if pd_read_flag:
-        #     data['主串电平级'] = para['send_level'] = df_input['主串电平级'][temp_temp]
-        # else:
-        #     data['主串电平级'] = para['send_level'] = 5
-        #
-        # data['电源电压'] = para['pwr_v_flg'] = '最大'
-        # # data['电源电压'] = para['pwr_v_flg'] = 105.9
-        # # data['电源电压'] = para['pwr_v_flg'] = df_input['电源电压'][temp_temp]
-        #
-        # #################################################################################
-        #
-        # # 分路间隔
-        # if pd_read_flag:
-        #     data['分路间隔(m)'] = interval = df_input['分路间隔(m)'][temp_temp]
-        # else:
-        #     data['分路间隔(m)'] = interval = 1
-
-
-        # # 电码化参数配置
-        # config_25Hz_coding_para(df_input, temp_temp, para, data, pd_read_flag)
-
-        # 移频脉冲参数配置
-        config_ypmc_para(df_input, temp_temp, para, data, pd_read_flag)
-
+        # 移频脉冲
+        row_data.config_ypmc_EL(pd_read_flag=flag)
 
         len_posi = 0
         #################################################################################
 
         # # 调整计算
-        # md = PreModel(turnout_list=turnout_list, parameter=para)
+        # md = PreModel(parameter=para)
         # md.lg = LineGroup(md.l3, name_base='线路组')
         # md.lg.special_point = para['special_point']
         # md.lg.refresh()
@@ -731,11 +215,12 @@ if __name__ == '__main__':
         #################################################################################
 
         # 轨面电压计算
-        # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
-        md = PreModel_YPMC(turnout_list=turnout_list, parameter=para)
+        # md = PreModel_25Hz_coding(parameter=para)
+        md = PreModel_YPMC(parameter=para)
         md.lg = LineGroup(md.l3, name_base='线路组')
         md.lg.special_point = para['special_point']
         md.lg.refresh()
+
         posi_list = np.arange(data['主串区段长度(m)'], -0.00001, -interval)
 
         len_posi = max(len(posi_list), len_posi)
@@ -753,25 +238,6 @@ if __name__ == '__main__':
 
         #################################################################################
 
-        # # 轨面电压计算
-        # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
-        # md.lg = LineGroup(md.l3, name_base='线路组')
-        # md.lg.special_point = para['special_point']
-        # md.lg.refresh()
-        # posi_list = np.arange(data['主串区段长度(m)'], -0.00001, -interval)
-        #
-        # len_posi = len(posi_list)
-        #
-        # for posi_zhu in posi_list:
-        #     md.jumper.posi_rlt = posi_zhu
-        #     md.jumper.set_posi_abs(0)
-        #     m1 = MainModel(md.lg, md=md)
-        #
-        #     v_rail_zhu = md.lg['线路3']['地面']['区段1']['跳线']['U'].value_c
-        #     data2excel.add_data(sheet_name="主串轨面电压", data1=v_rail_zhu)
-
-        #################################################################################
-
         # data['调整轨入最大值'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
         # data['调整功出电压'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
         # data['调整接收轨入max(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
@@ -783,12 +249,12 @@ if __name__ == '__main__':
         #################################################################################
 
         # 分路计算
-        para['Rsht_z'] = data['分路电阻(Ω)']
 
-        # md = PreModel(turnout_list=turnout_list, parameter=para)
-        md = PreModel_YPMC(turnout_list=turnout_list, parameter=para)
-        # md = PreModel_EeMe(turnout_list=turnout_list, parameter=para)
-        # md = PreModel_25Hz_coding(turnout_list=turnout_list, parameter=para)
+        # md = PreModel(parameter=para)
+        md = PreModel_YPMC(parameter=para)
+        # md = PreModel_EeMe(parameter=para)
+        # md = PreModel_25Hz_coding(parameter=para)
+
         md.add_train()
 
         posi_list = np.arange(data['被串区段长度(m)'], -0.00001, -interval)
@@ -803,12 +269,6 @@ if __name__ == '__main__':
             posi_zhu = posi_bei
             md.train2.posi_rlt = posi_zhu
             md.train2.set_posi_abs(0)
-
-            # posi_rrr = length - posi_tr + length
-            # md.train3.posi_rlt = posi_rrr
-            # md.train3.set_posi_abs(0)
-            # md.train4.posi_rlt = posi_rrr
-            # md.train4.set_posi_abs(0)
 
             m1 = MainModel(md.lg, md=md)
 
@@ -907,8 +367,6 @@ if __name__ == '__main__':
     posi_header = list(range(columns_max))
     # posi_header[0] = '发送端'
     posi_header[0] = '主串发送端'
-    # posi_header[0] = '调整状态'
-    # posi_header[1] = '发送端0m分路'
     # posi_header = None
 
     df_data = pd.DataFrame(excel_data, columns=head_list)
