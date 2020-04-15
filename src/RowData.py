@@ -21,7 +21,7 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['序号'] = para['序号'] = df_input['序号'][0]
+            data['序号'] = para['序号'] = df_input['序号']
         else:
             data['序号'] = para['序号'] = counter
 
@@ -33,7 +33,7 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['备注'] = para['备注'] = df_input['备注'][0]
+            data['备注'] = para['备注'] = df_input['备注']
         else:
             data['备注'] = para['备注'] = remarks
 
@@ -45,8 +45,8 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['主串区段长度(m)'] = para['主串区段长度'] = df_input['主串区段长度(m)'][0]
-            data['被串区段长度(m)'] = para['被串区段长度'] = df_input['被串区段长度(m)'][0]
+            data['主串区段长度(m)'] = para['主串区段长度'] = df_input['主串区段长度(m)']
+            data['被串区段长度(m)'] = para['被串区段长度'] = df_input['被串区段长度(m)']
         else:
             data['主串区段长度(m)'] = para['主串区段长度'] = len_zhu
             data['被串区段长度(m)'] = para['被串区段长度'] = len_bei
@@ -62,7 +62,7 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['耦合系数'] = para['耦合系数'] = df_input['耦合系数'][0]
+            data['耦合系数'] = para['耦合系数'] = df_input['耦合系数']
         else:
             data['耦合系数'] = para['耦合系数'] = coeff
 
@@ -74,8 +74,8 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['主串频率(Hz)'] = para['freq_主'] = freq = df_input['主串频率(Hz)'][0]
-            data['被串频率(Hz)'] = para['freq_被'] = df_input['被串频率(Hz)'][0]
+            data['主串频率(Hz)'] = para['freq_主'] = freq = df_input['主串频率(Hz)']
+            data['被串频率(Hz)'] = para['freq_被'] = df_input['被串频率(Hz)']
         else:
             data['主串频率(Hz)'] = para['freq_主'] = freq = frq_zhu
             data['被串频率(Hz)'] = para['freq_被'] = frq_bei
@@ -92,8 +92,8 @@ class RowData:
         # data['主串电容数'] = para['主串电容数'] = get_c_num(Freq(data['主串频率']), data['区段长度'])
         # data['被串电容数'] = para['被串电容数'] = get_c_num(Freq(data['被串频率']), data['区段长度'])
         if pd_read_flag:
-            data['主串电容数(含TB)'] = para['主串电容数'] = df_input['主串电容数(含TB)'][0]
-            data['被串电容数(含TB)'] = para['被串电容数'] = df_input['被串电容数(含TB)'][0]
+            data['主串电容数(含TB)'] = para['主串电容数'] = df_input['主串电容数(含TB)']
+            data['被串电容数(含TB)'] = para['被串电容数'] = df_input['被串电容数(含TB)']
         else:
             data['主串电容数(含TB)'] = para['主串电容数'] = cnum_zhu
             data['被串电容数(含TB)'] = para['被串电容数'] = cnum_bei
@@ -106,8 +106,8 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['主串电容(不含TB)位置'] = para['主串电容位置'] = df_input['主串电容(不含TB)位置'][0]
-            data['被串电容(不含TB)位置'] = para['被串电容位置'] = df_input['主串电容(不含TB)位置'][0]
+            data['主串电容(不含TB)位置'] = para['主串电容位置'] = df_input['主串电容(不含TB)位置']
+            data['被串电容(不含TB)位置'] = para['被串电容位置'] = df_input['主串电容(不含TB)位置']
         else:
             data['主串电容(不含TB)位置'] = para['主串电容位置'] = c_pst_zhu
             data['被串电容(不含TB)位置'] = para['被串电容位置'] = c_pst_bei
@@ -148,8 +148,8 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['主串电容值(μF)'] = c_value1 = df_input['主串电容值(μF)'][0]
-            data['被串电容值(μF)'] = c_value2 = df_input['被串电容值(μF)'][0]
+            data['主串电容值(μF)'] = c_value1 = df_input['主串电容值(μF)']
+            data['被串电容值(μF)'] = c_value2 = df_input['被串电容值(μF)']
         else:
             data['主串电容值(μF)'] = c_value1 = c_val_zhu
             data['被串电容值(μF)'] = c_value2 = c_val_bei
@@ -194,8 +194,8 @@ class RowData:
 
         if respectively:
             if pd_read_flag:
-                data['主串道床电阻(Ω·km)'] = df_input['主串道床电阻(Ω·km)'][0]
-                data['被串道床电阻(Ω·km)'] = df_input['被串道床电阻(Ω·km)'][0]
+                data['主串道床电阻(Ω·km)'] = df_input['主串道床电阻(Ω·km)']
+                data['被串道床电阻(Ω·km)'] = df_input['被串道床电阻(Ω·km)']
             else:
                 data['主串道床电阻(Ω·km)'] = rd_zhu
                 data['被串道床电阻(Ω·km)'] = rd_bei
@@ -207,7 +207,7 @@ class RowData:
         else:
             data['道床电阻'] = rd_zhu
             if pd_read_flag:
-                data['道床电阻(Ω·km)'] = df_input['道床电阻(Ω·km)'][0]
+                data['道床电阻(Ω·km)'] = df_input['道床电阻(Ω·km)']
                 data['主串道床电阻(Ω·km)'] = data['道床电阻(Ω·km)']
                 data['被串道床电阻(Ω·km)'] = data['道床电阻(Ω·km)']
             else:
@@ -230,10 +230,10 @@ class RowData:
 
         if respectively:
             if pd_read_flag:
-                data['主串钢轨电阻'] = df_input['主串钢轨电阻'][0]
-                data['主串钢轨电感'] = df_input['主串钢轨电感'][0]
-                data['被串钢轨电阻'] = df_input['被串钢轨电阻'][0]
-                data['被串钢轨电感'] = df_input['被串钢轨电感'][0]
+                data['主串钢轨电阻'] = df_input['主串钢轨电阻']
+                data['主串钢轨电感'] = df_input['主串钢轨电感']
+                data['被串钢轨电阻'] = df_input['被串钢轨电阻']
+                data['被串钢轨电感'] = df_input['被串钢轨电感']
 
                 para['主串钢轨阻抗'] = ImpedanceMultiFreq()
                 para['主串钢轨阻抗'].rlc_s = \
@@ -250,8 +250,8 @@ class RowData:
                 para['被串钢轨阻抗'] = para['Trk_z']
         else:
             if pd_read_flag:
-                data['钢轨电阻(Ω/km)'] = df_input['钢轨电阻(Ω/km)'][0]
-                data['钢轨电感(H/km)'] = df_input['钢轨电感(H/km)'][0]
+                data['钢轨电阻(Ω/km)'] = df_input['钢轨电阻(Ω/km)']
+                data['钢轨电感(H/km)'] = df_input['钢轨电感(H/km)']
                 para['Trk_z'].rlc_s = \
                         {freq: [data['钢轨电阻(Ω/km)'], data['钢轨电感(H/km)'], None]}
             else:
@@ -271,7 +271,7 @@ class RowData:
         pd_read_flag = False
 
         if pd_read_flag:
-            data['TB模式'] = flag_tb = df_input['TB模式'][0]
+            data['TB模式'] = flag_tb = df_input['TB模式']
         else:
             data['TB模式'] = flag_tb = tb_mode
 
@@ -349,14 +349,14 @@ class RowData:
         if respectively:
             para['cab_len'] = len_zhu
             if pd_read_flag:
-                data['主串电缆长度(km)'] = para['主串电缆长度'] = df_input['主串电缆长度(km)'][0]
-                data['被串电缆长度(km)'] = para['被串电缆长度'] = df_input['被串电缆长度(km)'][0]
+                data['主串电缆长度(km)'] = para['主串电缆长度'] = df_input['主串电缆长度(km)']
+                data['被串电缆长度(km)'] = para['被串电缆长度'] = df_input['被串电缆长度(km)']
             else:
                 data['主串电缆长度(km)'] = para['主串电缆长度'] = len_zhu
                 data['被串电缆长度(km)'] = para['被串电缆长度'] = len_bei
         else:
             if pd_read_flag:
-                data['电缆长度(km)'] = para['cab_len'] = df_input['电缆长度(km)'][0]
+                data['电缆长度(km)'] = para['cab_len'] = df_input['电缆长度(km)']
             else:
                 data['电缆长度(km)'] = para['cab_len'] = len_zhu
 
@@ -370,14 +370,14 @@ class RowData:
         if respectively:
             para['Rsht_z'] = 0.0000001
             if pd_read_flag:
-                data['主串分路电阻(Ω)'] = para['主串分路电阻'] = df_input['主串分路电阻(Ω)'][0]
-                data['被串分路电阻(Ω)'] = para['被串分路电阻'] = df_input['被串分路电阻(Ω)'][0]
+                data['主串分路电阻(Ω)'] = para['主串分路电阻'] = df_input['主串分路电阻(Ω)']
+                data['被串分路电阻(Ω)'] = para['被串分路电阻'] = df_input['被串分路电阻(Ω)']
             else:
                 data['主串分路电阻(Ω)'] = para['主串分路电阻'] = r_zhu
                 data['被串分路电阻(Ω)'] = para['被串分路电阻'] = r_bei
         else:
             if pd_read_flag:
-                data['分路电阻(Ω)'] = para['Rsht_z'] = df_input['分路电阻(Ω)'][0]
+                data['分路电阻(Ω)'] = para['Rsht_z'] = df_input['分路电阻(Ω)']
             else:
                 data['分路电阻(Ω)'] = para['Rsht_z'] = r_zhu
 
@@ -389,7 +389,7 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['主串电平级'] = para['send_level'] = df_input['主串电平级'][0]
+            data['主串电平级'] = para['send_level'] = df_input['主串电平级']
         else:
             data['主串电平级'] = para['send_level'] = send_level
 
@@ -403,7 +403,7 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['分路间隔(m)'] = df_input['分路间隔(m)'][0]
+            data['分路间隔(m)'] = df_input['分路间隔(m)']
         else:
             data['分路间隔(m)'] = interval
 
