@@ -9,7 +9,7 @@ from src.Method import *
 
 
 class PreModel:
-    def __init__(self, turnout_list, parameter):
+    def __init__(self, parameter):
         self.parameter = para = parameter
         self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
         self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
@@ -241,8 +241,8 @@ class PreModel:
 
 
 class PreModelAdjust(PreModel):
-    def __init__(self, turnout_list, parameter):
-        super().__init__(turnout_list, parameter)
+    def __init__(self, parameter):
+        super().__init__(parameter)
         self.parameter = para = parameter
 
         # 轨道电路初始化
@@ -295,7 +295,7 @@ class PreModelAdjust(PreModel):
 
 
 class PreModel_25Hz_coding(PreModel):
-    def __init__(self, turnout_list, parameter):
+    def __init__(self, parameter):
         # super().__init__(turnout_list, parameter)
         self.parameter = para = parameter
         self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
@@ -403,7 +403,7 @@ class PreModel_25Hz_coding(PreModel):
 
 
 class PreModel_EeMe(PreModel):
-    def __init__(self, turnout_list, parameter):
+    def __init__(self, parameter):
         # super().__init__(turnout_list, parameter)
         self.parameter = para = parameter
         self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
@@ -464,7 +464,7 @@ class PreModel_EeMe(PreModel):
 
 
 class PreModel_YPMC(PreModel):
-    def __init__(self, turnout_list, parameter):
+    def __init__(self, parameter):
         # super().__init__(turnout_list, parameter)
         self.parameter = para = parameter
         self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
