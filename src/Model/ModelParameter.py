@@ -550,4 +550,5 @@ if __name__ == '__main__':
     # print(time.asctime(time.localtime()))
 
     # 导入参数
-    para = ModelParameter()
+    # para = ModelParameter()
+    pass
