@@ -372,24 +372,25 @@ class ImpedanceMultiFreq:
 
 
 if __name__ == '__main__':
-    a = ImpedanceMultiFreq()
-    a.rlc_s = {
-        # 1700: [1.539, 502e-6, None],
-        1700: [1.539, 502.818e-6, None],
-        2000: [1.595, 500e-6, None],
-        2300: [1.652, 498e-6, None],
-        2600: [1.712, 496e-6, None]}
-
-    b = ImpedanceMultiFreq()
-    b.rlc_s = {
-        # 1700: [221, 44.2e-3, None],
-        1700: [221.835, 44.169e-3, None],
-        2000: [253, 40.9e-3, None],
-        2300: [277, 38.3e-3, None],
-        2600: [298, 36.1e-3, None]}
-    c = ImpedanceWithFreq(1700)
-    c.z = 20
-
-    d = c.copy()
-    d.freq = 1700
-    xxx = 10
+    pass
+    # a = ImpedanceMultiFreq()
+    # a.rlc_s = {
+    #     # 1700: [1.539, 502e-6, None],
+    #     1700: [1.539, 502.818e-6, None],
+    #     2000: [1.595, 500e-6, None],
+    #     2300: [1.652, 498e-6, None],
+    #     2600: [1.712, 496e-6, None]}
+    #
+    # b = ImpedanceMultiFreq()
+    # b.rlc_s = {
+    #     # 1700: [221, 44.2e-3, None],
+    #     1700: [221.835, 44.169e-3, None],
+    #     2000: [253, 40.9e-3, None],
+    #     2300: [277, 38.3e-3, None],
+    #     2600: [298, 36.1e-3, None]}
+    # c = ImpedanceWithFreq(1700)
+    # c.z = 20
+    #
+    # d = c.copy()
+    # d.freq = 1700
+    # xxx = 10
