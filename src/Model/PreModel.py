@@ -26,8 +26,8 @@ class PreModel:
                            m_frqs=m_frqs,
                            m_lens=[para['主串区段长度']]*3,
                            j_lens=[0]*4,
-                           m_typs=['2000A_BPLN']*3,
-                           # m_typs=['2000A']*3,
+                           # m_typs=['2000A_BPLN']*3,
+                           m_typs=['2000A']*3,
                            c_nums=[para['主串电容数']]*3,
                            sr_mods=[para['sr_mod_主']]*3,
                            send_lvs=[send_level]*3,
@@ -46,20 +46,20 @@ class PreModel:
                            m_frqs=m_frqs,
                            m_lens=[para['被串区段长度']]*3,
                            j_lens=[0]*4,
-                           m_typs=['2000A_BPLN']*3,
-                           # m_typs=['2000A']*3,
+                           # m_typs=['2000A_BPLN']*3,
+                           m_typs=['2000A']*3,
                            c_nums=[para['被串电容数']]*3,
                            sr_mods=[para['sr_mod_被']]*3,
                            send_lvs=[send_level]*3,
                            parameter=parameter)
 
-        # partent = sg3['区段1']
-        # ele = JumperWire(parent_ins=partent,
-        #                  name_base='跳线',
-        #                  posi=para['主串区段长度'])
-        # partent.add_child('跳线', ele)
-        # ele.set_posi_abs(0)
-        # jumper1 = ele
+        partent = sg3['区段1']
+        ele = JumperWire(parent_ins=partent,
+                         name_base='跳线',
+                         posi=para['主串区段长度'])
+        partent.add_child('跳线', ele)
+        ele.set_posi_abs(0)
+        self.jumper = ele
 
         # partent = sg3['区段2']
         # ele = JumperWire(parent_ins=partent,
@@ -77,9 +77,12 @@ class PreModel:
 
         # self.check_C2TB()
         self.change_c_value()
-        self.pop_c()
+        # self.pop_c()
         # self.config_c_posi()
-        self.check_fault()
+        # self.check_fault()
+
+        self.change_cable_length()
+        self.change_r_shunt()
 
         # sg3['区段1'].element.pop('TB2')
         # sg3['区段1'].element.pop('左调谐单元')
@@ -164,6 +167,32 @@ class PreModel:
 
         self.section_group3.set_posi_abs(0)
         self.section_group4.set_posi_abs(0)
+
+
+    def change_cable_length(self):
+        para = self.parameter
+
+        if para['主串电缆长度'] is not None:
+            for ele in self.section_group3['区段1'].element.values():
+                if isinstance(ele, ZPW2000A_ZN_PTSVA1):
+                    ele_cab = ele['3Cab']
+                    ele_cab.length = para['主串电缆长度']
+
+        if para['被串电缆长度'] is not None:
+            for ele in self.section_group4['区段1'].element.values():
+                if isinstance(ele, ZPW2000A_ZN_PTSVA1):
+                    ele_cab = ele['3Cab']
+                    ele_cab.length = para['被串电缆长度']
+
+
+    def change_r_shunt(self):
+        para = self.parameter
+
+        if para['主串分路电阻'] is not None:
+            self.train2['分路电阻1'].z = para['主串分路电阻']
+
+        if para['被串分路电阻'] is not None:
+            self.train1['分路电阻1'].z = para['被串分路电阻']
 
 
     def check_fault(self):
