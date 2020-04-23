@@ -51,7 +51,11 @@ class RowData:
             data['主串区段长度(m)'] = para['主串区段长度'] = len_zhu
             data['被串区段长度(m)'] = para['被串区段长度'] = len_bei
 
-        data['主被发送相对位置'] = off_set_send = 0
+        if pd_read_flag:
+            data['被串相对主串位置'] = off_set_send = df_input['被串相对主串位置']
+        else:
+            data['被串相对主串位置'] = off_set_send = 0
+
         para['offset'] = data['被串区段长度(m)'] - data['主串区段长度(m)'] - off_set_send
 
 
@@ -237,10 +241,10 @@ class RowData:
 
                 para['主串钢轨阻抗'] = ImpedanceMultiFreq()
                 para['主串钢轨阻抗'].rlc_s = \
-                    {data['主串频率']: [data['主串钢轨电阻'], data['主串钢轨电感'], None]}
+                    {data['主串频率(Hz)']: [data['主串钢轨电阻'], data['主串钢轨电感'], None]}
                 para['被串钢轨阻抗'] = ImpedanceMultiFreq()
                 para['被串钢轨阻抗'].rlc_s = \
-                    {data['主串频率']: [data['被串钢轨电阻'], data['被串钢轨电感'], None]}
+                    {data['主串频率(Hz)']: [data['被串钢轨电阻'], data['被串钢轨电感'], None]}
             else:
                 data['主串钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
                 data['主串钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
@@ -268,7 +272,7 @@ class RowData:
     def config_TB_mode(self, tb_mode, pd_read_flag=False):
         df_input, para, data = self.read_parameters()
 
-        pd_read_flag = False
+        # pd_read_flag = False
 
         if pd_read_flag:
             data['TB模式'] = flag_tb = df_input['TB模式']
@@ -393,7 +397,10 @@ class RowData:
         else:
             data['主串电平级'] = para['send_level'] = send_level
 
-        data['电源电压'] = para['pwr_v_flg'] = v_power
+        if pd_read_flag:
+            data['电源电压'] = para['pwr_v_flg'] = df_input['电源电压']
+        else:
+            data['电源电压'] = para['pwr_v_flg'] = v_power
 
 
     #################################################################################
