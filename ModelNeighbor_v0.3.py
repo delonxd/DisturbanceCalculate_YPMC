@@ -29,7 +29,9 @@ if __name__ == '__main__':
     # df_input = pd.read_excel('邻线干扰参数输入_拆电容.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_电码化.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_v0.4.xlsx')
-    df_input = pd.read_excel('邻线干扰参数输入_移频脉冲_v0.2.xlsx')
+    # df_input = pd.read_excel('邻线干扰参数输入_移频脉冲_v0.2.xlsx')
+    # df_input = pd.read_excel('ZPW-2000A一体化邻线干扰参数输入表格_v0.4.0.xlsx')
+    df_input = pd.read_excel('邻线干扰参数输入_2000A一体化_v0.4.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_BPLN.xlsx')
 
     df_input = df_input.where(df_input.notnull(), None)
@@ -86,13 +88,15 @@ if __name__ == '__main__':
     #################################################################################
 
     # 获取表头
-    head_list = config_headlist_ypmc()
+    # head_list = config_headlist_ypmc()
+    head_list = config_headlist_2000A_inte()
 
     #################################################################################
 
     # 初始化excel数据
     excel_data = []
-    data2excel = Data2Excel(sheet_names=[])
+    # data2excel = Data2Excel(sheet_names=[])
+    data2excel = SheetDataGroup(sheet_names=[])
 
     #################################################################################
 
@@ -162,7 +166,8 @@ if __name__ == '__main__':
             data[key] = None
 
         # 添加数据行
-        data2excel.add_row()
+        # data2excel.add_row()
+        data2excel.add_new_row()
 
         # 打包行数据
         df_input_row = df_input.iloc[temp_temp]
@@ -172,8 +177,14 @@ if __name__ == '__main__':
 
         # 载入数据
         flag = pd_read_flag
+
+        # 序号
         row_data.config_number(counter, pd_read_flag=flag)
-        row_data.config_remarks('无', pd_read_flag=flag)
+
+        # 备注
+        row_data.config_remarks('无', pd_read_flag=False)
+        # row_data.config_remarks('无', pd_read_flag=flag)
+
         row_data.config_sec_length(650, 650, pd_read_flag=flag)
         row_data.config_mutual_coeff(13, pd_read_flag=flag)
         row_data.config_freq(1700, 1700, pd_read_flag=flag)
@@ -182,8 +193,14 @@ if __name__ == '__main__':
         row_data.config_c2TB(False)
         row_data.config_c_value(25, 25, pd_read_flag=flag)
         row_data.config_rd(10000, 10000, pd_read_flag=flag, respectively=True)
-        row_data.config_trk_z(pd_read_flag=flag, respectively=False)
-        row_data.config_TB_mode('无TB', pd_read_flag=False)
+
+        # row_data.config_trk_z(pd_read_flag=flag, respectively=False)
+        row_data.config_trk_z(pd_read_flag=flag, respectively=True)
+
+        # TB模式
+        # row_data.config_TB_mode('无TB', pd_read_flag=False)
+        row_data.config_TB_mode('无TB', pd_read_flag=flag)
+
         row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
         row_data.config_pop([], [], pd_read_flag=False)
         row_data.config_cable_para()
@@ -198,7 +215,7 @@ if __name__ == '__main__':
         interval = row_data.config_interval(1, pd_read_flag=flag)
 
         # 移频脉冲
-        row_data.config_ypmc_EL(pd_read_flag=flag)
+        # row_data.config_ypmc_EL(pd_read_flag=flag)
 
         len_posi = 0
         #################################################################################
@@ -216,12 +233,19 @@ if __name__ == '__main__':
 
         # 轨面电压计算
         # md = PreModel_25Hz_coding(parameter=para)
-        md = PreModel_YPMC(parameter=para)
+        # md = PreModel_YPMC(parameter=para)
+        md = PreModel(parameter=para)
         md.lg = LineGroup(md.l3, name_base='线路组')
         md.lg.special_point = para['special_point']
         md.lg.refresh()
 
+
+        # flag_r = data['被串区段长度(m)'] - data['被串相对主串位置']
+        # flag_l = flag_r - data['主串区段长度(m)'] - 0.00001
+
+
         posi_list = np.arange(data['主串区段长度(m)'], -0.00001, -interval)
+        # posi_list = np.arange(flag_r, flag_l, -interval)
 
         len_posi = max(len(posi_list), len_posi)
 
@@ -233,8 +257,13 @@ if __name__ == '__main__':
             v_rail_zhu = md.lg['线路3']['地面']['区段1']['跳线']['U'].value_c
             data2excel.add_data(sheet_name="主串轨面电压", data1=v_rail_zhu)
 
+        # 移频脉冲
+        # data['主串功出电压(V)'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
+        # data['主串轨入电压(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['0接收器']['U'].value_c
+
+        # 一体化
         data['主串功出电压(V)'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
-        data['主串轨入电压(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['0接收器']['U'].value_c
+        data['主串轨入电压(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
 
         #################################################################################
 
@@ -250,8 +279,8 @@ if __name__ == '__main__':
 
         # 分路计算
 
-        # md = PreModel(parameter=para)
-        md = PreModel_YPMC(parameter=para)
+        md = PreModel(parameter=para)
+        # md = PreModel_YPMC(parameter=para)
         # md = PreModel_EeMe(parameter=para)
         # md = PreModel_25Hz_coding(parameter=para)
 
@@ -369,6 +398,13 @@ if __name__ == '__main__':
     posi_header[0] = '主串发送端'
     # posi_header = None
 
+    data2excel.config_header()
+    data2excel["被串钢轨电流"].header[0] = '被串发送端'
+    data2excel["被串分路电流"].header[0] = '被串发送端'
+    data2excel["主串钢轨电流"].header[0] = '被串发送端'
+    data2excel["主串分路电流"].header[0] = '被串发送端'
+    data2excel["主串轨面电压"].header[0] = '主串发送端'
+
     df_data = pd.DataFrame(excel_data, columns=head_list)
 
     #################################################################################
@@ -395,6 +431,7 @@ if __name__ == '__main__':
         ]
 
         # data2excel.write2excel(sheet_names=names, header=None, writer1=writer)
-        data2excel.write2excel(sheet_names=names, header=posi_header, writer1=writer)
+        # data2excel.write2excel(sheet_names=names, header=posi_header, writer1=writer)
+        data2excel.write2excel(sheet_names=names, writer=writer)
 
         pass
