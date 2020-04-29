@@ -265,6 +265,15 @@ class RowData:
             para['主串钢轨阻抗'] = para['Trk_z']
             para['被串钢轨阻抗'] = para['Trk_z']
 
+        if para['主串钢轨阻抗'][freq].z == 0:
+            para['主串钢轨阻抗'] = para['Trk_z']
+            data['主串钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
+            data['主串钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
+        if para['被串钢轨阻抗'][freq].z == 0:
+            para['被串钢轨阻抗'] = para['Trk_z']
+            data['被串钢轨电阻'] = round(para['Trk_z'].rlc_s[freq][0], 10)
+            data['被串钢轨电感'] = round(para['Trk_z'].rlc_s[freq][1], 10)
+
 
     #################################################################################
 
