@@ -77,8 +77,8 @@ class PreModel:
 
         # self.check_C2TB()
         self.change_c_value()
-        # self.pop_c()
-        # self.config_c_posi()
+        self.pop_c()
+        self.config_c_posi()
         # self.check_fault()
 
         self.change_cable_length()
