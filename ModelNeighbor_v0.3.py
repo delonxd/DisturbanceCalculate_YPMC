@@ -190,19 +190,28 @@ if __name__ == '__main__':
         row_data.config_freq(1700, 1700, pd_read_flag=flag)
         row_data.config_c_num(7, 7, pd_read_flag=flag)
         row_data.config_c_posi(None, None, pd_read_flag=False)
+        # if temp_temp == 4:
+        #     row_data.config_c_posi(None, [514/2], pd_read_flag=False)
         row_data.config_c2TB(False)
         row_data.config_c_value(25, 25, pd_read_flag=flag)
         row_data.config_rd(10000, 10000, pd_read_flag=flag, respectively=True)
 
         # row_data.config_trk_z(pd_read_flag=flag, respectively=False)
-        row_data.config_trk_z(pd_read_flag=flag, respectively=True)
+        # row_data.config_trk_z(pd_read_flag=flag, respectively=True)
+        row_data.config_trk_z(pd_read_flag=False, respectively=True)
 
         # TB模式
         # row_data.config_TB_mode('无TB', pd_read_flag=False)
         row_data.config_TB_mode('无TB', pd_read_flag=flag)
 
         row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
+
         row_data.config_pop([], [], pd_read_flag=False)
+        if temp_temp == 1:
+            row_data.config_pop([], [2,4,5], pd_read_flag=False)
+        elif temp_temp == 3:
+            row_data.config_pop([2,4,5], [], pd_read_flag=False)
+
         row_data.config_cable_para()
         row_data.config_cable_length(10, 10, pd_read_flag=flag, respectively=True)
         row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
