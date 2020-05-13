@@ -599,3 +599,118 @@ class PreModel_YPMC(PreModel):
 
         if para['被串分路电阻'] is not None:
             self.train1['分路电阻1'].z = para['被串分路电阻']
+
+
+class PreModel_2000A_QJ(PreModel):
+    def __init__(self, parameter):
+        self.parameter = para = parameter
+        self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
+        self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
+        # self.train3 = Train(name_base='列车3', posi=0, parameter=parameter)
+        # self.train4 = Train(name_base='列车4', posi=0, parameter=parameter)
+
+        # self.train2['分路电阻1'].z = 1000000
+
+        # 轨道电路初始化
+        send_level = para['send_level']
+        m_frqs = generate_frqs(Freq(para['freq_主']), 3)
+        m_lens = [para['主串区段长度']] * 3
+        c_nums = get_c_nums(m_frqs, m_lens)
+        offset = para['offset'] + m_lens[0]
+
+        sg3 = SectionGroup(name_base='地面', posi=offset, m_num=1,
+                           m_frqs=m_frqs,
+                           m_lens=m_lens,
+                           j_lens=[29]*4,
+                           m_typs=['2000A']*3,
+                           c_nums=c_nums,
+                           sr_mods=[para['sr_mod_主']]*3,
+                           send_lvs=[send_level]*3,
+                           parameter=parameter)
+
+        flg = para['pwr_v_flg']
+        if para['sr_mod_主'] == '左发':
+            sg3['区段1']['左调谐单元'].set_power_voltage(flg)
+        elif para['sr_mod_主'] == '右发':
+            sg3['区段1']['右调谐单元'].set_power_voltage(flg)
+        # sg3['区段1']['左调谐单元'].set_power_voltage()
+
+        m_frqs = generate_frqs(Freq(para['freq_被']), 3, flip_flag=True)
+        m_lens = [para['被串区段长度']] * 3
+        c_nums = get_c_nums(m_frqs, m_lens)
+
+        sg4 = SectionGroup(name_base='地面', posi=0, m_num=3,
+                           m_frqs=m_frqs,
+                           m_lens=m_lens,
+                           j_lens=[29]*4,
+                           m_typs=['2000A']*3,
+                           c_nums=c_nums,
+                           sr_mods=[para['sr_mod_被']]*3,
+                           send_lvs=[send_level]*3,
+                           parameter=parameter)
+
+        partent = sg3['区段1']
+        ele = JumperWire(parent_ins=partent,
+                         name_base='跳线',
+                         posi=para['主串区段长度'])
+        partent.add_child('跳线', ele)
+        ele.set_posi_abs(0)
+        self.jumper = ele
+
+        # partent = sg3['区段2']
+        # ele = JumperWire(parent_ins=partent,
+        #                  name_base='跳线',
+        #                  posi=0)
+        # partent.add_child('跳线', ele)
+        # ele.set_posi_abs(0)
+        # jumper2 = ele
+
+        # config_jumpergroup(jumper1, jumper2)
+
+
+        self.section_group3 = sg3
+        self.section_group4 = sg4
+
+        # self.check_C2TB()
+        # self.change_c_value()
+        # self.pop_c()
+        # self.config_c_posi()
+        # self.check_fault()
+
+        # self.change_cable_length()
+        # self.change_r_shunt()
+
+        # sg3['区段1'].element.pop('TB2')
+        # sg3['区段1'].element.pop('左调谐单元')
+        # sg3['区段1']['TB2'].z = para['标准开路阻抗']
+
+        self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
+                            parameter=parameter)
+        self.l4 = l4 = Line(name_base='线路4', sec_group=sg4,
+                            parameter=parameter)
+        self.set_rail_para(line=l3,z_trk=para['主串钢轨阻抗'], rd=para['主串道床电阻'])
+        self.set_rail_para(line=l4,z_trk=para['被串钢轨阻抗'], rd=para['被串道床电阻'])
+
+        self.lg = LineGroup(l3, l4, name_base='线路组')
+
+        self.lg.special_point = para['special_point']
+        self.lg.refresh()
+
+        pass
+
+    def add_train_bei(self):
+        para = self.parameter
+        l3 = Line(name_base='线路3', sec_group=self.section_group3,
+                  parameter=self.parameter)
+        self.l3 = l3
+
+        l4 = Line(name_base='线路4', sec_group=self.section_group4,
+                  parameter=self.parameter, train=[self.train1])
+        self.l4 = l4
+
+        self.set_rail_para(line=l3,z_trk=para['主串钢轨阻抗'], rd=para['主串道床电阻'])
+        self.set_rail_para(line=l4,z_trk=para['被串钢轨阻抗'], rd=para['被串道床电阻'])
+
+        self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
+        self.lg.special_point = self.parameter['special_point']
+        self.lg.refresh()
