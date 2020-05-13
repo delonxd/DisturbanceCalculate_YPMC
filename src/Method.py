@@ -30,8 +30,10 @@ def show_ele(vessel, para=''):
 #################################################################################
 
 # 获取频率
-def generate_frqs(freq1, m_num):
+def generate_frqs(freq1, m_num, flip_flag=False):
     frqs = list()
+    if flip_flag:
+        freq1.change_freq()
     for _ in range(m_num):
         frqs.append(freq1)
         freq1 = freq1.copy()
