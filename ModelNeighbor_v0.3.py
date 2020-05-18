@@ -120,7 +120,7 @@ if __name__ == '__main__':
     clist3 = list(zip(list_1, list_2))
     clist2 = ['左发', '右发']
     clist1 = [500, 550, 600]
-    clist4 = [2000]
+    clist4 = list(np.arange(-300,350,50))
     # clist3 = freq_list
     # clist4 = freq_list
     C_7_1 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
@@ -191,6 +191,8 @@ if __name__ == '__main__':
         # row_data.config_remarks('无', pd_read_flag=flag)
 
         row_data.config_sec_length(cv1, cv1, pd_read_flag=flag)
+        row_data.config_offset(cv4, pd_read_flag=False)
+
         row_data.config_mutual_coeff(13, pd_read_flag=flag)
         row_data.config_freq(cv3[0], cv3[1], pd_read_flag=flag)
         row_data.config_c_num(7, 7, pd_read_flag=flag)
@@ -226,7 +228,7 @@ if __name__ == '__main__':
         row_data.config_train_signal()
         row_data.config_error()
 
-        interval = row_data.config_interval(50, pd_read_flag=flag)
+        interval = row_data.config_interval(100, pd_read_flag=flag)
 
         # 移频脉冲
         # row_data.config_ypmc_EL(pd_read_flag=flag)
