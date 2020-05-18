@@ -58,6 +58,19 @@ class RowData:
 
         para['offset'] = data['被串区段长度(m)'] - data['主串区段长度(m)'] - off_set_send
 
+    #################################################################################
+
+    # 设置偏移
+    def config_offset(self, offset, pd_read_flag=False):
+        df_input, para, data = self.read_parameters()
+
+        if pd_read_flag:
+            data['被串相对主串位置'] = off_set_send = df_input['被串相对主串位置']
+        else:
+            data['被串相对主串位置'] = off_set_send = offset
+
+        para['offset'] = off_set_send
+
 
     #################################################################################
 
