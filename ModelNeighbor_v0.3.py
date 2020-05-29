@@ -136,6 +136,8 @@ if __name__ == '__main__':
     # clist5 = [[],[11],[10],[9],[11,10],[11,10,9]]
     # clist6 = [[],[11],[10],[9],[11,10],[11,10,9]]
 
+    clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
+
     clist = list(itertools.product(
         clist1, clist2, clist3, clist4, clist5, clist6))
 
@@ -190,11 +192,11 @@ if __name__ == '__main__':
         row_data.config_remarks('无', pd_read_flag=False)
         # row_data.config_remarks('无', pd_read_flag=flag)
 
-        row_data.config_sec_length(cv1, cv1, pd_read_flag=flag)
-        row_data.config_offset(cv4, pd_read_flag=False)
+        row_data.config_sec_length(650, 650, pd_read_flag=flag)
+        row_data.config_offset(0, pd_read_flag=False)
 
         row_data.config_mutual_coeff(13, pd_read_flag=flag)
-        row_data.config_freq(cv3[0], cv3[1], pd_read_flag=flag)
+        row_data.config_freq(2300, 1700, pd_read_flag=flag)
         row_data.config_c_num(7, 7, pd_read_flag=flag)
         row_data.config_c_posi(None, None, pd_read_flag=False)
         # if temp_temp == 4:
@@ -209,9 +211,9 @@ if __name__ == '__main__':
 
         # TB模式
         # row_data.config_TB_mode('无TB', pd_read_flag=False)
-        row_data.config_TB_mode('无TB', pd_read_flag=flag)
+        row_data.config_TB_mode('双端TB', pd_read_flag=flag)
 
-        row_data.config_sr_mode(cv2, '右发', pd_read_flag=False)
+        row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
 
         row_data.config_pop([], [], pd_read_flag=False)
         # if temp_temp == 1:
@@ -222,13 +224,13 @@ if __name__ == '__main__':
         row_data.config_cable_para()
         row_data.config_cable_length(10, 10, pd_read_flag=flag, respectively=True)
         row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
-        row_data.config_power(2, '最大', pd_read_flag=flag)
+        row_data.config_power(5, '最大', pd_read_flag=flag)
 
         row_data.config_sp_posi()
         row_data.config_train_signal()
         row_data.config_error()
 
-        interval = row_data.config_interval(100, pd_read_flag=flag)
+        interval = row_data.config_interval(1, pd_read_flag=flag)
 
         # 移频脉冲
         # row_data.config_ypmc_EL(pd_read_flag=flag)
@@ -302,16 +304,17 @@ if __name__ == '__main__':
 
         # 分路计算
 
-        # md = PreModel(parameter=para)
-        md = PreModel_2000A_QJ(parameter=para)
+        md = PreModel(parameter=para)
+        # md = PreModel_2000A_QJ(parameter=para)
         # md = PreModel_YPMC(parameter=para)
         # md = PreModel_EeMe(parameter=para)
         # md = PreModel_25Hz_coding(parameter=para)
 
-        # md.add_train()
-        md.add_train_bei()
+        md.add_train()
+        # md.add_train_bei()
 
-        posi_list = np.arange(data['被串区段长度(m)']*3 + 14.5, -14.50001, -interval)
+        # posi_list = np.arange(data['被串区段长度(m)']*3 + 14.5, -14.50001, -interval)
+        posi_list = np.arange(data['被串区段长度(m)'], -0.0001, -interval)
         len_posi = max(len(posi_list), len_posi)
 
         for posi_bei in posi_list:
@@ -320,9 +323,9 @@ if __name__ == '__main__':
             md.train1.posi_rlt = posi_bei
             md.train1.set_posi_abs(0)
 
-            # posi_zhu = posi_bei
-            # md.train2.posi_rlt = posi_zhu
-            # md.train2.set_posi_abs(0)
+            posi_zhu = posi_bei
+            md.train2.posi_rlt = posi_zhu
+            md.train2.set_posi_abs(0)
 
             m1 = MainModel(md.lg, md=md)
 
