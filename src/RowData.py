@@ -205,6 +205,104 @@ class RowData:
 
     #################################################################################
 
+    # 安装干扰抑制电容
+    def config_c_inhibitor(self, pd_read_flag=False):
+        df_input, para, data = self.read_parameters()
+
+        pd_read_flag = False
+        # if pd_read_flag:
+        #     data['主串电容值(μF)'] = c_value1 = df_input['主串电容值(μF)']
+        #     data['被串电容值(μF)'] = c_value2 = df_input['被串电容值(μF)']
+        # else:
+        #     data['主串电容值(μF)'] = c_value1 = c_val_zhu
+        #     data['被串电容值(μF)'] = c_value2 = c_val_bei
+
+        L1 = para['主串抑制电容L1'] = para['inhibitor'][para['freq_主']][0]
+        C1 = para['主串抑制电容C1'] = para['inhibitor'][para['freq_主']][1]
+        L2 = para['被串抑制电容L2'] = para['inhibitor'][para['freq_被']][0]
+        C2 = para['被串抑制电容C2'] = para['inhibitor'][para['freq_被']][1]
+
+        data['主串抑制电容L1(μH)'] = L1 * 1e6
+        data['主串抑制电容C1(μF)'] = C1 * 1e6
+        data['被串抑制电容L2(μH)'] = L2 * 1e6
+        data['被串抑制电容C2(μF)'] = C2 * 1e6
+
+        if para['freq_主'] == 1700 or para['freq_主'] == 2000:
+            para['Ccmp_z_change_zhu'].rlc_s = {
+                1700: [None, L1, C1],
+                2000: [None, L1, C1],
+                2300: [None, L1, C1],
+                2600: [None, L1, C1]}
+            data['主串抑制电容模式'] = 'LC串联'
+        else:
+            para['Ccmp_z_change_zhu'].rlc_p = {
+                1700: [None, L1, C1],
+                2000: [None, L1, C1],
+                2300: [None, L1, C1],
+                2600: [None, L1, C1]}
+            data['主串抑制电容模式'] = 'LC并联'
+        para['Ccmp_z_change_zhu'] = para['Ccmp_z_change_zhu'] + 10e-3
+
+        if para['freq_被'] == 1700 or para['freq_被'] == 2000:
+            para['Ccmp_z_change_chuan'].rlc_s = {
+                1700: [None, L2, C2],
+                2000: [None, L2, C2],
+                2300: [None, L2, C2],
+                2600: [None, L2, C2]}
+            data['被串抑制电容模式'] = 'LC串联'
+        else:
+            para['Ccmp_z_change_chuan'].rlc_p = {
+                1700: [None, L2, C2],
+                2000: [None, L2, C2],
+                2300: [None, L2, C2],
+                2600: [None, L2, C2]}
+            data['被串抑制电容模式'] = 'LC并联'
+        para['Ccmp_z_change_chuan'] = para['Ccmp_z_change_chuan'] + 10e-3
+
+    #################################################################################
+
+    # 电容故障模式
+    def config_c_fault_mode(self, mode_zhu, mode_bei, pd_read_flag=False):
+        df_input, para, data = self.read_parameters()
+
+        para['主串故障模式'] = mode_zhu
+        para['被串故障模式'] = mode_bei
+
+        if mode_zhu == '全开路':
+            data['主串故障模式'] = mode_zhu
+        elif mode_zhu == '电感故障':
+            if para['freq_主'] == 1700 or para['freq_主'] == 2000:
+                data['主串故障模式'] = '电感短路'
+            elif para['freq_主'] == 2300 or para['freq_主'] == 2600:
+                data['主串故障模式'] = '电感开路'
+        elif mode_zhu == '无':
+            data['主串故障模式'] = '无'
+
+        if mode_bei == '全开路':
+            data['被串故障模式'] = mode_bei
+        elif mode_bei == '电感故障':
+            if para['freq_被'] == 1700 or para['freq_被'] == 2000:
+                data['被串故障模式'] = '电感短路'
+            elif para['freq_被'] == 2300 or para['freq_被'] == 2600:
+                data['被串故障模式'] = '电感开路'
+        elif mode_bei == '无':
+            data['被串故障模式'] = '无'
+
+    #################################################################################
+
+    # 电容故障位置
+    def config_c_fault_num(self, fault_zhu, fault_bei, pd_read_flag=False):
+        df_input, para, data = self.read_parameters()
+
+        if pd_read_flag:
+            data['主串故障位置'] = para['主串故障位置'] = eval(df_input['主串故障位置'][0])
+            data['被串故障位置'] = para['被串故障位置'] = eval(df_input['被串故障位置'][0])
+        else:
+            data['主串故障位置'] = para['主串故障位置'] = fault_zhu
+            data['被串故障位置'] = para['被串故障位置'] = fault_bei
+
+    #################################################################################
+
     # 道床电阻
     def config_rd(self, rd_zhu, rd_bei, pd_read_flag=False, respectively=True):
         df_input, para, data = self.read_parameters()
