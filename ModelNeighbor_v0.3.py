@@ -90,7 +90,8 @@ if __name__ == '__main__':
     # 获取表头
     # head_list = config_headlist_ypmc()
     # head_list = config_headlist_2000A_inte()
-    head_list = config_headlist_2000A_QJ()
+    # head_list = config_headlist_2000A_QJ()
+    head_list = config_headlist_inhibitor_c()
 
     #################################################################################
 
@@ -136,7 +137,14 @@ if __name__ == '__main__':
     # clist5 = [[],[11],[10],[9],[11,10],[11,10,9]]
     # clist6 = [[],[11],[10],[9],[11,10],[11,10,9]]
 
+
+    # 干扰抑制电容
     clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
+    list_1 = [1700, 1700, 2000, 2000, 2300, 2300, 2600, 2600]
+    list_2 = [1700, 2300, 2000, 2600, 2300, 1700, 2600, 2000]
+    clist1 = list(zip(list_1, list_2))
+    clist2 = ['全开路', '电感故障']
+    clist3 = [[],[2],[3],[4],[5],[6]]
 
     clist = list(itertools.product(
         clist1, clist2, clist3, clist4, clist5, clist6))
@@ -196,17 +204,24 @@ if __name__ == '__main__':
         row_data.config_offset(0, pd_read_flag=False)
 
         row_data.config_mutual_coeff(13, pd_read_flag=flag)
-        row_data.config_freq(2300, 1700, pd_read_flag=flag)
+        row_data.config_freq(cv1[0], cv1[1], pd_read_flag=flag)
+        # row_data.config_freq(2300, 1700, pd_read_flag=flag)
         row_data.config_c_num(7, 7, pd_read_flag=flag)
         row_data.config_c_posi(None, None, pd_read_flag=False)
         # if temp_temp == 4:
         #     row_data.config_c_posi(None, [514/2], pd_read_flag=False)
         row_data.config_c2TB(False)
+
         row_data.config_c_value(25, 25, pd_read_flag=flag)
+        row_data.config_c_inhibitor(pd_read_flag=flag)
+
+        row_data.config_c_fault_mode('无', cv2, pd_read_flag=flag)
+        row_data.config_c_fault_num([], cv3, pd_read_flag=flag)
+
         row_data.config_rd(10000, 10000, pd_read_flag=flag, respectively=True)
 
-        # row_data.config_trk_z(pd_read_flag=flag, respectively=False)
-        row_data.config_trk_z(pd_read_flag=flag, respectively=True)
+        row_data.config_trk_z(pd_read_flag=flag, respectively=False)
+        # row_data.config_trk_z(pd_read_flag=flag, respectively=True)
         # row_data.config_trk_z(pd_read_flag=False, respectively=True)
 
         # TB模式
