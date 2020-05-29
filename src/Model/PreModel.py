@@ -78,7 +78,8 @@ class PreModel:
         # self.check_C2TB()
         self.change_c_value()
         self.pop_c()
-        self.config_c_posi()
+        # self.config_c_posi()
+        self.config_c_fault()
         # self.check_fault()
 
         self.change_cable_length()
@@ -167,6 +168,28 @@ class PreModel:
 
         self.section_group3.set_posi_abs(0)
         self.section_group4.set_posi_abs(0)
+
+    def config_c_fault(self):
+        para = self.parameter
+        sec = self.section_group4['区段1']
+        name_list = sec.get_C_TB_names()
+        for temp in para['被串故障位置']:
+            str_temp = name_list[-temp][1]
+            ele = sec[str_temp]
+            ele_c = para['inhibitor'][para['freq_被']][1]
+
+            if para['被串故障模式'] == '全开路':
+                sec.element.pop(str_temp)
+            elif para['被串故障模式'] == '电感故障':
+                para_temp = ImpedanceMultiFreq()
+                para_temp.rlc_s = {
+                    1700: [10e-3, None, ele_c],
+                    2000: [10e-3, None, ele_c],
+                    2300: [10e-3, None, ele_c],
+                    2600: [10e-3, None, ele_c]}
+                ele.z = para_temp
+            elif para['被串故障模式'] == '无':
+                pass
 
 
     def change_cable_length(self):
