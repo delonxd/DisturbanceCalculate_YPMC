@@ -213,6 +213,19 @@ class ImpedanceWithFreq:
         obj.z = z_new
         return obj
 
+
+    def get_branch(self, other):
+        if isinstance(other, ImpedanceWithFreq):
+            if other.freq == self.freq:
+                z_new = self._z / (other._z - self._z) * other._z
+            else:
+                raise KeyboardInterrupt('频率不同不能运算')
+        else:
+            raise KeyboardInterrupt('并联错误')
+        obj = ImpedanceWithFreq(self.freq)
+        obj.z = z_new
+        return obj
+
     def __repr__(self):
         return str(self._z)
 
@@ -370,6 +383,14 @@ class ImpedanceMultiFreq:
             obj.config_impedance(other[key] // self[key])
         return obj
 
+    def get_branch(self, other):
+        other = self.convert_to_multi_freq(other)
+        obj = ImpedanceMultiFreq()
+        for key in self.keys():
+            # obj.config_impedance(other[key] // self[key])
+            obj.config_impedance(self[key].get_branch(other[key]))
+        return obj
+
 
 if __name__ == '__main__':
     pass
@@ -393,4 +414,37 @@ if __name__ == '__main__':
     #
     # d = c.copy()
     # d.freq = 1700
-    # xxx = 10
+
+    a = ImpedanceMultiFreq()
+    # l1 = 0.38594e-3
+
+    a.rlc_s = {
+        1700: [None, None, 25e-6],
+        2000: [None, None, 25e-6],
+        2300: [None, None, 25e-6],
+        2600: [None, None, 25e-6]}
+
+    b = ImpedanceMultiFreq()
+    c1 = 100e-6
+    b.rlc_s = {
+        1700: [None, None, c1],
+        2000: [None, None, c1],
+        2300: [None, None, c1],
+        2600: [None, None, c1]}
+
+    # c = a + b
+
+    c = a[2300].get_branch(b[2300])
+
+    d = ImpedanceMultiFreq()
+    l1 = 6.384447614514039e-05
+    d.rlc_s = {
+        1700: [None, l1, None],
+        2000: [None, l1, None],
+        2300: [None, l1, None],
+        2600: [None, l1, None]}
+
+    e = b // d
+
+
+    xxx = 10
