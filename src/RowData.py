@@ -174,16 +174,21 @@ class RowData:
         c_value1 = c_value1 * 1e-6
         c_value2 = c_value2 * 1e-6
 
-        para['Ccmp_z_change_zhu'].rlc_s = {
-            1700: [10e-3, None, c_value1],
-            2000: [10e-3, None, c_value1],
-            2300: [10e-3, None, c_value1],
-            2600: [10e-3, None, c_value1]}
-        para['Ccmp_z_change_chuan'].rlc_s = {
-            1700: [10e-3, None, c_value2],
-            2000: [10e-3, None, c_value2],
-            2300: [10e-3, None, c_value2],
-            2600: [10e-3, None, c_value2]}
+        # para['Ccmp_z_change_zhu'].rlc_s = {
+        #     1700: [10e-3, None, c_value1],
+        #     2000: [10e-3, None, c_value1],
+        #     2300: [10e-3, None, c_value1],
+        #     2600: [10e-3, None, c_value1]}
+        # para['Ccmp_z_change_chuan'].rlc_s = {
+        #     1700: [10e-3, None, c_value2],
+        #     2000: [10e-3, None, c_value2],
+        #     2300: [10e-3, None, c_value2],
+        #     2600: [10e-3, None, c_value2]}
+
+
+        para['Ccmp_z_change_zhu'] = para['TB'][para['freq_主']].copy()
+        para['Ccmp_z_change_chuan'] = para['TB'][para['freq_被']].copy()
+
 
         # para['Ccmp_z_change_chuan'].rlc_s = {
         #     1700: [10e-3, 390e-6, 11.9e-6],
