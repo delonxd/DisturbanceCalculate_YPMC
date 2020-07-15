@@ -267,31 +267,30 @@ class RowData:
     #################################################################################
 
     # 电容故障模式
-    def config_c_fault_mode(self, mode_zhu, mode_bei, pd_read_flag=False):
+    def config_c_fault_mode(self, mode_zhu_list, mode_bei_list, pd_read_flag=False):
         df_input, para, data = self.read_parameters()
 
-        para['主串故障模式'] = mode_zhu
-        para['被串故障模式'] = mode_bei
+        para['主串故障模式'] = mode_zhu_list
+        para['被串故障模式'] = mode_bei_list
 
-        if mode_zhu == '全开路':
-            data['主串故障模式'] = mode_zhu
-        elif mode_zhu == '电感故障':
-            if para['freq_主'] == 1700 or para['freq_主'] == 2000:
-                data['主串故障模式'] = '电感短路'
-            elif para['freq_主'] == 2300 or para['freq_主'] == 2600:
-                data['主串故障模式'] = '电感开路'
-        elif mode_zhu == '无':
-            data['主串故障模式'] = '无'
+        data['主串故障模式'] = list()
+        data['被串故障模式'] = list()
 
-        if mode_bei == '全开路':
-            data['被串故障模式'] = mode_bei
-        elif mode_bei == '电感故障':
-            if para['freq_被'] == 1700 or para['freq_被'] == 2000:
-                data['被串故障模式'] = '电感短路'
-            elif para['freq_被'] == 2300 or para['freq_被'] == 2600:
-                data['被串故障模式'] = '电感开路'
-        elif mode_bei == '无':
-            data['被串故障模式'] = '无'
+        for mode_zhu in mode_zhu_list:
+            data['主串故障模式'].append(mode_zhu)
+            if mode_zhu == '电感开路':
+                if para['freq_主'] == 1700 or para['freq_主'] == 2000:
+                    data['主串故障模式'] = None
+                    break
+
+        for mode_bei in mode_bei_list:
+            data['被串故障模式'].append(mode_bei)
+            if mode_bei == '电感开路':
+                if para['freq_被'] == 1700 or para['freq_被'] == 2000:
+                    data['被串故障模式'] = None
+                    break
+
+
 
     #################################################################################
 
