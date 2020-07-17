@@ -40,6 +40,20 @@ class RowData:
 
     #################################################################################
 
+    # 区段名称
+    def config_sec_name(self, name_zhu, name_bei, pd_read_flag=False):
+        df_input, para, data = self.read_parameters()
+
+        if pd_read_flag:
+            data['主串区段'] = para['主串区段'] = df_input['主串区段']
+            data['被串区段'] = para['被串区段'] = df_input['被串区段']
+        else:
+            data['主串区段'] = para['主串区段'] = name_zhu
+            data['被串区段'] = para['被串区段'] = name_bei
+
+
+    #################################################################################
+
     # 区段长度
     def config_sec_length(self, len_zhu, len_bei, pd_read_flag=False):
         df_input, para, data = self.read_parameters()
@@ -51,12 +65,12 @@ class RowData:
             data['主串区段长度(m)'] = para['主串区段长度'] = len_zhu
             data['被串区段长度(m)'] = para['被串区段长度'] = len_bei
 
-        if pd_read_flag:
-            data['被串相对主串位置'] = off_set_send = df_input['被串相对主串位置']
-        else:
-            data['被串相对主串位置'] = off_set_send = 0
-
-        para['offset'] = data['被串区段长度(m)'] - data['主串区段长度(m)'] - off_set_send
+        # if pd_read_flag:
+        #     data['被串相对主串位置'] = off_set_send = df_input['被串相对主串位置']
+        # else:
+        #     data['被串相对主串位置'] = off_set_send = 0
+        #
+        # para['offset'] = data['被串区段长度(m)'] - data['主串区段长度(m)'] - off_set_send
 
     #################################################################################
 
@@ -64,12 +78,19 @@ class RowData:
     def config_offset(self, offset, pd_read_flag=False):
         df_input, para, data = self.read_parameters()
 
-        if pd_read_flag:
-            data['被串相对主串位置'] = off_set_send = df_input['被串相对主串位置']
-        else:
-            data['被串相对主串位置'] = off_set_send = offset
+        # if pd_read_flag:
+        #     data['被串相对主串位置'] = off_set_send = df_input['被串相对主串位置']
+        # else:
+        #     data['被串相对主串位置'] = off_set_send = offset
+        #
+        # para['offset'] = off_set_send
 
-        para['offset'] = off_set_send
+        if pd_read_flag:
+            data['主串左端里程标'] = para['offset_zhu'] = df_input['主串左端里程标']
+            data['被串左端里程标'] = para['offset_bei'] = df_input['被串左端里程标']
+        else:
+            data['主串左端里程标'] = para['offset_zhu'] = offset
+            data['被串左端里程标'] = para['offset_bei'] = offset
 
 
     #################################################################################
@@ -79,6 +100,7 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
+            data['线间距'] = para['线间距'] = df_input['线间距']
             data['耦合系数'] = para['耦合系数'] = df_input['耦合系数']
         else:
             data['耦合系数'] = para['耦合系数'] = coeff
@@ -174,20 +196,20 @@ class RowData:
         c_value1 = c_value1 * 1e-6
         c_value2 = c_value2 * 1e-6
 
-        # para['Ccmp_z_change_zhu'].rlc_s = {
-        #     1700: [10e-3, None, c_value1],
-        #     2000: [10e-3, None, c_value1],
-        #     2300: [10e-3, None, c_value1],
-        #     2600: [10e-3, None, c_value1]}
-        # para['Ccmp_z_change_chuan'].rlc_s = {
-        #     1700: [10e-3, None, c_value2],
-        #     2000: [10e-3, None, c_value2],
-        #     2300: [10e-3, None, c_value2],
-        #     2600: [10e-3, None, c_value2]}
+        para['Ccmp_z_change_zhu'].rlc_s = {
+            1700: [10e-3, None, c_value1],
+            2000: [10e-3, None, c_value1],
+            2300: [10e-3, None, c_value1],
+            2600: [10e-3, None, c_value1]}
+        para['Ccmp_z_change_chuan'].rlc_s = {
+            1700: [10e-3, None, c_value2],
+            2000: [10e-3, None, c_value2],
+            2300: [10e-3, None, c_value2],
+            2600: [10e-3, None, c_value2]}
 
 
-        para['Ccmp_z_change_zhu'] = para['TB'][para['freq_主']].copy()
-        para['Ccmp_z_change_chuan'] = para['TB'][para['freq_被']].copy()
+        # para['Ccmp_z_change_zhu'] = para['TB'][para['freq_主']].copy()
+        # para['Ccmp_z_change_chuan'] = para['TB'][para['freq_被']].copy()
 
 
         # para['Ccmp_z_change_chuan'].rlc_s = {
@@ -424,6 +446,22 @@ class RowData:
         data['主串发送器位置'] = para['sr_mod_主'] = sr_zhu
         data['被串发送器位置'] = para['sr_mod_被'] = sr_bei
 
+        if pd_read_flag:
+            data['主串方向'] = flag_zhu = df_input['主串方向']
+            data['被串方向'] = flag_bei = df_input['被串方向']
+
+            if flag_zhu == '正向':
+                data['主串发送器位置'] = para['sr_mod_主'] = '右发'
+            elif flag_zhu == '反向':
+                data['主串发送器位置'] = para['sr_mod_主'] = '左发'
+
+            if flag_bei == '正向':
+                data['被串发送器位置'] = para['sr_mod_被'] = '右发'
+            elif flag_bei == '反向':
+                data['被串发送器位置'] = para['sr_mod_被'] = '左发'
+
+            # data['被串发送器位置'] = para['sr_mod_被'] = '不发码'
+
         # # 发码方向
         # if pd_read_flag:
         #     data['发码继电器状态'] = df_input['发码继电器状态'][temp_temp]
@@ -584,17 +622,17 @@ class RowData:
     def config_25Hz_coding_device(self, pd_read_flag=False):
         df_input, para, data = self.read_parameters()
 
-        # 发码方向
-        if pd_read_flag:
-            data['发码继电器状态'] = df_input['发码继电器状态']
-        else:
-            # data['发码继电器状态'] = 1
-            data['发码继电器状态'] = 0
-
-        if data['发码继电器状态'] == 1:
-            data['被串发送器位置'] = para['sr_mod_被'] = '不发码'
-        elif data['发码继电器状态'] == 0:
-            data['被串发送器位置'] = para['sr_mod_被'] = '右发'
+        # # 发码方向
+        # if pd_read_flag:
+        #     data['发码继电器状态'] = df_input['发码继电器状态']
+        # else:
+        #     # data['发码继电器状态'] = 1
+        #     data['发码继电器状态'] = 0
+        #
+        # if data['发码继电器状态'] == 1:
+        #     data['被串发送器位置'] = para['sr_mod_被'] = '不发码'
+        # elif data['发码继电器状态'] == 0:
+        #     data['被串发送器位置'] = para['sr_mod_被'] = '右发'
 
         #################################################################################
 
