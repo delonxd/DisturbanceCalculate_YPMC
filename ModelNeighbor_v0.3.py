@@ -31,7 +31,8 @@ if __name__ == '__main__':
     # df_input = pd.read_excel('邻线干扰参数输入_v0.4.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_移频脉冲_v0.2.xlsx')
     # df_input = pd.read_excel('ZPW-2000A一体化邻线干扰参数输入表格_v0.4.0.xlsx')
-    df_input = pd.read_excel('邻线干扰参数输入_2000A一体化_v0.4.xlsx')
+    # df_input = pd.read_excel('邻线干扰参数输入_2000A一体化_v0.4.xlsx')
+    df_input = pd.read_excel('邻线干扰参数输入_韩家岭.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_BPLN.xlsx')
 
     df_input = df_input.where(df_input.notnull(), None)
@@ -91,7 +92,8 @@ if __name__ == '__main__':
     # head_list = config_headlist_ypmc()
     # head_list = config_headlist_2000A_inte()
     # head_list = config_headlist_2000A_QJ()
-    head_list = config_headlist_inhibitor_c()
+    # head_list = config_headlist_inhibitor_c()
+    head_list = config_headlist_hanjialing()
 
     #################################################################################
 
@@ -172,6 +174,7 @@ if __name__ == '__main__':
     # clist5 = ['无', '全开路', '电感短路', '电感开路']
     # clist2 = ['全开路']
 
+    clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
 
     clist = list(itertools.product(
         clist1, clist2, clist3, clist4, clist5, clist6))
@@ -184,13 +187,13 @@ if __name__ == '__main__':
     temp_temp = 0
     cv1, cv2, cv3, cv4, cv5, cv6 = [0] * 6
 
-    # pd_read_flag = True
-    pd_read_flag = False
+    pd_read_flag = True
+    # pd_read_flag = False
 
     # num_len = 1
 
-    # for temp_temp in range(num_len):
-    for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
+    for temp_temp in range(num_len):
+    # for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
 
 
         #################################################################################
@@ -224,14 +227,17 @@ if __name__ == '__main__':
         row_data.config_number(counter, pd_read_flag=flag)
 
         # 备注
-        row_data.config_remarks('主被串全部电容换为TB', pd_read_flag=False)
+        row_data.config_remarks('被串为电码化区段', pd_read_flag=False)
         # row_data.config_remarks('无', pd_read_flag=flag)
 
-        row_data.config_sec_length(650, 650, pd_read_flag=flag)
-        row_data.config_offset(0, pd_read_flag=False)
+        row_data.config_sec_name('235G', 'XWG', pd_read_flag=flag)
+
+        row_data.config_sec_length(1342, 665, pd_read_flag=flag)
+        # row_data.config_offset(0, pd_read_flag=False)
+        row_data.config_offset(0, pd_read_flag=True)
 
         row_data.config_mutual_coeff(24, pd_read_flag=flag)
-        row_data.config_freq(cv1[0], cv1[1], pd_read_flag=flag)
+        row_data.config_freq(2300, 2300, pd_read_flag=flag)
         # row_data.config_freq(cv1, cv2, pd_read_flag=flag)
         row_data.config_c_num(7, 7, pd_read_flag=flag)
         row_data.config_c_posi(None, None, pd_read_flag=False)
@@ -245,21 +251,25 @@ if __name__ == '__main__':
         # row_data.config_c_fault_mode('无', cv2, pd_read_flag=flag)
         # row_data.config_c_fault_num([], cv3, pd_read_flag=flag)
 
-        row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=flag)
-        row_data.config_c_fault_num([], [], pd_read_flag=flag)
+        # row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=flag)
+        # row_data.config_c_fault_num([], [], pd_read_flag=flag)
+        row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=False)
+        row_data.config_c_fault_num([], [], pd_read_flag=False)
 
         row_data.config_rd(10000, 10000, pd_read_flag=flag, respectively=True)
 
-        row_data.config_trk_z(pd_read_flag=flag, respectively=False)
+        # row_data.config_trk_z(pd_read_flag=flag, respectively=False)
         # row_data.config_trk_z(pd_read_flag=flag, respectively=True)
         # row_data.config_trk_z(pd_read_flag=False, respectively=True)
+        row_data.config_trk_z(pd_read_flag=False, respectively=False)
 
         # TB模式
-        # row_data.config_TB_mode('无TB', pd_read_flag=False)
-        row_data.config_TB_mode('双端TB', pd_read_flag=flag)
+        row_data.config_TB_mode('无TB', pd_read_flag=False)
+        # row_data.config_TB_mode('双端TB', pd_read_flag=flag)
 
         # row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
-        row_data.config_sr_mode('右发', '左发', pd_read_flag=False)
+        # row_data.config_sr_mode('右发', '左发', pd_read_flag=False)
+        row_data.config_sr_mode('', '', pd_read_flag=True)
 
         row_data.config_pop([], [], pd_read_flag=False)
         # if temp_temp == 1:
@@ -287,28 +297,25 @@ if __name__ == '__main__':
         # row_data.config_ypmc_EL(pd_read_flag=flag)
 
         # 电码化
-        row_data.config_25Hz_coding_device()
+        row_data.config_25Hz_coding_device(pd_read_flag=False)
 
         len_posi = 0
         #################################################################################
 
-        # 调整计算
-        md = PreModel(parameter=para)
-        # md.lg = LineGroup(md.l3, name_base='线路组')
-        # md.lg.special_point = para['special_point']
-        # md.lg.refresh()
-        m1 = MainModel(md.lg, md=md)
-
-        # data['主串轨入电压(调整状态)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        # data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
-        uca = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['U2'].value
-        ica = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['I2'].value
-        rca = uca/ica
-        rca1 = abs(uca/ica)
-
-        print()
-
+        # # 调整计算
+        # md = PreModel(parameter=para)
+        # # md.lg = LineGroup(md.l3, name_base='线路组')
+        # # md.lg.special_point = para['special_point']
+        # # md.lg.refresh()
+        # m1 = MainModel(md.lg, md=md)
+        #
+        # # data['主串轨入电压(调整状态)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
+        # # data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
+        # data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
+        # uca = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['U2'].value
+        # ica = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['I2'].value
+        # rca = uca/ica
+        # rca1 = abs(uca/ica)
 
 
 
@@ -384,17 +391,40 @@ if __name__ == '__main__':
 
         # 分路计算
 
-        md = PreModel(parameter=para)
+        # md = PreModel(parameter=para)
         # md = PreModel_2000A_QJ(parameter=para)
         # md = PreModel_YPMC(parameter=para)
         # md = PreModel_EeMe(parameter=para)
         # md = PreModel_25Hz_coding(parameter=para)
+        md = PreModel_QJ_25Hz_coding(parameter=para)
 
         md.add_train()
         # md.add_train_bei()
 
         # posi_list = np.arange(data['被串区段长度(m)']*3 + 14.5, -14.50001, -interval)
-        posi_list = np.arange(data['被串区段长度(m)'], -0.0001, -interval)
+
+        flag_l = data['被串左端里程标'] - 14.5
+        flag_r = data['被串左端里程标'] + data['被串区段长度(m)'] + 14.5
+
+        if data['被串方向'] == '正向':
+            posi_list = np.arange(flag_r, flag_l - 0.0001, -interval)
+        else:
+            posi_list = np.arange(flag_l, flag_r + 0.0001, +interval)
+
+        # if data['被串方向'] == '正向':
+        #     posi_list = np.arange((data['被串左端里程标'] + data['被串区段长度(m)'])+14.5,
+        #                           (data['被串左端里程标'] - 0.0001) - 14.5,
+        #                           -interval)
+        # else:
+        #     posi_list = np.arange(data['被串左端里程标'] - 14.5,
+        #                           (data['被串左端里程标']  + data['被串区段长度(m)'] + 0.0001)+14.5,
+        #                           interval)
+
+        # if data['被串方向'] == '正向':
+        #     posi_list = np.arange((data['被串左端里程标'] + 560 + 830) + 14.5,
+        #                           (data['被串左端里程标'] - 0.0001) - 14.5,
+        #                           -interval)
+
         len_posi = max(len(posi_list), len_posi)
 
         for posi_bei in posi_list:
@@ -423,7 +453,12 @@ if __name__ == '__main__':
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
-            i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            # i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            if data['被串方向'] == '正向':
+                i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            else:
+                i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
+
 
             # i1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I1'].value
             # i2 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I2'].value
@@ -451,7 +486,7 @@ if __name__ == '__main__':
             # i_C5 = md.lg['线路4']['地面']['区段1']['C1']['I'].value_c
 
             # v_rcv_bei = md.lg['线路4']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-            v_rcv_bei = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
+            # v_rcv_bei = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
 
             #################################################################################
 
@@ -459,7 +494,7 @@ if __name__ == '__main__':
             # data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
             data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
-            data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
+            # data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
             # data2excel.add_data(sheet_name="主串SVA'电流", data1=i_sva1)
             # data2excel.add_data(sheet_name="被串钢轨电流折算后", data1=i_trk_bei_temp)
             # data2excel.add_data(sheet_name="实测阻抗", data1=z_mm)
@@ -482,8 +517,8 @@ if __name__ == '__main__':
         # data['主串入口电流(A)'] = i_sht_list_zhu[-1]
         data['被串最大干扰位置(m)'] = i_trk_list.index(max(i_trk_list))
 
-        v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
-        data['被串最大轨入电压(主被串同时分路状态)'] = max(v_rcv_bei_list)
+        # v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
+        # data['被串最大轨入电压(主被串同时分路状态)'] = max(v_rcv_bei_list)
 
         data_row = [data[key] for key in head_list]
         excel_data.append(data_row)
@@ -535,7 +570,7 @@ if __name__ == '__main__':
             # "主串轨面电压",
             # "主串SVA'电流",
             # "被串钢轨电流折算后",
-            "被串轨入电压",
+            # "被串轨入电压",
             # "主串TB电流",
             # "被串TB电流",
             # "主串TB电压",
