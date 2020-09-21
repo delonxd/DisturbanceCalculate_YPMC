@@ -87,12 +87,17 @@ class Section_ZPW2000A(Section):
             self.element.pop(c_name)
             self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
         elif flag == '双':
-            self.element.pop('C1')
-            self.change_tb(c_name='C1', tb_name='TB1', posi=18)
-            c_name = 'C' + str(c_num)
-            posi_t = self.s_length - 18
-            self.element.pop(c_name)
-            self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
+            if c_num == 0:
+                pass
+            elif c_num == 1:
+                pass
+            else:
+                self.element.pop('C1')
+                self.change_tb(c_name='C1', tb_name='TB1', posi=18)
+                c_name = 'C' + str(c_num)
+                posi_t = self.s_length - 18
+                self.element.pop(c_name)
+                self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
         elif flag == '无':
             pass
         else:
