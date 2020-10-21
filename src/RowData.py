@@ -425,11 +425,22 @@ class RowData:
         else:
             data['TB模式'] = flag_tb = tb_mode
 
+        # if flag_tb == '双端TB':
+        #     para['TB模式'] = '双'
+        # elif flag_tb == '发送端单TB':
+        #     para['TB模式'] = '右'
+        # elif flag_tb == '接收端单TB':
+        #     para['TB模式'] = '左'
+        # elif flag_tb == '无TB':
+        #     para['TB模式'] = '无'
+        # else:
+        #     raise KeyboardInterrupt('TB模式错误')
+
         if flag_tb == '双端TB':
             para['TB模式'] = '双'
-        elif flag_tb == '发送端单TB':
+        elif flag_tb == '右端单TB':
             para['TB模式'] = '右'
-        elif flag_tb == '接收端单TB':
+        elif flag_tb == '左端单TB':
             para['TB模式'] = '左'
         elif flag_tb == '无TB':
             para['TB模式'] = '无'
@@ -447,20 +458,23 @@ class RowData:
         data['被串发送器位置'] = para['sr_mod_被'] = sr_bei
 
         if pd_read_flag:
-            data['主串方向'] = flag_zhu = df_input['主串方向']
-            data['被串方向'] = flag_bei = df_input['被串方向']
-
-            if flag_zhu == '正向':
-                data['主串发送器位置'] = para['sr_mod_主'] = '右发'
-            elif flag_zhu == '反向':
-                data['主串发送器位置'] = para['sr_mod_主'] = '左发'
-
-            if flag_bei == '正向':
-                data['被串发送器位置'] = para['sr_mod_被'] = '右发'
-            elif flag_bei == '反向':
-                data['被串发送器位置'] = para['sr_mod_被'] = '左发'
+            # data['主串方向'] = flag_zhu = df_input['主串方向']
+            # data['被串方向'] = flag_bei = df_input['被串方向']
+            #
+            # if flag_zhu == '正向':
+            #     data['主串发送器位置'] = para['sr_mod_主'] = '右发'
+            # elif flag_zhu == '反向':
+            #     data['主串发送器位置'] = para['sr_mod_主'] = '左发'
+            #
+            # if flag_bei == '正向':
+            #     data['被串发送器位置'] = para['sr_mod_被'] = '右发'
+            # elif flag_bei == '反向':
+            #     data['被串发送器位置'] = para['sr_mod_被'] = '左发'
 
             # data['被串发送器位置'] = para['sr_mod_被'] = '不发码'
+
+            data['主串方向'] = para['sr_mod_主'] = df_input['主串方向']
+            data['被串方向'] = para['sr_mod_被'] = df_input['被串方向']
 
         # # 发码方向
         # if pd_read_flag:
@@ -560,7 +574,8 @@ class RowData:
             data['主串电平级'] = para['send_level'] = send_level
 
         if pd_read_flag:
-            data['电源电压'] = para['pwr_v_flg'] = df_input['电源电压']
+            # data['电源电压'] = para['pwr_v_flg'] = df_input['电源电压']
+            data['电源电压'] = para['pwr_v_flg'] = '最大'
         else:
             data['电源电压'] = para['pwr_v_flg'] = v_power
 
