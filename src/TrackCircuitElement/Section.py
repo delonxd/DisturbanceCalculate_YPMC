@@ -88,9 +88,9 @@ class Section_ZPW2000A(Section):
             self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
         elif flag == '双':
             if c_num == 0:
-                pass
+                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
             elif c_num == 1:
-                pass
+                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
             else:
                 self.element.pop('C1')
                 self.change_tb(c_name='C1', tb_name='TB1', posi=18)
