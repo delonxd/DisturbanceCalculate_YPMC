@@ -14,13 +14,21 @@ import itertools
 import os
 import sys
 
-pd.set_option('display.max_columns', None)
-pd.set_option('display.expand_frame_repr', True)
-pd.set_option('display.unicode.ambiguous_as_wide', True)
-pd.set_option('display.unicode.east_asian_width', True)
-pd.set_option('display.width', 180)
+def main(path1, path2, path3):
+    try:
+        main_cal(path1, path2, path3)
+        print('计算结束')
+        return 1
+    except BaseException as reason:
+        print(reason)
+        return reason
 
-if __name__ == '__main__':
+def main_cal(path1, path2, path3):
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.expand_frame_repr', True)
+    pd.set_option('display.unicode.ambiguous_as_wide', True)
+    pd.set_option('display.unicode.east_asian_width', True)
+    pd.set_option('display.width', 180)
 
     #################################################################################
 
@@ -32,23 +40,27 @@ if __name__ == '__main__':
     # df_input = pd.read_excel('邻线干扰参数输入_移频脉冲_v0.2.xlsx')
     # df_input = pd.read_excel('ZPW-2000A一体化邻线干扰参数输入表格_v0.4.0.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_2000A一体化_v0.4.xlsx')
-    df_input = pd.read_excel('邻线干扰参数输入_韩家岭.xlsx')
+    # df_input = pd.read_excel('邻线干扰参数输入_韩家岭.xlsx')
+    # df_input = pd.read_excel('邻线干扰参数输入_20200730.xlsx')
+    # df_input = pd.read_excel('邻线干扰参数输入_20200806.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_BPLN.xlsx')
 
+    df_input = pd.read_excel(path1)
     df_input = df_input.where(df_input.notnull(), None)
     num_len = len(list(df_input['序号']))
 
     #################################################################################
 
-    # 获取时间戳
-    localtime = time.localtime()
-    timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
-    print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
+    # # 获取时间戳
+    # localtime = time.localtime()
+    # timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
+    # print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
 
     #################################################################################
 
     # 初始化变量
-    work_path = os.getcwd()
+    # work_path = os.getcwd()
+    work_path = path3
     para = ModelParameter(workpath=work_path)
 
     # 钢轨阻抗
@@ -64,7 +76,6 @@ if __name__ == '__main__':
     #     2000: [1.72, 1.33e-3, None],
     #     2300: [1.86, 1.32e-3, None],
     #     2600: [2.00, 1.31e-3, None]}
-
 
     # trk_2000A_21.rlc_s = {
     #     1700: [1.80, 1.18e-3, None],
@@ -93,7 +104,9 @@ if __name__ == '__main__':
     # head_list = config_headlist_2000A_inte()
     # head_list = config_headlist_2000A_QJ()
     # head_list = config_headlist_inhibitor_c()
-    head_list = config_headlist_hanjialing()
+    # head_list = config_headlist_hanjialing()
+    # head_list = config_headlist_20200730()
+    head_list = config_headlist_V001()
 
     #################################################################################
 
@@ -198,10 +211,12 @@ if __name__ == '__main__':
 
         #################################################################################
 
-        # 封装程序显示
-        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        if getattr(sys, 'frozen', False):
-            print(df_input[temp_temp:(temp_temp + 1)])
+        # # 封装程序显示
+        # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        # if getattr(sys, 'frozen', False):
+        #     print(df_input[temp_temp:(temp_temp + 1)])
+        # print(temp_temp)
+        print('calculating line ' + str(counter) + ' ...')
 
         #################################################################################
 
@@ -227,8 +242,8 @@ if __name__ == '__main__':
         row_data.config_number(counter, pd_read_flag=flag)
 
         # 备注
-        row_data.config_remarks('被串为电码化区段', pd_read_flag=False)
-        # row_data.config_remarks('无', pd_read_flag=flag)
+        # row_data.config_remarks('主分路被调整', pd_read_flag=False)
+        row_data.config_remarks('无', pd_read_flag=flag)
 
         row_data.config_sec_name('235G', 'XWG', pd_read_flag=flag)
 
@@ -264,8 +279,9 @@ if __name__ == '__main__':
         row_data.config_trk_z(pd_read_flag=False, respectively=False)
 
         # TB模式
-        row_data.config_TB_mode('无TB', pd_read_flag=False)
-        # row_data.config_TB_mode('双端TB', pd_read_flag=flag)
+        # row_data.config_TB_mode('无TB', pd_read_flag=False)
+        row_data.config_TB_mode('双端TB', pd_read_flag=flag)
+        # row_data.config_TB_mode('双端TB', pd_read_flag=False)
 
         # row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
         # row_data.config_sr_mode('右发', '左发', pd_read_flag=False)
@@ -297,7 +313,7 @@ if __name__ == '__main__':
         # row_data.config_ypmc_EL(pd_read_flag=flag)
 
         # 电码化
-        row_data.config_25Hz_coding_device(pd_read_flag=False)
+        # row_data.config_25Hz_coding_device(pd_read_flag=False)
 
         len_posi = 0
         #################################################################################
@@ -396,20 +412,29 @@ if __name__ == '__main__':
         # md = PreModel_YPMC(parameter=para)
         # md = PreModel_EeMe(parameter=para)
         # md = PreModel_25Hz_coding(parameter=para)
-        md = PreModel_QJ_25Hz_coding(parameter=para)
+        # md = PreModel_QJ_25Hz_coding(parameter=para)
+        # md = PreModel_20200730(parameter=para)
+        md = PreModel_V001(parameter=para)
 
         md.add_train()
         # md.add_train_bei()
 
         # posi_list = np.arange(data['被串区段长度(m)']*3 + 14.5, -14.50001, -interval)
 
-        flag_l = data['被串左端里程标'] - 14.5
-        flag_r = data['被串左端里程标'] + data['被串区段长度(m)'] + 14.5
+        flag_l = data['被串左端里程标']
+        flag_r = data['被串左端里程标'] + data['被串区段长度(m)']
 
-        if data['被串方向'] == '正向':
+        # if data['被串方向'] == '正向':
+        #     posi_list = np.arange(flag_r, flag_l - 0.0001, -interval)
+        # else:
+        #     posi_list = np.arange(flag_l, flag_r + 0.0001, +interval)
+
+        if data['被串方向'] == '右发':
             posi_list = np.arange(flag_r, flag_l - 0.0001, -interval)
-        else:
+        elif data['被串方向'] == '左发':
             posi_list = np.arange(flag_l, flag_r + 0.0001, +interval)
+        else:
+            raise KeyboardInterrupt("被串方向应填写'左发'或'右发'")
 
         # if data['被串方向'] == '正向':
         #     posi_list = np.arange((data['被串左端里程标'] + data['被串区段长度(m)'])+14.5,
@@ -454,11 +479,18 @@ if __name__ == '__main__':
 
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
             # i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
-            if data['被串方向'] == '正向':
+            # if data['被串方向'] == '正向':
+            #     i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            #     v_rcv_bei = md.lg['线路4']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
+            #
+            # else:
+            #     i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
+            #     v_rcv_bei = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
+
+            if data['被串方向'] == '右发':
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
             else:
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
-
 
             # i1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I1'].value
             # i2 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I2'].value
@@ -516,9 +548,21 @@ if __name__ == '__main__':
         # data['主串出口电流(A)'] = i_sht_list_zhu[0]
         # data['主串入口电流(A)'] = i_sht_list_zhu[-1]
         data['被串最大干扰位置(m)'] = i_trk_list.index(max(i_trk_list))
-
+        max_i = data['被串最大干扰电流(A)'] * 1000
+        if max_i > 200:
+            text = '被串干扰超上限：最大干扰电流超过200mA\n第' \
+                   + str(counter) \
+                   + '行数据：最大干扰电流为' \
+                   + str(round(max_i, 0)) \
+                   + 'mA，位于距离被串发送端' \
+                   + str(round(data['被串最大干扰位置(m)'], 0)) \
+                   + 'm处'
+            raise KeyboardInterrupt(text)
         # v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
         # data['被串最大轨入电压(主被串同时分路状态)'] = max(v_rcv_bei_list)
+
+        # v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
+        # data['被串最大轨入电压(主调整被调整)'] = max(v_rcv_bei_list)
 
         data_row = [data[key] for key in head_list]
         excel_data.append(data_row)
@@ -526,15 +570,15 @@ if __name__ == '__main__':
 
         #################################################################################
 
-        if not getattr(sys, 'frozen', False):
-            print(data.keys())
-            print(data.values())
-            print(i_sht_list)
-
+        # if not getattr(sys, 'frozen', False):
+        #     print(data.keys())
+        #     print(data.values())
+        #     print(i_sht_list)
+        #
     #################################################################################
 
     # 修正表头
-    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
     posi_header = list(range(columns_max))
     # posi_header[0] = '发送端'
@@ -553,10 +597,11 @@ if __name__ == '__main__':
     #################################################################################
 
     # 保存到本地excel
-    filename = '仿真输出'
+    # filename = '仿真输出'
     # filename = '仿真输出_拆电容'
     # filepath = 'src/Output/'+ filename + timestamp + '.xlsx'
-    filepath = ''+ filename + '_' + timestamp + '.xlsx'
+    # filepath = ''+ filename + '_' + timestamp + '.xlsx'
+    filepath = path2
     with pd.ExcelWriter(filepath) as writer:
         if pd_read_flag:
             df_input.to_excel(writer, sheet_name="参数设置", index=False)
@@ -581,4 +626,14 @@ if __name__ == '__main__':
         # data2excel.write2excel(sheet_names=names, header=posi_header, writer1=writer)
         data2excel.write2excel(sheet_names=names, writer=writer)
 
-        pass
+    return 1
+
+
+if __name__ == '__main__':
+    # main('邻线干扰参数输入_20200806.xlsx',
+    #      '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
+    #      os.getcwd())
+    main('邻线干扰参数输入_V001.xlsx',
+         '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
+         os.getcwd())
+    # main(sys.argv[1], sys.argv[2], sys.argv[3])
