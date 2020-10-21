@@ -10,7 +10,6 @@ def main(path1, path2, path3):
     except BaseException as reason:
         print(reason)
         return reason
-    # main_cal(path1, path2, path3)
 
 
 if __name__ == '__main__':
