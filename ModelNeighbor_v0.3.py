@@ -17,11 +17,13 @@ import sys
 def main(path1, path2, path3):
     try:
         main_cal(path1, path2, path3)
-        print('计算结束')
+        print('finished')
         return 1
     except BaseException as reason:
         print(reason)
         return reason
+    # main_cal(path1, path2, path3)
+
 
 def main_cal(path1, path2, path3):
     pd.set_option('display.max_columns', None)
@@ -547,7 +549,7 @@ def main_cal(path1, path2, path3):
         data['被串最大干扰电流(A)'] = max(i_trk_list)
         # data['主串出口电流(A)'] = i_sht_list_zhu[0]
         # data['主串入口电流(A)'] = i_sht_list_zhu[-1]
-        data['被串最大干扰位置(m)'] = i_trk_list.index(max(i_trk_list))
+        data['被串最大干扰位置(m)'] = round(i_trk_list.index(max(i_trk_list))*interval)
         max_i = data['被串最大干扰电流(A)'] * 1000
         if max_i > 200:
             text = '被串干扰超上限：最大干扰电流超过200mA\n第' \
@@ -598,35 +600,52 @@ def main_cal(path1, path2, path3):
 
     # 保存到本地excel
     # filename = '仿真输出'
-    # filename = '仿真输出_拆电容'
     # filepath = 'src/Output/'+ filename + timestamp + '.xlsx'
     # filepath = ''+ filename + '_' + timestamp + '.xlsx'
     filepath = path2
-    with pd.ExcelWriter(filepath) as writer:
-        if pd_read_flag:
-            df_input.to_excel(writer, sheet_name="参数设置", index=False)
-        df_data.to_excel(writer, sheet_name="数据输出", index=False)
 
-        names = [
-            "被串钢轨电流",
-            "被串分路电流",
-            # "主串钢轨电流",
-            # "主串分路电流",
-            # "主串轨面电压",
-            # "主串SVA'电流",
-            # "被串钢轨电流折算后",
-            # "被串轨入电压",
-            # "主串TB电流",
-            # "被串TB电流",
-            # "主串TB电压",
-            # "被串TB电压",
-        ]
+    writer = pd.ExcelWriter(filepath, engine='xlsxwriter')
 
-        # data2excel.write2excel(sheet_names=names, header=None, writer1=writer)
-        # data2excel.write2excel(sheet_names=names, header=posi_header, writer1=writer)
-        data2excel.write2excel(sheet_names=names, writer=writer)
+    workbook = writer.book
+    header_format = workbook.add_format({
+        'bold': True,  # 字体加粗
+        'text_wrap': True,  # 是否自动换行
+        'valign': 'vcenter',  # 垂直对齐方式
+        'align': 'center',  # 水平对齐方式
+        'border': 1})
 
+    if pd_read_flag:
+        write_to_excel(df=df_input, writer=writer, sheet_name="参数设置", hfmt=header_format)
+    write_to_excel(df=df_data, writer=writer, sheet_name="数据输出", hfmt=header_format)
+
+    names = [
+        "被串钢轨电流",
+        "被串分路电流",
+        # "主串钢轨电流",
+        # "主串分路电流",
+        # "主串轨面电压",
+        # "主串SVA'电流",
+        # "被串钢轨电流折算后",
+        # "被串轨入电压",
+        # "主串TB电流",
+        # "被串TB电流",
+        # "主串TB电压",
+        # "被串TB电压",
+    ]
+
+    # data2excel.write2excel(sheet_names=names, header=None, writer1=writer)
+    # data2excel.write2excel(sheet_names=names, header=posi_header, writer1=writer)
+    data2excel.write2excel(sheet_names=names, writer=writer)
+
+    writer.save()
     return 1
+
+
+def write_to_excel(df, writer, sheet_name, hfmt):
+    df.to_excel(writer, sheet_name=sheet_name, index=False)
+    worksheet = writer.sheets[sheet_name]
+    for col_num, value in enumerate(df.columns.values):
+        worksheet.write(0, col_num, value, hfmt)
 
 
 if __name__ == '__main__':
