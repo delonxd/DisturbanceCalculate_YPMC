@@ -55,6 +55,18 @@ def main_cal(path1, path2, path3):
     work_path = path3
     para = ModelParameter(workpath=work_path)
 
+    para['FREQ'] = [1700, 2000, 2300, 2600]
+    para['SEND_LEVEL'] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    para['CABLE_LENGTH'] = [7.5, 10]
+    para['C_NUM'] = [0, 1, 2, 3, 4, 5, 6, 7]
+    para['TB_MODE'] = ['双端TB', '左端单TB', '右端单TB', '无TB']
+    para['MAX_CURRENT'] = {
+        1700: 197,
+        2000: 175,
+        2300: 162,
+        2600: 150,
+    }
+
     # 钢轨阻抗
     trk_2000A_21 = ImpedanceMultiFreq()
     trk_2000A_21.rlc_s = {
@@ -62,6 +74,13 @@ def main_cal(path1, path2, path3):
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
+
+    # trk_2000A_21 = ImpedanceMultiFreq()
+    # trk_2000A_21.rlc_s = {
+    #     1700: [1.71, 1.36e-3, None],
+    #     2000: [1.90, 1.35e-3, None],
+    #     2300: [2.04, 1.34e-3, None],
+    #     2600: [2.24, 1.33e-3, None]}
 
     # trk_2000A_21.rlc_s = {
     #     1700: [1.59, 1.34e-3, None],
@@ -287,14 +306,16 @@ def main_cal(path1, path2, path3):
 
         row_data.config_cable_para()
         row_data.config_cable_length(10, 10, pd_read_flag=flag, respectively=True)
-        row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
+        # row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
+        row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=False, respectively=True)
         row_data.config_power(5, '最大', pd_read_flag=flag)
 
         row_data.config_sp_posi()
         row_data.config_train_signal()
         row_data.config_error()
 
-        interval = row_data.config_interval(1, pd_read_flag=flag)
+        # interval = row_data.config_interval(1, pd_read_flag=flag)
+        interval = row_data.config_interval(1, pd_read_flag=False)
 
         if data['被串故障模式'] is None:
             print(para['freq_被'], para['被串故障模式'])
@@ -541,15 +562,18 @@ def main_cal(path1, path2, path3):
         # data['主串入口电流(A)'] = i_sht_list_zhu[-1]
         data['被串最大干扰位置(m)'] = round(i_trk_list.index(max(i_trk_list))*interval)
         max_i = data['被串最大干扰电流(A)'] * 1000
-        if max_i > 200:
-            text = '被串干扰超上限：最大干扰电流超过200mA\n第' \
+        MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
+        if max_i > MAX_I:
+            text = '干扰频率：' + str(data['主串频率(Hz)']) + 'Hz，'\
+                   + '干扰电流上限' + str(MAX_I) + 'mA；第' \
                    + str(counter) \
-                   + '行数据：最大干扰电流为' \
-                   + str(round(max_i, 0)) \
+                   + '行数据干扰电流超上限：最大干扰电流为' \
+                   + str(round(max_i, 1)) \
                    + 'mA，位于距离被串发送端' \
                    + str(round(data['被串最大干扰位置(m)'], 0)) \
                    + 'm处'
             raise KeyboardInterrupt(text)
+
         # v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
         # data['被串最大轨入电压(主被串同时分路状态)'] = max(v_rcv_bei_list)
 
@@ -639,7 +663,7 @@ def write_to_excel(df, writer, sheet_name, hfmt):
 
 
 if __name__ == '__main__':
-    main_cal('邻线干扰参数输入_V001.xlsx',
+    main_cal('邻线干扰参数输入_V002.xlsx',
              '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
              os.getcwd())
     # main(sys.argv[1], sys.argv[2], sys.argv[3])
