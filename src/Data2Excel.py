@@ -52,6 +52,10 @@ class SheetDataGroup:
         for ele in self.data_dict.values():
             ele.add_new_row()
 
+    def refresh_row(self):
+        for ele in self.data_dict.values():
+            ele.refresh_row()
+
     def add_new_sheet(self, sheet_name):
         self.sheet_names.append(sheet_name)
         self.data_dict[sheet_name] = SheetData(name=sheet_name)
@@ -88,6 +92,9 @@ class SheetData:
 
     def add_new_row(self):
         self.data_list.append([])
+
+    def refresh_row(self):
+        self.data_list[-1] = []
 
     def add_data(self, data):
         self.data_list[-1].append(data)
