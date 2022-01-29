@@ -117,7 +117,8 @@ def main_cal(path1, path2, path3):
     # head_list = config_headlist_inhibitor_c()
     # head_list = config_headlist_hanjialing()
     # head_list = config_headlist_20200730()
-    head_list = config_headlist_V001()
+    # head_list = config_headlist_V001()
+    head_list = config_headlist_YPMC_002()
 
     #################################################################################
 
@@ -290,8 +291,8 @@ def main_cal(path1, path2, path3):
         row_data.config_trk_z(pd_read_flag=False, respectively=False)
 
         # TB模式
-        # row_data.config_TB_mode('无TB', pd_read_flag=False)
-        row_data.config_TB_mode('双端TB', pd_read_flag=flag)
+        row_data.config_TB_mode('无TB', pd_read_flag=False)
+        # row_data.config_TB_mode('双端TB', pd_read_flag=flag)
         # row_data.config_TB_mode('双端TB', pd_read_flag=False)
 
         # row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
@@ -306,8 +307,8 @@ def main_cal(path1, path2, path3):
 
         row_data.config_cable_para()
         row_data.config_cable_length(10, 10, pd_read_flag=flag, respectively=True)
-        # row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
-        row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=False, respectively=True)
+        row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
+        # row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=False, respectively=True)
         row_data.config_power(5, '最大', pd_read_flag=flag)
 
         row_data.config_sp_posi()
@@ -316,6 +317,9 @@ def main_cal(path1, path2, path3):
 
         # interval = row_data.config_interval(1, pd_read_flag=flag)
         interval = row_data.config_interval(1, pd_read_flag=False)
+
+        # 移频脉冲
+        row_data.config_ypmc_EL(pd_read_flag=flag)
 
         if data['被串故障模式'] is None:
             print(para['freq_被'], para['被串故障模式'])
@@ -333,20 +337,23 @@ def main_cal(path1, path2, path3):
 
         # # 调整计算
         # md = PreModel(parameter=para)
+        md = PreModel_YPMC_V001(parameter=para)
         # # md.lg = LineGroup(md.l3, name_base='线路组')
         # # md.lg.special_point = para['special_point']
         # # md.lg.refresh()
-        # m1 = MainModel(md.lg, md=md)
-        #
-        # # data['主串轨入电压(调整状态)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        # # data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
+        m1 = MainModel(md.lg, md=md)
+
+        str1 = '左调谐单元' if data['主串方向'] == '右发' else '右调谐单元'
+        str2 = '左调谐单元' if data['被串方向'] == '右发' else '右调谐单元'
+
+        data['调整状态主串轨入电压(V)'] = md.lg['线路3']['地面']['区段1'][str1]['1接收器']['0接收器']['U'].value_c
+        data['调整状态被串轨入电压(V)'] = md.lg['线路4']['地面']['区段1'][str2]['1接收器']['0接收器']['U'].value_c
+
         # data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
         # uca = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['U2'].value
         # ica = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['I2'].value
         # rca = uca/ica
         # rca1 = abs(uca/ica)
-
-
 
         # name_list = md.section_group3['区段1'].get_C_TB_names()
         # name_list.reverse()
@@ -427,7 +434,8 @@ def main_cal(path1, path2, path3):
         # md = PreModel_25Hz_coding(parameter=para)
         # md = PreModel_QJ_25Hz_coding(parameter=para)
         # md = PreModel_20200730(parameter=para)
-        md = PreModel_V001(parameter=para)
+        # md = PreModel_V001(parameter=para)
+        md = PreModel_YPMC_V001(parameter=para)
 
         md.add_train()
         # md.add_train_bei()
@@ -487,7 +495,7 @@ def main_cal(path1, path2, path3):
             # m1.equs.creat_matrix()
             # m1.equs.solve_matrix()
 
-            # i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
+            i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
@@ -499,6 +507,11 @@ def main_cal(path1, path2, path3):
             # else:
             #     i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
             #     v_rcv_bei = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
+
+            if data['主串方向'] == '右发':
+                i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_bei, direct='右')
+            else:
+                i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_bei, direct='左')
 
             if data['被串方向'] == '右发':
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
@@ -535,8 +548,8 @@ def main_cal(path1, path2, path3):
 
             #################################################################################
 
-            # data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
-            # data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
+            data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
+            data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
             data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
             # data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
@@ -546,6 +559,44 @@ def main_cal(path1, path2, path3):
             # data2excel.add_data(sheet_name="阻抗模值", data1=z_mm_abs)
             # data2excel.add_data(sheet_name="耦合系数", data1=co_mutal)
 
+        md = PreModel_YPMC_V001(parameter=para)
+        md.train1['分路电阻1'].z = 1e10
+        md.add_train()
+
+        flag_l = data['被串左端里程标']
+        flag_r = data['被串左端里程标'] + data['被串区段长度(m)']
+
+        if data['被串方向'] == '右发':
+            posi_list = np.arange(flag_r, flag_l - 0.0001, -interval)
+        elif data['被串方向'] == '左发':
+            posi_list = np.arange(flag_l, flag_r + 0.0001, +interval)
+        else:
+            raise KeyboardInterrupt("被串方向应填写'左发'或'右发'")
+
+        len_posi = max(len(posi_list), len_posi)
+
+        for posi_bei in posi_list:
+            para['分路位置'] = posi_bei
+
+            md.train1.posi_rlt = posi_bei
+            md.train1.set_posi_abs(0)
+
+            posi_zhu = posi_bei
+            md.train2.posi_rlt = posi_zhu
+            md.train2.set_posi_abs(0)
+
+            m1 = MainModel(md.lg, md=md)
+
+            str1 = '左调谐单元' if data['被串方向'] == '右发' else '右调谐单元'
+
+            i_rcv_bei = md.lg['线路4']['地面']['区段1'][str1]['1接收器']['0接收器']['U'].value_c
+
+            # if data['主串方向'] == '右发':
+            #     i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_bei, direct='右')
+            # else:
+            #     i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_bei, direct='左')
+
+            data2excel.add_data(sheet_name="(主分路被调整)被串轨入电压", data1=i_rcv_bei)
 
         # if (length+1) > columns_max:
         #     columns_max = length + 1
@@ -572,7 +623,13 @@ def main_cal(path1, path2, path3):
                    + 'mA，位于距离被串发送端' \
                    + str(round(data['被串最大干扰位置(m)'], 0)) \
                    + 'm处'
-            raise KeyboardInterrupt(text)
+            # for key in head_list:
+            #     data[key] = None
+            #
+            # data2excel.refresh_row()
+            #
+            # data['备注'] = text
+            # raise KeyboardInterrupt(text)
 
         # v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
         # data['被串最大轨入电压(主被串同时分路状态)'] = max(v_rcv_bei_list)
@@ -635,9 +692,9 @@ def main_cal(path1, path2, path3):
     names = [
         "被串钢轨电流",
         "被串分路电流",
-        # "主串钢轨电流",
-        # "主串分路电流",
-        # "主串轨面电压",
+        "主串钢轨电流",
+        "主串分路电流",
+        "(主分路被调整)被串轨入电压",
         # "主串SVA'电流",
         # "被串钢轨电流折算后",
         # "被串轨入电压",
@@ -663,7 +720,11 @@ def write_to_excel(df, writer, sheet_name, hfmt):
 
 
 if __name__ == '__main__':
-    main_cal('邻线干扰参数输入_V002.xlsx',
+    # main_cal('邻线干扰参数输入_V002.xlsx',
+    #          '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
+    #          os.getcwd())
+    # main(sys.argv[1], sys.argv[2], sys.argv[3])
+
+    main_cal('邻线干扰参数输入_YPMC_V002.xlsx',
              '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
              os.getcwd())
-    # main(sys.argv[1], sys.argv[2], sys.argv[3])

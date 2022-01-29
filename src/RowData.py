@@ -635,17 +635,17 @@ class RowData:
             para['cab_len'] = len_zhu
             if pd_read_flag:
 
-                # 检查主串电缆长度格式
-                if df_input['主串电缆长度(km)'] in para['CABLE_LENGTH']:
-                    pass
-                else:
-                    raise KeyboardInterrupt("'主串电缆长度(km)'应填写7.5或10")
-
-                # 检查被串电缆长度格式
-                if df_input['被串电缆长度(km)'] in para['CABLE_LENGTH']:
-                    pass
-                else:
-                    raise KeyboardInterrupt("'被串电缆长度(km)'应填写7.5或10")
+                # # 检查主串电缆长度格式
+                # if df_input['主串电缆长度(km)'] in para['CABLE_LENGTH']:
+                #     pass
+                # else:
+                #     raise KeyboardInterrupt("'主串电缆长度(km)'应填写7.5或10")
+                #
+                # # 检查被串电缆长度格式
+                # if df_input['被串电缆长度(km)'] in para['CABLE_LENGTH']:
+                #     pass
+                # else:
+                #     raise KeyboardInterrupt("'被串电缆长度(km)'应填写7.5或10")
 
                 data['主串电缆长度(km)'] = para['主串电缆长度'] = df_input['主串电缆长度(km)']
                 data['被串电缆长度(km)'] = para['被串电缆长度'] = df_input['被串电缆长度(km)']
